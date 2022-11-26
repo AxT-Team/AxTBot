@@ -5,13 +5,13 @@
 ## https://github.com/XiaoXianHW/ATBot
 
 ## 查询功能如下（基于ATBot的Addon，需要另外安装）
-- ATCraftBot - 集合了大部分Minecraft查询功能（已完成）
+- ATCraftBot - 集合了大部分Minecraft查询功能（已完成）<br>
 https://github.com/AxT-Team/ATCraftBot
-- ATDnBot - 集合了大部分域名及IP等查询功能（制作中）
+- ATDnBot - 集合了大部分域名及IP等查询功能（制作中）<br>
 https://github.com/AxT-Team/ATDnBot
-- ATLeBot - 集合了今日人品，猜数字等娱乐功能（制作中）
+- ATLeBot - 集合了今日人品，猜数字等娱乐功能（制作中）<br>
 https://github.com/AxT-Team/ATLeBot
-- ATQmBot - 一个群管Bot（？（制作中）
+- ATQmBot - 一个群管Bot（？（制作中）<br>
 https://github.com/AxT-Team/ATQmBot
 
 ## ATBot主控功能如下
