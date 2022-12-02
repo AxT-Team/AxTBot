@@ -4,6 +4,9 @@
 ## 注意！因存库转移v1.2.0以下历史版本请到以下库查看
 ## https://github.com/XiaoXianHW/ATBot
 
+# 搭建教程（Mirai+Mirai Native）
+https://by.xiaoxian.org/index.php/archives/7/
+
 ## 查询功能如下（基于ATBot的Addon，需要另外安装）
 - ATCraftBot - 集合了大部分Minecraft查询功能（已完成）<br>
 https://github.com/AxT-Team/ATCraftBot
