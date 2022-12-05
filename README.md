@@ -7,7 +7,9 @@
 # 搭建教程（Mirai+Mirai Native）
 https://by.xiaoxian.org/index.php/archives/7/
 
-## 查询功能如下（基于ATBot的Addon，需要另外安装）
+## AT系列机器人插件如下
+- ATBot - 用于查询机器人状态及各种消息处理的主控（已完成）<br>
+https://github.com/AxT-Team/ATBot
 - ATCraftBot - 集合了大部分Minecraft查询功能（已完成）<br>
 https://github.com/AxT-Team/ATCraftBot
 - ATDnBot - 集合了大部分域名及IP等查询功能（制作中）<br>
