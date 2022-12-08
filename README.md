@@ -5,7 +5,10 @@
 ## https://github.com/XiaoXianHW/ATBot
 
 # 搭建教程（Mirai+Mirai Native）
-https://by.xiaoxian.org/index.php/archives/7/
+### https://by.xiaoxian.org/index.php/archives/7/
+# 注意！部分系统环境需要额外安装易语言才能正常使用！
+ 易语言安装包
+ https://download.xiaoxian.org/d/share/e593_chs_all.exe
 
 ## AT系列机器人插件如下
 - ATBot - 用于查询机器人状态及各种消息处理的主控（已完成）<br>
