@@ -2,7 +2,7 @@
   "ret": 1,
   "apiver": 9,
   "name": "ATBot",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "version_id": 1,
   "author": "By XiaoXian",
   "description": "ATBot多功能查询插件",
@@ -19,13 +19,6 @@
       "type": 2,
       "name": "群消息处理",
       "function": "_eventGroupMsg",
-      "priority": 30000
-    },
-    {
-      "id": 3,
-      "type": 4,
-      "name": "讨论组消息处理",
-      "function": "_eventDiscussMsg",
       "priority": 30000
     },
     {
