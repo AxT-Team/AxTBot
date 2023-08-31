@@ -20,22 +20,26 @@ import static org.xiaoxian.ATBot.*;
 
 public final class ATinfo extends JRawCommand {
     public static final ATinfo INSTANCE = new ATinfo();
+    static String systemName = "";
+    static String cpuModel = "";
+    static String ramSize = "";
+    static String ramUseSize = "";
+    static String ramFreeSize = "";
+    static String cpuUse = "";
+    static String ramUse = "";
 
     public ATinfo() {
         super(ATBot.INSTANCE, "atinfo");
-        setUsage("/atinfo"); // 指令
-        setDescription("查询机器人服务器状态");// help里面的描述
-        setPrefixOptional(true); // 指令前缀 "/"
+        setUsage("/atinfo");
+        setDescription("查询机器人服务器状态");
+        setPrefixOptional(true);
     }
 
     // 控制台命令监听
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("机器人状态正常");
-        System.out.println(onGetWinSystemInfo());
-        List<Long> bots = onGetBotsList();
-        Bot.getInstance(bots.get(0)).getFriend(1680839).sendMessage("Test Friend Msg");
-        Bot.getInstance(bots.get(0)).getGroup(198921528).sendMessage("Test Group Msg");
+        sender.sendMessage("调用 ATinfo.java");
+        System.out.println(onGetBotInfo());
     }
 
     // 计算运行时间
@@ -101,21 +105,13 @@ public final class ATinfo extends JRawCommand {
         return i;
     }
 
-    // 获取Windows系统信息及机器人信息
-    public static String onGetWinSystemInfo() {
+    // 获取Windows系统信息
+    public static void onGetWinSystemInfo() {
         Process systemNameProcess;
         Process cpuProcess;
         Process ramSizeProcess;
         Process ramFreeSizeProcess;
         Process cpuUseProcess;
-
-        String systemName = "";
-        String cpuModel = "";
-        String ramSize = "";
-        String ramUseSize = "";
-        String ramFreeSize = "";
-        String cpuUse = "";
-        String ramUse = "";
 
         try {
             // CPU型号
@@ -196,6 +192,60 @@ public final class ATinfo extends JRawCommand {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    // 获取Linux系统信息
+    public static void onGetLinuxSystemInfo() {
+        try {
+            // 获取系统名称和版本
+            ProcessBuilder osProcessBuilder = new ProcessBuilder("bash", "-c", "cat /etc/os-release | grep PRETTY_NAME");
+            Process osProcess = osProcessBuilder.start();
+            BufferedReader osbr = new BufferedReader(new InputStreamReader(osProcess.getInputStream()));
+            systemName = osbr.readLine().split("=")[1].replace("\"", "").trim();
+            if (systemName.contains(" ")) {
+                String[] parts = systemName.split(" ");
+                systemName = parts[0] + " " + parts[1];
+            }
+
+            // 获取CPU型号
+            ProcessBuilder cpuProcessBuilder = new ProcessBuilder("bash", "-c", "cat /proc/cpuinfo | grep 'model name' | head -1\n");
+            Process cpuProcess = cpuProcessBuilder.start();
+            BufferedReader cpubr = new BufferedReader(new InputStreamReader(cpuProcess.getInputStream()));
+            cpuModel = cpubr.readLine().split(":")[1].trim();
+
+            // 获取RAM信息
+            ProcessBuilder ramProcessBuilder = new ProcessBuilder("bash", "-c", "free -m | grep Mem:");
+            Process ramProcess = ramProcessBuilder.start();
+            BufferedReader rambr = new BufferedReader(new InputStreamReader(ramProcess.getInputStream()));
+            String[] ramParts = rambr.readLine().split("\\s+");
+            ramSize = String.format("%.2f", Integer.parseInt(ramParts[1]) / 1024.0);
+            ramUseSize = String.format("%.2f", Integer.parseInt(ramParts[2]) / 1024.0);
+            rambr.close();
+            ramProcess.destroy();
+
+            // 获取CPU使用率
+            ProcessBuilder cpuUseProcessBuilder = new ProcessBuilder("bash", "-c", "vmstat | tail -1 | awk '{print $15}'");
+            Process cpuUseProcess = cpuUseProcessBuilder.start();
+            BufferedReader cpuUsebr = new BufferedReader(new InputStreamReader(cpuUseProcess.getInputStream()));
+            cpuUse = String.valueOf(100 - Double.parseDouble(cpuUsebr.readLine().trim()));
+
+            // 计算RAM使用率
+            ramUse = String.format("%.2f", (Double.parseDouble(ramUseSize) / Double.parseDouble(ramSize) * 100));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static String onGetBotInfo() {
+        String os = System.getProperty("os.name").toLowerCase();
+        System.out.println(os);
+        if (os.contains("win")) {
+            onGetWinSystemInfo();
+        } else if (os.contains("nix") || os.contains("nux") || os.contains("mac")) {
+            onGetLinuxSystemInfo();
         }
 
         return "=====AxTBot=====" +

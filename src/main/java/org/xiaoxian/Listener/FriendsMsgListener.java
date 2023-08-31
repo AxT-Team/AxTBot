@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 import static org.xiaoxian.ATBot.BackMsgNumber;
 import static org.xiaoxian.ATBot.SendMsgNumber;
-import static org.xiaoxian.atcore.ATinfo.onGetWinSystemInfo;
+import static org.xiaoxian.atcore.ATinfo.onGetBotInfo;
 
 public class FriendsMsgListener implements Consumer<FriendMessageEvent> {
     @Override
@@ -15,7 +15,7 @@ public class FriendsMsgListener implements Consumer<FriendMessageEvent> {
         BackMsgNumber ++;
 
         if (event.getMessage().contentToString().equals(ATinfo.INSTANCE.getUsage())) {
-            event.getSender().sendMessage(onGetWinSystemInfo());
+            event.getSender().sendMessage(onGetBotInfo());
             SendMsgNumber ++;
         }
 

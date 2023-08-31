@@ -11,7 +11,7 @@ public class InvitedJoinGroup implements Consumer<BotInvitedJoinGroupRequestEven
     @Override
     public void accept(BotInvitedJoinGroupRequestEvent event) {
         if (event.getBot().getGroup(832275338).getMembers().get(event.getInvitorId()) == null && event.getBot().getGroup(660408793).getMembers().get(event.getInvitorId()) == null) {
-            event.getInvitor().sendMessage("检测到您未加入AxT社区群聊\n请加群:832275338或660408793\n在群里发送 /atbind bind [群号] 即可邀请");
+            event.getInvitor().sendMessage("检测到您未加入AxT社区群聊\n请加群:832275338或660408793\n并根据提示发送 /atbind bind [群号] 即可邀请");
             event.getBot().getFriend(1680839).sendMessage("[GroupInvite] 收到一个群邀请（未加群，已忽略）" +
                                                                 "\nQQ: " + event.getInvitorNick() +  "(" + event.getInvitorId() + ")" +
                                                                 "\n受邀请群: " + event.getGroupName() + "(" + event.getGroupId() + ")");

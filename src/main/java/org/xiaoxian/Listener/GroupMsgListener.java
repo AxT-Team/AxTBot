@@ -15,8 +15,7 @@ import static org.xiaoxian.atbind.BindQQ.bindQQAndGroup;
 import static org.xiaoxian.atbind.GetBindQQ.getBindGroup;
 import static org.xiaoxian.atbind.WhiteListGroup.addWhiteListGroup;
 import static org.xiaoxian.atbind.unBindQQ.*;
-import static org.xiaoxian.atcore.ATinfo.onGetOneQQNumber;
-import static org.xiaoxian.atcore.ATinfo.onGetWinSystemInfo;
+import static org.xiaoxian.atcore.ATinfo.*;
 import static org.xiaoxian.atnetwork.ping.ATPingCommand;
 
 public class GroupMsgListener implements Consumer<GroupMessageEvent> {
@@ -30,7 +29,7 @@ public class GroupMsgListener implements Consumer<GroupMessageEvent> {
         // AT info
         if (event.getMessage().contentToString().equals(ATinfo.INSTANCE.getUsage())) {
             MessageChain chain = new MessageChainBuilder()
-                    .append(new QuoteReply(event.getMessage())).append(onGetWinSystemInfo())
+                    .append(new QuoteReply(event.getMessage())).append(onGetBotInfo())
                     .build();
             event.getGroup().sendMessage(chain);
             SendMsgNumber++;
@@ -46,7 +45,7 @@ public class GroupMsgListener implements Consumer<GroupMessageEvent> {
         }
 
         // ATBot内部使用，与机器人源码无关，可删除
-        if (event.getGroup().getId() == 198921528 || event.getGroup().getId() == 832275338 || event.getGroup().getId() == 660408793){
+        if (event.getGroup().getId() == 198921528 || event.getGroup().getId() == 832275338 || event.getGroup().getId() == 660408793 || event.getGroup().getId() == 434756847){
             // 用户绑定
             if (content.startsWith("/atbind bind ")) {
                 if (content.substring(13).matches("\\d{5,10}")) {
