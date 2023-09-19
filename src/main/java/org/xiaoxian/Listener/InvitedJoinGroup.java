@@ -5,7 +5,7 @@ import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent;
 import java.util.function.Consumer;
 
 import static org.xiaoxian.ATBot.SendMsgNumber;
-import static org.xiaoxian.atbind.GetBindQQ.isGroupBindByQQ;
+import static org.xiaoxian.commands.atbind.GetBindQQ.isGroupBindByQQ;
 
 public class InvitedJoinGroup implements Consumer<BotInvitedJoinGroupRequestEvent> {
     @Override

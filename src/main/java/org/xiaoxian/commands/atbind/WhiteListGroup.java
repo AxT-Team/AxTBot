@@ -1,10 +1,10 @@
-package org.xiaoxian.atbind;
+package org.xiaoxian.commands.atbind;
+
+import org.xiaoxian.ATBot;
 
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.xiaoxian.ATBot.dataPath;
 
 public class WhiteListGroup {
     private static final Set<String> whiteListGroups = new HashSet<>();
@@ -14,7 +14,7 @@ public class WhiteListGroup {
     }
 
     public static boolean addWhiteListGroup(String num) {
-        File file = new File(dataPath, "WhiteListGroup.txt");
+        File file = new File(ATBot.getDataPath(), "WhiteListGroup.txt");
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {

@@ -1,4 +1,4 @@
-package org.xiaoxian.other;
+package org.xiaoxian.commands.other;
 
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.command.java.JRawCommand;
@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
 
-import static org.xiaoxian.ATBot.jrrpDirPath;
 
 public final class jrrp extends JRawCommand {
     public static final jrrp INSTANCE = new jrrp();
@@ -49,7 +48,7 @@ public final class jrrp extends JRawCommand {
     public static void loadJrrpFile() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String today = sdf.format(new Date());
-        jrrpFilePath = jrrpDirPath + File.separator + today + ".txt";
+        //jrrpFilePath = jrrpDirPath + File.separator + today + ".txt";
         File file = new File(jrrpFilePath);
 
         // 如果 jrrp 文件不存在，则创建一个空的 ini 文件

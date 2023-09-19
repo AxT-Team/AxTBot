@@ -1,4 +1,4 @@
-package org.xiaoxian.other;
+package org.xiaoxian.commands.other;
 
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.command.java.JRawCommand;

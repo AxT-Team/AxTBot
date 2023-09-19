@@ -13,10 +13,20 @@ repositories {
     maven("https://maven.aliyun.com/repository/public")
     mavenCentral()
 }
+
 dependencies {
-    implementation(files("lib/json-20230227.jar"))
-}
-tasks.jar {
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    implementation(files("lib/json.jar"))
+    implementation(files("lib/snakeyaml-2.2.jar"))
+    implementation(files("lib/mysql-connector-j-8.1.0.jar"))
 }
 
+tasks.jar {
+    from(
+        configurations.runtimeClasspath.get().map {
+            if (it.isDirectory)
+                it
+            else
+                zipTree(it)
+        }
+    )
+}

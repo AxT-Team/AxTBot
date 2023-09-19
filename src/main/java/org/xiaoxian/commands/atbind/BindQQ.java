@@ -1,4 +1,6 @@
-package org.xiaoxian.atbind;
+package org.xiaoxian.commands.atbind;
+
+import org.xiaoxian.ATBot;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -6,9 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static org.xiaoxian.ATBot.dataPath;
-import static org.xiaoxian.atbind.GetBindQQ.getBindGroup;
-import static org.xiaoxian.atbind.WhiteListGroup.isInWhiteList;
+import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
+import static org.xiaoxian.commands.atbind.WhiteListGroup.isInWhiteList;
 
 public class BindQQ {
 
@@ -22,7 +23,7 @@ public class BindQQ {
             return false;
         }
 
-        File file = new File(dataPath, "List.txt");
+        File file = new File(ATBot.getDataPath(), "List.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
             writer.write(QQ + "=" + number);
             writer.newLine();

@@ -1,4 +1,4 @@
-package org.xiaoxian.atcore;
+package org.xiaoxian.commands;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.console.command.CommandSender;
@@ -112,6 +112,14 @@ public final class ATinfo extends JRawCommand {
         Process ramSizeProcess;
         Process ramFreeSizeProcess;
         Process cpuUseProcess;
+
+        systemName = "";
+        cpuModel = "";
+        ramSize = "";
+        ramUseSize = "";
+        ramFreeSize = "";
+        cpuUse = "";
+        ramUse = "";
 
         try {
             // CPU型号

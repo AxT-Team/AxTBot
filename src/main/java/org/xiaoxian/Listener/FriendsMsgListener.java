@@ -1,13 +1,13 @@
 package org.xiaoxian.Listener;
 
 import net.mamoe.mirai.event.events.FriendMessageEvent;
-import org.xiaoxian.atcore.ATinfo;
+import org.xiaoxian.commands.ATinfo;
 
 import java.util.function.Consumer;
 
 import static org.xiaoxian.ATBot.BackMsgNumber;
 import static org.xiaoxian.ATBot.SendMsgNumber;
-import static org.xiaoxian.atcore.ATinfo.onGetBotInfo;
+import static org.xiaoxian.commands.ATinfo.onGetBotInfo;
 
 public class FriendsMsgListener implements Consumer<FriendMessageEvent> {
     @Override

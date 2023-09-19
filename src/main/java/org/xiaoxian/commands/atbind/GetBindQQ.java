@@ -1,4 +1,6 @@
-package org.xiaoxian.atbind;
+package org.xiaoxian.commands.atbind;
+
+import org.xiaoxian.ATBot;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,8 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.xiaoxian.ATBot.dataPath;
 
 public class GetBindQQ {
     public static boolean isGroupBindByQQ(long QQ, String num) {
@@ -17,7 +17,7 @@ public class GetBindQQ {
 
     public static List<String> getBindGroup(long QQ) {
         List<String> bindValues = new ArrayList<>();
-        File file = new File(dataPath, "List.txt");
+        File file = new File(ATBot.getDataPath(), "List.txt");
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {

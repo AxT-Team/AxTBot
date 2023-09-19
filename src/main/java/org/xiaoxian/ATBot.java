@@ -8,23 +8,27 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.*;
 import org.xiaoxian.Listener.*;
-import org.xiaoxian.atcore.ATinfo;
-import org.xiaoxian.other.ATChatGPT;
-import org.xiaoxian.other.jrrp;
+import org.xiaoxian.commands.ATinfo;
+import org.xiaoxian.data.Config;
+import org.xiaoxian.data.ConfigManager;
 
 import java.io.File;
+import java.io.IOException;
 
-import static org.xiaoxian.atbind.unBindQQ.*;
-import static org.xiaoxian.atcore.ATinfo.onGetOneQQNumber;
-import static org.xiaoxian.other.jrrp.jrrpFilePath;
-import static org.xiaoxian.other.jrrp.loadJrrpFile;
+import static org.xiaoxian.commands.ATinfo.onGetOneQQNumber;
+import static org.xiaoxian.commands.atbind.unBindQQ.quitAllBindGroup;
+import static org.xiaoxian.commands.atbind.unBindQQ.unBindAllGroup;
 
 public final class ATBot extends JavaPlugin {
+
     public static final ATBot INSTANCE = new ATBot();
-    public static String dataPath;
-    public static String jrrpDirPath;
+
+    static String configPath;
+    static String dataPath;
+
     public static int BackMsgNumber = 0;
     public static int SendMsgNumber = 0;
+
     public static long startTime = 0;
     public static String atVer = "2.0";
 
@@ -44,29 +48,44 @@ public final class ATBot extends JavaPlugin {
         getLogger().info("———————————————————————————");
 
         CommandManager.INSTANCE.registerCommand(new ATinfo(),true);
-        CommandManager.INSTANCE.registerCommand(new jrrp(),true);
-        CommandManager.INSTANCE.registerCommand(new ATChatGPT(),true);
+
+        // 获取配置目录
+        String configDir = MiraiConsole.INSTANCE.getPluginManager().getPluginsConfigPath().toString();
+        File configDirPath = new File(configDir, "org.xiaoxian.atbot");
+        if (!configDirPath.exists()) {
+            configDirPath.mkdirs();
+        }
+        configPath = configDirPath.getAbsolutePath();
+        getLogger().info("AxTBot配置存储目录: " + configPath);
 
         // 获取数据目录
         String dataDir = MiraiConsole.INSTANCE.getPluginManager().getPluginsDataPath().toString();
-        File folder = new File(dataDir, "org.xiaoxian.atbot");
-        if (!folder.exists()) {
-            folder.mkdirs();
+        File dataDirPath = new File(dataDir, "org.xiaoxian.atbot");
+        if (!dataDirPath.exists()) {
+            dataDirPath.mkdirs();
         }
-        dataPath = folder.getAbsolutePath();
+        dataPath = dataDirPath.getAbsolutePath();
         getLogger().info("AxTBot数据存储目录: " + dataPath);
+        getLogger().info("———————————————————————————");
 
-        // 人品值数据目录
-        File folder2 = new File(dataPath, "jrrp");
-        if (!folder2.exists()) {
-            folder2.mkdirs();
+        // 加载配置文件
+        try {
+            getLogger().info("[配置] 加载Config配置文件");
+            ConfigManager.loadConfig();
+            getLogger().info("[配置] 成功加载配置");
+        } catch (IOException e) {
+            getLogger().info("[配置] 加载失败: " + e);
         }
-        jrrpDirPath = folder.getAbsolutePath();
-        getLogger().info("人品值数据存储目录: " + jrrpDirPath);
+        getLogger().info("[配置] 主人Q号: " + Config.getAdminQQ());
+        getLogger().info("[配置] 管理群号: " + Config.getAdminGroupQQ());
+        getLogger().info("———————————————————————————");
 
-        // 每日人品值加载
-        loadJrrpFile();
-        getLogger().info("今日人品值存储路径: " + jrrpFilePath);
+        // 加载数据
+        if (Config.getDataType() == 1) {
+            getLogger().info("[数据] 当前数据存储方式: MySQL");
+        } else if (Config.getDataType() == 0) {
+            getLogger().info("[数据] 当前数据存储方式: File");
+        }
         getLogger().info("———————————————————————————");
 
         // 消息监听处理
@@ -112,5 +131,13 @@ public final class ATBot extends JavaPlugin {
         CommandManager.INSTANCE.unregisterAllCommands(ATBot.INSTANCE);
         getLogger().info("AxTBot v" + atVer + " Disable");
         getLogger().info("Thanks for using!");
+    }
+
+    public static String getConfigPath() {
+        return configPath;
+    }
+
+    public static String getDataPath() {
+        return dataPath;
     }
 }

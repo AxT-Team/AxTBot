@@ -1,0 +1,38 @@
+# 主人QQ号
+AdminQQ: 1234567890
+# 主管理群号
+AdminGroupQQ: 9876543210
+
+# 数据存储方式
+# 0 = File（文件存储）
+# 1 = MySQL（数据库存储）
+DataType: 0
+
+# 如果存储为 1 ，则填写以下设置
+# MySQL存储设置
+MySQL:
+  # MySQL主机地址
+  Host: localhost
+  # MySQL端口号
+  Port: 3306
+  # 数据库名
+  Database: axtbot
+  # 数据库用户名
+  User: root
+  # 数据库密码
+  Pass: password
+
+# Bot消息通知
+# 0 = 不通知
+# 1 = 仅通知主人
+# 2 = 仅通知主管理群
+# 3 = 通知主人和主管理群
+NotifyType:
+  # 好友添加请求
+  NewFriendAdd: 1
+  # Bot禁言事件
+  Mute: 1
+  # 被邀请进群事件
+  GroupInvited: 1
+  # 退出群聊（踢出群）事件
+  LeaveGroup: 1

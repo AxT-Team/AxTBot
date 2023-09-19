@@ -1,18 +1,18 @@
-package org.xiaoxian.atbind;
+package org.xiaoxian.commands.atbind;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
+import org.xiaoxian.ATBot;
 
 import java.io.*;
 import java.util.List;
 
-import static org.xiaoxian.ATBot.dataPath;
-import static org.xiaoxian.atbind.GetBindQQ.getBindGroup;
+import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
 
 public class unBindQQ {
     public static boolean unBindAllGroup(long QQ) {
-        File file = new File(dataPath, "List.txt");
-        File tempFile = new File(dataPath, "temp.txt");
+        File file = new File(ATBot.getDataPath(), "List.txt");
+        File tempFile = new File(ATBot.getDataPath(), "temp.txt");
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
@@ -43,8 +43,8 @@ public class unBindQQ {
     }
 
     public static boolean unBindGroup(long QQ, String num) {
-        File file = new File(dataPath, "List.txt");
-        File tempFile = new File(dataPath, "temp.txt");
+        File file = new File(ATBot.getDataPath(), "List.txt");
+        File tempFile = new File(ATBot.getDataPath(), "temp.txt");
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file));
              BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {

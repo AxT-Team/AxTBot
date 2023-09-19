@@ -5,18 +5,18 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
-import org.xiaoxian.atcore.ATinfo;
+import org.xiaoxian.commands.ATinfo;
 
 import java.util.function.Consumer;
 
 import static org.xiaoxian.ATBot.BackMsgNumber;
 import static org.xiaoxian.ATBot.SendMsgNumber;
-import static org.xiaoxian.atbind.BindQQ.bindQQAndGroup;
-import static org.xiaoxian.atbind.GetBindQQ.getBindGroup;
-import static org.xiaoxian.atbind.WhiteListGroup.addWhiteListGroup;
-import static org.xiaoxian.atbind.unBindQQ.*;
-import static org.xiaoxian.atcore.ATinfo.*;
-import static org.xiaoxian.atnetwork.ping.ATPingCommand;
+import static org.xiaoxian.commands.atbind.BindQQ.bindQQAndGroup;
+import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
+import static org.xiaoxian.commands.atbind.WhiteListGroup.addWhiteListGroup;
+import static org.xiaoxian.commands.atbind.unBindQQ.*;
+import static org.xiaoxian.commands.ATinfo.*;
+import static org.xiaoxian.commands.network.ping.ATPingCommand;
 
 public class GroupMsgListener implements Consumer<GroupMessageEvent> {
     @Override

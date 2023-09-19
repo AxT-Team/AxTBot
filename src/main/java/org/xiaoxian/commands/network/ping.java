@@ -1,4 +1,4 @@
-package org.xiaoxian.atnetwork;
+package org.xiaoxian.commands.network;
 
 import net.mamoe.mirai.console.command.CommandSender;
 import net.mamoe.mirai.console.command.java.JRawCommand;
