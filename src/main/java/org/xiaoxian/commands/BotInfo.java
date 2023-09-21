@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 
 import static org.xiaoxian.ATBot.*;
 
-public final class ATinfo extends JRawCommand {
-    public static final ATinfo INSTANCE = new ATinfo();
+public final class BotInfo extends JRawCommand {
+    public static final BotInfo INSTANCE = new BotInfo();
     static String systemName = "";
     static String cpuModel = "";
     static String ramSize = "";
@@ -28,7 +28,7 @@ public final class ATinfo extends JRawCommand {
     static String cpuUse = "";
     static String ramUse = "";
 
-    public ATinfo() {
+    public BotInfo() {
         super(ATBot.INSTANCE, "atinfo");
         setUsage("/atinfo");
         setDescription("查询机器人服务器状态");
@@ -38,7 +38,7 @@ public final class ATinfo extends JRawCommand {
     // 控制台命令监听
     @Override
     public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("调用 ATinfo.java");
+        sender.sendMessage("调用 BotInfo.java");
         System.out.println(onGetBotInfo());
     }
 

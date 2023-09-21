@@ -35,12 +35,18 @@ public class ConfigManager {
         Config.setAdminGroupQQ(Long.parseLong(getConfig("AdminGroupQQ")));
         Config.setDataType(Integer.parseInt(getConfig("DataType")));
         if (Config.getDataType() == 1) {
-            Config.setMySQL(getConfig("Host"), Integer.parseInt(getConfig("Port")), getConfig("Database"), getConfig("User"), getConfig("Pass"));
+            Config.setMySQL(getConfig("MySQL.Host"),
+                    Integer.parseInt(getConfig("MySQL.Port")),
+                    getConfig("MySQL.Database"),
+                    getConfig("MySQL.User"),
+                    getConfig("MySQL.Pass"));
         }
-        Config.setNotify("NewFriendAdd", Integer.parseInt(getConfig("NewFriendAdd")));
-        Config.setNotify("Mute", Integer.parseInt(getConfig("Mute")));
-        Config.setNotify("GroupInvited", Integer.parseInt(getConfig("GroupInvited")));
-        Config.setNotify("LeaveGroup", Integer.parseInt(getConfig("LeaveGroup")));
+        Config.setNotify("NewFriendAdd", Integer.parseInt(getConfig("NotifyType.NewFriendAdd")));
+        Config.setNotify("Mute", Integer.parseInt(getConfig("NotifyType.Mute")));
+        Config.setNotify("GroupInvited", Integer.parseInt(getConfig("NotifyType.GroupInvited")));
+        Config.setNotify("LeaveGroup", Integer.parseInt(getConfig("NotifyType.LeaveGroup")));
+        Config.setMuteLeave(Boolean.parseBoolean(getConfig("MuteCheck.MuteLeave")));
+        Config.setMuteTime(Integer.parseInt(getConfig("MuteCheck.MuteTime")));
     }
 
     // 设置配置文件
@@ -58,10 +64,15 @@ public class ConfigManager {
     public static String getConfig(String setting) throws IOException {
         try (FileInputStream fis = new FileInputStream(getConfigFilePath())) {
             Map<String, Object> config = yaml.load(fis);
-            Object value = config.get(setting);
+            String[] keys = setting.split("\\.");
+            for (int i = 0; i < keys.length - 1; i++) {
+                config = (Map<String, Object>) config.get(keys[i]);
+            }
+            Object value = config.get(keys[keys.length - 1]);
             return value.toString();
         }
     }
+
 
     private static String getConfigFilePath() {
         return ATBot.getConfigPath() + "\\config.yml";

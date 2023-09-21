@@ -36,3 +36,24 @@ NotifyType:
   GroupInvited: 1
   # 退出群聊（踢出群）事件
   LeaveGroup: 1
+
+# Bot禁言检测
+MuteCheck:
+  # 被禁言后自动退出群聊
+  MuteLeave: true
+  # 被禁言多久才退出群聊（单位:秒）
+  MuteTime: 3600
+
+# 自动同意请求
+AutoAccept:
+  # 好友请求
+  AutoNewFriendAdd: true
+  # 被邀请至群聊
+  AutoGroupInvited: false
+
+# 指令功能开关
+Commands:
+  atinfo: true
+  jrrp: true
+  help: true
+  minecraft: true

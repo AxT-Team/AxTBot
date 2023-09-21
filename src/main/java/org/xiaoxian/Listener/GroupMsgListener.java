@@ -5,7 +5,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.message.data.QuoteReply;
-import org.xiaoxian.commands.ATinfo;
+import org.xiaoxian.commands.BotInfo;
 
 import java.util.function.Consumer;
 
@@ -15,7 +15,7 @@ import static org.xiaoxian.commands.atbind.BindQQ.bindQQAndGroup;
 import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
 import static org.xiaoxian.commands.atbind.WhiteListGroup.addWhiteListGroup;
 import static org.xiaoxian.commands.atbind.unBindQQ.*;
-import static org.xiaoxian.commands.ATinfo.*;
+import static org.xiaoxian.commands.BotInfo.*;
 import static org.xiaoxian.commands.network.ping.ATPingCommand;
 
 public class GroupMsgListener implements Consumer<GroupMessageEvent> {
@@ -27,7 +27,7 @@ public class GroupMsgListener implements Consumer<GroupMessageEvent> {
         String content = messageChain.contentToString();
 
         // AT info
-        if (event.getMessage().contentToString().equals(ATinfo.INSTANCE.getUsage())) {
+        if (event.getMessage().contentToString().equals(BotInfo.INSTANCE.getUsage())) {
             MessageChain chain = new MessageChainBuilder()
                     .append(new QuoteReply(event.getMessage())).append(onGetBotInfo())
                     .build();

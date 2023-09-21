@@ -8,14 +8,15 @@ import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.*;
 import org.xiaoxian.Listener.*;
-import org.xiaoxian.commands.ATinfo;
+import org.xiaoxian.commands.BotInfo;
+import org.xiaoxian.commands.atbind.BindGroupInvited;
 import org.xiaoxian.data.Config;
 import org.xiaoxian.data.ConfigManager;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.xiaoxian.commands.ATinfo.onGetOneQQNumber;
+import static org.xiaoxian.commands.BotInfo.onGetOneQQNumber;
 import static org.xiaoxian.commands.atbind.unBindQQ.quitAllBindGroup;
 import static org.xiaoxian.commands.atbind.unBindQQ.unBindAllGroup;
 
@@ -47,7 +48,7 @@ public final class ATBot extends JavaPlugin {
         getLogger().info("Email: xiaoxian@axtn.net");
         getLogger().info("———————————————————————————");
 
-        CommandManager.INSTANCE.registerCommand(new ATinfo(),true);
+        CommandManager.INSTANCE.registerCommand(new BotInfo(),true);
 
         // 获取配置目录
         String configDir = MiraiConsole.INSTANCE.getPluginManager().getPluginsConfigPath().toString();
@@ -95,8 +96,6 @@ public final class ATBot extends JavaPlugin {
         getLogger().info("[事件] 注册群聊消息监听Event（GroupMessageEvent.class）");
 
         // 好友添加监听处理
-        GlobalEventChannel.INSTANCE.subscribeAlways(FriendAddEvent.class,new FriendAdded());
-        getLogger().info("[事件] 注册好友添加监听Event（FriendAddEvent.class）");
         GlobalEventChannel.INSTANCE.subscribeAlways(NewFriendRequestEvent.class,new NewFriendAdd());
         getLogger().info("[事件] 注册好友请求监听Event（NewFriendRequestEvent.class）");
 
@@ -112,6 +111,10 @@ public final class ATBot extends JavaPlugin {
         GlobalEventChannel.INSTANCE.subscribeAlways(BotLeaveEvent.class,new BotLeaveByKick());
         getLogger().info("[事件] 注册群聊退群监听Event（BotLeaveEvent.class）");
         getLogger().info("———————————————————————————");
+
+        // ATBind
+        GlobalEventChannel.INSTANCE.subscribeAlways(BotInvitedJoinGroupRequestEvent.class,new BindGroupInvited());
+        getLogger().info("[ATBind] 注册授权群聊邀请监听Event（BotInvitedJoinGroupRequestEvent.class）");
 
         // 授权事件
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberLeaveEvent.class, event -> {
@@ -129,6 +132,13 @@ public final class ATBot extends JavaPlugin {
     @Override
     public void onDisable() {
         CommandManager.INSTANCE.unregisterAllCommands(ATBot.INSTANCE);
+        try {
+            getLogger().info("[配置] 保存配置文件...");
+            Config.saveAllConfig();
+            getLogger().info("[配置] 保存完毕");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         getLogger().info("AxTBot v" + atVer + " Disable");
         getLogger().info("Thanks for using!");
     }
