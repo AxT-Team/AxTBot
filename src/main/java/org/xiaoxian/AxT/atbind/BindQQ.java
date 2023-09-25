@@ -1,4 +1,4 @@
-package org.xiaoxian.commands.atbind;
+package org.xiaoxian.AxT.atbind;
 
 import org.xiaoxian.ATBot;
 
@@ -8,8 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
-import static org.xiaoxian.commands.atbind.WhiteListGroup.isInWhiteList;
+import static org.xiaoxian.AxT.atbind.GetBindQQ.getBindGroup;
+import static org.xiaoxian.AxT.atbind.WhiteListGroup.isInWhiteList;
 
 public class BindQQ {
 

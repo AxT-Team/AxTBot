@@ -1,4 +1,4 @@
-package org.xiaoxian.commands.atbind;
+package org.xiaoxian.AxT.atbind;
 
 import org.xiaoxian.ATBot;
 
@@ -11,6 +11,20 @@ public class WhiteListGroup {
 
     public static boolean isInWhiteList(String groupNum) {
         return whiteListGroups.contains(groupNum);
+    }
+
+    public static void loadWhiteList() {
+        whiteListGroups.clear();
+        File file = new File(ATBot.getDataPath(), "WhiteListGroup.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                whiteListGroups.add(line.trim());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean addWhiteListGroup(String num) {

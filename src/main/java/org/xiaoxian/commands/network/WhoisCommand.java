@@ -1,32 +1,13 @@
 package org.xiaoxian.commands.network;
 
-import net.mamoe.mirai.console.command.CommandSender;
-import net.mamoe.mirai.console.command.java.JRawCommand;
-import net.mamoe.mirai.message.data.MessageChain;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.xiaoxian.ATBot;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public final class whois extends JRawCommand {
-    public static final whois INSTANCE = new whois();
-
-    public whois() {
-        super(ATBot.INSTANCE, "whois");
-        setUsage("/whois"); // 指令
-        setDescription("查询whois信息");// help里面的描述
-        setPrefixOptional(true); // 指令前缀 "/"
-    }
-
-    // 控制台命令监听
-    @Override
-    public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("机器人状态正常");
-    }
+public class WhoisCommand {
 
     public static String ATWhoisCommand(String whois_domain) {
         try {

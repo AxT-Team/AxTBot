@@ -7,9 +7,12 @@ import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.events.*;
+import org.xiaoxian.AxT.Listener.AxTFriendMsgListener;
+import org.xiaoxian.AxT.Listener.AxTGroupMsgListener;
+import org.xiaoxian.AxT.atbind.WhiteListGroup;
 import org.xiaoxian.Listener.*;
 import org.xiaoxian.commands.BotInfo;
-import org.xiaoxian.commands.atbind.BindGroupInvited;
+import org.xiaoxian.AxT.Listener.AxTGroupInvited;
 import org.xiaoxian.data.Config;
 import org.xiaoxian.data.ConfigManager;
 
@@ -17,8 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.xiaoxian.commands.BotInfo.onGetOneQQNumber;
-import static org.xiaoxian.commands.atbind.unBindQQ.quitAllBindGroup;
-import static org.xiaoxian.commands.atbind.unBindQQ.unBindAllGroup;
+import static org.xiaoxian.AxT.atbind.unBindQQ.quitAllBindGroup;
+import static org.xiaoxian.AxT.atbind.unBindQQ.unBindAllGroup;
 
 public final class ATBot extends JavaPlugin {
 
@@ -31,10 +34,10 @@ public final class ATBot extends JavaPlugin {
     public static int SendMsgNumber = 0;
 
     public static long startTime = 0;
-    public static String atVer = "2.0";
+    public static String atVer = "2.1";
 
     private ATBot() {
-        super(new JvmPluginDescriptionBuilder("org.xiaoxian.ATBot", "2.0")
+        super(new JvmPluginDescriptionBuilder("org.xiaoxian.ATBot", "2.1")
                 .name("AxTBot")
                 .author("XiaoXian")
                 .build());
@@ -112,11 +115,15 @@ public final class ATBot extends JavaPlugin {
         getLogger().info("[事件] 注册群聊退群监听Event（BotLeaveEvent.class）");
         getLogger().info("———————————————————————————");
 
-        // ATBind
-        GlobalEventChannel.INSTANCE.subscribeAlways(BotInvitedJoinGroupRequestEvent.class,new BindGroupInvited());
+        // AxT相关注册，可删除
+        GlobalEventChannel.INSTANCE.subscribeAlways(BotInvitedJoinGroupRequestEvent.class,new AxTGroupInvited());
         getLogger().info("[ATBind] 注册授权群聊邀请监听Event（BotInvitedJoinGroupRequestEvent.class）");
-
-        // 授权事件
+        WhiteListGroup.loadWhiteList();
+        getLogger().info("[ATBind] 加载白名单群号列表");
+        GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class,new AxTGroupMsgListener());
+        getLogger().info("[AxTGroup] 注册授权群聊消息监听Event（GroupMessageEvent.class）");
+        GlobalEventChannel.INSTANCE.subscribeAlways(FriendMessageEvent.class,new AxTFriendMsgListener());
+        getLogger().info("[AxTGroup] 注册授权好友消息监听Event（FriendMessageEvent.class）");
         GlobalEventChannel.INSTANCE.subscribeAlways(MemberLeaveEvent.class, event -> {
             if (event instanceof MemberLeaveEvent.Kick || event instanceof MemberLeaveEvent.Quit) {
                 if (event.getGroup().getId() == 832275338 || event.getGroup().getId() == 660408793) {

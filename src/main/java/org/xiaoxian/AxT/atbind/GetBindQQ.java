@@ -1,4 +1,4 @@
-package org.xiaoxian.commands.atbind;
+package org.xiaoxian.AxT.atbind;
 
 import org.xiaoxian.ATBot;
 

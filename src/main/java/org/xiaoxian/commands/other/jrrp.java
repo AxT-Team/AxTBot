@@ -1,11 +1,5 @@
 package org.xiaoxian.commands.other;
 
-import net.mamoe.mirai.console.command.CommandSender;
-import net.mamoe.mirai.console.command.java.JRawCommand;
-import net.mamoe.mirai.message.data.MessageChain;
-import org.jetbrains.annotations.NotNull;
-import org.xiaoxian.ATBot;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,24 +10,9 @@ import java.util.Properties;
 import java.util.Random;
 
 
-public final class jrrp extends JRawCommand {
-    public static final jrrp INSTANCE = new jrrp();
+public class jrrp {
     public static String jrrpFilePath; // 当前 jrrp 文件路径
     public static String today;
-
-    public jrrp() {
-        super(ATBot.INSTANCE, "jrrp");
-        setUsage("jrrp"); // 指令
-        setDescription("获取今日人品");// help里面的描述
-        setPrefixOptional(false); // 指令前缀 "/"
-    }
-
-    // 控制台命令监听
-    @Override
-    public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("请勿在控制台执行此指令！");
-        loadJrrpFile();
-    }
 
     public static int getJrrpValue(String QQ) {
         try {

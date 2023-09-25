@@ -1,31 +1,13 @@
 package org.xiaoxian.commands.network;
 
-import net.mamoe.mirai.console.command.CommandSender;
-import net.mamoe.mirai.console.command.java.JRawCommand;
-import net.mamoe.mirai.message.data.MessageChain;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
-import org.xiaoxian.ATBot;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public final class ping extends JRawCommand {
-
-    public ping() {
-        super(ATBot.INSTANCE, "ping");
-        setUsage("/ping"); // 指令
-        setDescription("查询Ping信息");// help里面的描述
-        setPrefixOptional(true); // 指令前缀 "/"
-    }
-
-    // 控制台命令监听
-    @Override
-    public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("机器人状态正常");
-    }
+public class PingCommand {
 
     public static String ATPingCommand(String ping_ip) {
         try {
@@ -56,7 +38,6 @@ public final class ping extends JRawCommand {
 
                 // 将响应数据转换为JSONObject对象
                 JSONObject jsonResponse = new JSONObject(response.toString());
-
                 // 获取Ping结果数据
                 int code = jsonResponse.getInt("code");
                 String host = jsonResponse.getString("host");

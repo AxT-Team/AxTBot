@@ -1,12 +1,12 @@
-package org.xiaoxian.commands.atbind;
+package org.xiaoxian.AxT.Listener;
 
 import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent;
 
 import java.util.function.Consumer;
 
-import static org.xiaoxian.commands.atbind.GetBindQQ.isGroupBindByQQ;
+import static org.xiaoxian.AxT.atbind.GetBindQQ.isGroupBindByQQ;
 
-public class BindGroupInvited implements Consumer<BotInvitedJoinGroupRequestEvent> {
+public class AxTGroupInvited implements Consumer<BotInvitedJoinGroupRequestEvent> {
     @Override
     public void accept(BotInvitedJoinGroupRequestEvent event) {
         if (event.getBot().getGroup(832275338).getMembers().get(event.getInvitorId()) == null && event.getBot().getGroup(660408793).getMembers().get(event.getInvitorId()) == null) {

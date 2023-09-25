@@ -1,12 +1,7 @@
 package org.xiaoxian.commands.other;
 
-import net.mamoe.mirai.console.command.CommandSender;
-import net.mamoe.mirai.console.command.java.JRawCommand;
-import net.mamoe.mirai.message.data.MessageChain;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.xiaoxian.ATBot;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,22 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public final class ATChatGPT extends JRawCommand {
-    public static final ATChatGPT INSTANCE = new ATChatGPT();
+public class oldChatGPT {
     public static boolean GPTOpen = true;
-
-    public ATChatGPT() {
-        super(ATBot.INSTANCE, "ATChatGPT");
-        setUsage("#at"); // 指令
-        setDescription("ChatGPT");// help里面的描述
-        setPrefixOptional(false); // 指令前缀 "/"
-    }
-
-    // 控制台命令监听
-    @Override
-    public void onCommand(@NotNull CommandSender sender, @NotNull MessageChain args) {
-        sender.sendMessage("机器人状态正常");
-    }
 
     public static String ATChatGPTCommand(String qs) {
         // 关闭问答防止卡死

@@ -19,15 +19,5 @@ public class FriendsMsgListener implements Consumer<FriendMessageEvent> {
             SendMsgNumber ++;
         }
 
-        // ATBot内部使用，与机器人源码无关，可删除
-        if (event.getMessage().contentToString().charAt(0) == '/') {
-            SendMsgNumber ++;
-        }
-        if (event.getMessage().contentToString().charAt(0) == '摸') {
-            SendMsgNumber ++;
-        }
-        if (event.getMessage().contentToString().equals("jrrp")) {
-            SendMsgNumber ++;
-        }
     }
 }

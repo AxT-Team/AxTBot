@@ -1,4 +1,4 @@
-package org.xiaoxian.commands.atbind;
+package org.xiaoxian.AxT.atbind;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Group;
@@ -7,7 +7,7 @@ import org.xiaoxian.ATBot;
 import java.io.*;
 import java.util.List;
 
-import static org.xiaoxian.commands.atbind.GetBindQQ.getBindGroup;
+import static org.xiaoxian.AxT.atbind.GetBindQQ.getBindGroup;
 
 public class unBindQQ {
     public static boolean unBindAllGroup(long QQ) {
@@ -95,6 +95,11 @@ public class unBindQQ {
             Group group = bot.getGroup(groupId);
             if (group == null) {
                 System.out.println("Bot群聊列表里不存在 " + groupId);
+                continue;
+            }
+
+            if (group.getId() == 832275338 || group.getId() == 660408793) {
+                System.out.println("白名单内群聊，跳过");
                 continue;
             }
 
