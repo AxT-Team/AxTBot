@@ -18,7 +18,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
 
     if msg.startswith("/atinfo"):
         info = get_system_info()
-        content = "\nAxTBot Public v1.0\n" + \
+        content = "\nAxTBot Public v" + str(client.get_version) + "\n" + \
                   "===============" + "\n" + \
                   "CPU: " + info["cpu_usage"] + "\n" + \
                   "RAM: " + info["ram_usage"] + "\n" + \

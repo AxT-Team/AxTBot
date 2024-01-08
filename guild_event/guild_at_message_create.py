@@ -21,7 +21,7 @@ async def handle_guild_at_message_create(client, message: Message):
 
     if msg.startswith("/atinfo"):
         info = get_system_info()
-        contents = "AxTBot Public v1.0\n" + \
+        contents = "AxTBot Public v" + str(client.get_version) + "\n"" + \
                    "===============" + "\n" + \
                    "CPU: " + info["cpu_usage"] + "\n" + \
                    "RAM: " + info["ram_usage"] + "\n" + \
@@ -358,6 +358,26 @@ async def handle_guild_at_message_create(client, message: Message):
                       "=============" + "\n" + \
                       hot_list["update_time"] + "\n" + \
                       "============="
+
+        await client.api.post_message(
+            channel_id=message.channel_id,
+            message_reference=message_reference,
+            content=content,
+            msg_id=message.id
+        )
+
+    if msg.startswith("/ask ") and msg.split(" ")[1] is not None:
+        info = get_answer_book()
+        if info is None:
+            await client.api.post_message(
+                channel_id=message.channel_id,
+                message_reference=message_reference,
+                content="获取失败，请联系管理员修复",
+                msg_id=message.id
+            )
+            return
+        else:
+            content = "\n" + info
 
         await client.api.post_message(
             channel_id=message.channel_id,

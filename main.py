@@ -17,6 +17,9 @@ _log = logging.get_logger()
 class AxTBot(botpy.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # 定义Bot版本
+        self.version = "1.1"
 
         # 初始化计时器
         self.start_time = datetime.now()
@@ -41,6 +44,9 @@ class AxTBot(botpy.Client):
         seconds = int(seconds % 60)
 
         return f"{days}天 {hours}时 {minutes}分 {seconds}秒"
+        
+    def get_version(self):
+        return self.version
 
     def get_group_message_number(self):
         return self.group_message_number

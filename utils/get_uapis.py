@@ -34,7 +34,7 @@ def get_ping_info(ip, node):
 
 
 def get_whois_info(domain):
-    url = "https://uapis.cn/api/whois?domain={}".format(domain)
+    url = "https://" + uapi + "/api/whois?domain={}".format(domain)
     response = requests.get(url)
     try:
         response = requests.get(url)
@@ -46,7 +46,7 @@ def get_whois_info(domain):
 
 
 def get_icp_info(domain):
-    url = "https://uapis.cn/api/icp?domain={}".format(domain)
+    url = "https://" + uapi + "/api/icp?domain={}".format(domain)
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -57,11 +57,22 @@ def get_icp_info(domain):
 
 
 def get_hot_list(hot_type):
-    url = "https://uapis.cn/api/hotlist?type={}".format(hot_type)
+    url = "https://" + uapi + "/api/hotlist?type={}".format(hot_type)
     try:
         response = requests.get(url)
         response.raise_for_status()
         return response.json()
+    except (HTTPError, ConnectionError, Timeout, RequestException) as e:
+        print(f"请求错误: {e}")
+        return None
+
+
+def get_answer_book():
+    url = "https://" + uapi + "/api/answerbook"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json().get("content")
     except (HTTPError, ConnectionError, Timeout, RequestException) as e:
         print(f"请求错误: {e}")
         return None
