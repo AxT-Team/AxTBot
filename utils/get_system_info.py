@@ -1,15 +1,10 @@
 import psutil
-import platform
 
 
-def get_system_info():
+async def get_system_info():
     info = {}
 
-    # 获取操作系统信息
-    info['system'] = f"{platform.system()} {platform.release()} {platform.version()}"
-
     # 获取CPU信息
-    info['cpu'] = platform.processor()
     info['cpu_usage'] = f"{psutil.cpu_percent(interval=1)}%"
 
     # 获取内存信息

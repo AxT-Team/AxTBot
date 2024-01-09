@@ -2,7 +2,7 @@ import requests
 from requests import HTTPError, Timeout, RequestException
 
 
-def get_hypixel_info(command, userid):
+async def get_hypixel_info(command, userid):
     url = 'http://localhost:30001/hypixel?' + 'command=' + command + '&userId=' + userid
     try:
         response = requests.get(url)

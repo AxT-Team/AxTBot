@@ -9,17 +9,15 @@ from group_event.group_at_message_create import handle_group_at_message_create
 from guild_event.guild_at_message_create import handle_guild_at_message_create
 from guild_event.guild_c2c_message_create import handle_guild_c2c_message_create
 
-from handle_at_message import HandleAtMessage
-
 _log = logging.get_logger()
 
 
 class AxTBot(botpy.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         # 定义Bot版本
-        self.version = "1.1"
+        self.version = "1.2"
 
         # 初始化计时器
         self.start_time = datetime.now()
@@ -29,8 +27,6 @@ class AxTBot(botpy.Client):
         self.friend_message_number = 0
         self.guild_group_message_number = 0
         self.guild_friend_message_number = 0
-
-        self.handle_at_message = HandleAtMessage(self)
 
     # 获取运行时间
     def get_run_time(self):
@@ -44,7 +40,7 @@ class AxTBot(botpy.Client):
         seconds = int(seconds % 60)
 
         return f"{days}天 {hours}时 {minutes}分 {seconds}秒"
-        
+
     def get_version(self):
         return self.version
 
@@ -65,20 +61,28 @@ class AxTBot(botpy.Client):
         self.group_message_number += 1
         await handle_group_at_message_create(self, message)
 
+        # await self.handle_at_message.send_message(message)
+
     # 公域 | 原生 | 私聊消息
     async def on_c2c_message_create(self, message: C2CMessage):
         self.friend_message_number += 1
         await handle_c2c_message_create(self, message)
+
+        # await self.handle_at_message.send_message(message)
 
     # 公域 | 频道 | at消息
     async def on_at_message_create(self, message: Message):
         self.guild_group_message_number += 1
         await handle_guild_at_message_create(self, message)
 
+        # await self.handle_at_message.send_message(message)
+
     # 公域 | 频道 | 私聊消息
     async def on_direct_message_create(self, message: DirectMessage):
         self.guild_friend_message_number += 1
         await handle_guild_c2c_message_create(self, message)
+
+        # await self.handle_at_message.send_message(message)
 
 
 def run_client(appid, secret):
@@ -97,4 +101,4 @@ def run_client(appid, secret):
 
 
 if __name__ == '__main__':
-    run_client("appid", "secretKey")
+    run_client("appid", "secret")

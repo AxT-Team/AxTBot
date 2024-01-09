@@ -2,7 +2,7 @@ import requests
 from requests import HTTPError, Timeout, RequestException
 
 
-def get_minecraft_uuid(username):
+async def get_minecraft_uuid(username):
     url = f"https://api.mojang.com/users/profiles/minecraft/{username}"
     try:
         response = requests.get(url)
@@ -13,7 +13,7 @@ def get_minecraft_uuid(username):
         return None
 
 
-def get_player_history(uuid):
+async def get_player_history(uuid):
     url = f"https://api.axtn.net/api/mchistoryid?uuid={uuid}"
     try:
         response = requests.get(url)

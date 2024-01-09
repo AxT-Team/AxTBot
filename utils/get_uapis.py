@@ -5,7 +5,7 @@ uapi = "uapis.cn"
 axtn = "api.axtn.net"
 
 
-def get_ip_info(ip):
+async def get_ip_info(ip):
     url = "https://" + uapi + "/api/ipinfo?ip={}".format(ip)
     try:
         response = requests.get(url)
@@ -16,7 +16,7 @@ def get_ip_info(ip):
         return None
 
 
-def get_ping_info(ip, node):
+async def get_ping_info(ip, node):
     url = None
     if node == "cn":
         url = "https://" + uapi + "/api/ping?host={}".format(ip)
@@ -33,7 +33,7 @@ def get_ping_info(ip, node):
         return None
 
 
-def get_whois_info(domain):
+async def get_whois_info(domain):
     url = "https://" + uapi + "/api/whois?domain={}".format(domain)
     response = requests.get(url)
     try:
@@ -45,7 +45,7 @@ def get_whois_info(domain):
         return None
 
 
-def get_icp_info(domain):
+async def get_icp_info(domain):
     url = "https://" + uapi + "/api/icp?domain={}".format(domain)
     try:
         response = requests.get(url)
@@ -56,7 +56,7 @@ def get_icp_info(domain):
         return None
 
 
-def get_hot_list(hot_type):
+async def get_hot_list(hot_type):
     url = "https://" + uapi + "/api/hotlist?type={}".format(hot_type)
     try:
         response = requests.get(url)
@@ -67,7 +67,7 @@ def get_hot_list(hot_type):
         return None
 
 
-def get_answer_book():
+async def get_answer_book():
     url = "https://" + uapi + "/api/answerbook"
     try:
         response = requests.get(url)
@@ -119,21 +119,5 @@ def format_hot_search(data):
             formatted.append(f"{index} - {title} | {hot}")
         else:
             formatted.append(f"{index} - {title}")
-
-    return "\n".join(formatted)
-
-
-def format_history_today(data):
-    """
-    格式化历史上的今天数据
-    """
-    items = data.get("data", [])
-
-    formatted = []
-
-    for item in items:
-        index = item.get("index", "")
-        title = item.get("title", "")
-        formatted.append(f"{index}: {title}")
 
     return "\n".join(formatted)

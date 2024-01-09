@@ -6,7 +6,7 @@ from utils.get_system_info import get_system_info
 from utils.get_minecraft_info import get_minecraft_uuid, get_player_history
 from utils.get_hypixel_info import get_hypixel_info
 from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status, get_whois_info, get_hot_list, \
-    format_hot_search
+    format_hot_search, get_answer_book
 
 
 async def handle_group_at_message_create(client, message: GroupMessage):
@@ -17,8 +17,8 @@ async def handle_group_at_message_create(client, message: GroupMessage):
           + " | " + msg)
 
     if msg.startswith("/atinfo"):
-        info = get_system_info()
-        content = "\nAxTBot Public v" + str(client.get_version) + "\n" + \
+        info = await get_system_info()
+        content = "\nAxTBot Public v" + str(client.get_version()) + "\n" + \
                   "===============" + "\n" + \
                   "CPU: " + info["cpu_usage"] + "\n" + \
                   "RAM: " + info["ram_usage"] + "\n" + \
@@ -130,13 +130,13 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         await client.api.post_group_message(
             group_openid=message.group_openid,
             msg_type=0,
-            content="\n" + get_hypixel_info(msg, message.id),
+            content="\n" + await get_hypixel_info(msg, message.id),
             msg_id=message.id
         )
 
     if msg.startswith("/mc ") and msg.split(" ")[1] is not None:
-        uuid = get_minecraft_uuid(msg.split(" ")[1])
-        history_info = get_player_history(uuid)
+        uuid = await get_minecraft_uuid(msg.split(" ")[1])
+        history_info = await get_player_history(uuid)
 
         # 用于存储格式化的历史记录
         formatted_history = []
@@ -171,7 +171,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         )
 
     if msg.startswith("#mchead ") and msg.split(" ")[1] is not None:
-        uuid = get_minecraft_uuid(msg.split(" ")[1])
+        uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
             await client.api.post_group_message(
                 group_openid=message.group_openid,
@@ -195,7 +195,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         )
 
     if msg.startswith("#mcbody ") and msg.split(" ")[1] is not None:
-        uuid = get_minecraft_uuid(msg.split(" ")[1])
+        uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
             await client.api.post_group_message(
                 group_openid=message.group_openid,
@@ -219,7 +219,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         )
 
     if msg.startswith("#mcskin ") and msg.split(" ")[1] is not None:
-        uuid = get_minecraft_uuid(msg.split(" ")[1])
+        uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
             await client.api.post_group_message(
                 group_openid=message.group_openid,
@@ -243,7 +243,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         )
 
     if msg.startswith("/ipinfo ") and msg.split(" ")[1] is not None:
-        info = get_ip_info(msg.split(" ")[1])
+        info = await get_ip_info(msg.split(" ")[1])
         if info is None:
             await client.api.post_group_message(
                 group_openid=message.group_openid,
@@ -275,13 +275,13 @@ async def handle_group_at_message_create(client, message: GroupMessage):
     if msg.startswith("/ping ") and msg.split(" ")[1] is not None:
         info = None
         checkpoint = None
-        ipinfo = get_ip_info(msg.split(" ")[1])
+        ipinfo = await get_ip_info(msg.split(" ")[1])
         node = msg.split(" ")[2]
         if node == "cn":
-            info = get_ping_info(ipinfo["ip"], "cn")
+            info = await get_ping_info(ipinfo["ip"], "cn")
             checkpoint = "中国湖北十堰/电信"
         elif node == "hk":
-            info = get_ping_info(ipinfo["ip"], "hk")
+            info = await get_ping_info(ipinfo["ip"], "hk")
             checkpoint = "中国香港/腾讯云"
 
         content = "\n=====Ping信息=====" + "\n" + \
@@ -302,7 +302,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         )
 
     if msg.startswith("/whois ") and msg.split(" ")[1] is not None:
-        info = get_whois_info(msg.split(" ")[1])
+        info = await get_whois_info(msg.split(" ")[1])
         if info is None:
             await client.api.post_group_message(
                 group_openid=message.group_openid,
@@ -344,19 +344,19 @@ async def handle_group_at_message_create(client, message: GroupMessage):
         hot_type = None
 
         if msg.split(" ")[1] == "bilibili":
-            hot_list = get_hot_list("bilibili")
+            hot_list = await get_hot_list("bilibili")
             hot_type = "B站-日榜"
         elif msg.split(" ")[1] == "bilihot":
-            hot_list = get_hot_list("bilihot")
+            hot_list = await get_hot_list("bilihot")
             hot_type = "B站-热搜榜"
         elif msg.split(" ")[1] == "weibo":
-            hot_list = get_hot_list("weibo")
+            hot_list = await get_hot_list("weibo")
             hot_type = "微博-热搜榜"
         elif msg.split(" ")[1] == "zhihu":
-            hot_list = get_hot_list("zhihu")
+            hot_list = await get_hot_list("zhihu")
             hot_type = "知乎-热搜榜"
         elif msg.split(" ")[1] == "douyin":
-            hot_list = get_hot_list("douyin")
+            hot_list = await get_hot_list("douyin")
             hot_type = "抖音-热搜榜"
 
         if hot_list is None:
@@ -381,27 +381,22 @@ async def handle_group_at_message_create(client, message: GroupMessage):
             msg_id=message.id
         )
 
-    # if msg.startswith("/htday"):
-    #     info = get_hot_list("history")
-    #     if info is None:
-    #         await client.api.post_group_message(
-    #             group_openid=message.group_openid,
-    #             msg_type=0,
-    #             content="数据获取失败",
-    #             msg_id=message.id
-    #         )
-    #         return
-    #     else:
-    #         content = "\n===历史上的今天===" + "\n" + \
-    #                   format_history_today(info) + "\n" + \
-    #                   "=============" + "\n" + \
-    #                   info["update_time"] + "\n" + \
-    #                   "============="
-    #         print(content)
-    #
-    #     await client.api.post_group_message(
-    #         group_openid=message.group_openid,
-    #         msg_type=0,
-    #         content=content,
-    #         msg_id=message.id
-    #     )
+    if msg.startswith("/ask ") and msg.split(" ")[1] is not None:
+        info = await get_answer_book()
+        if info is None:
+            await client.api.post_group_message(
+                group_openid=message.group_openid,
+                msg_type=0,
+                content="获取失败，请联系管理员修复",
+                msg_id=message.id
+            )
+            return
+        else:
+            content = "\n" + info
+
+        await client.api.post_group_message(
+            group_openid=message.group_openid,
+            msg_type=0,
+            content=content,
+            msg_id=message.id
+        )
