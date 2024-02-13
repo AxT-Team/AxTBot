@@ -7,6 +7,9 @@ from utils.get_minecraft_info import get_minecraft_uuid, get_player_history
 from utils.get_hypixel_info import get_hypixel_info
 from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status, get_whois_info, get_hot_list, \
     format_hot_search, get_answer_book
+from utils.jrrp import get_jrrp
+from utils.mcping import mcping
+from utils.steam import get_steamid_info
 
 
 async def handle_group_at_message_create(client, message: GroupMessage):
@@ -380,6 +383,13 @@ async def handle_group_at_message_create(client, message: GroupMessage):
             content=content,
             msg_id=message.id
         )
+    if msg.startswith("/mcping"):
+        await client.api.post_group_message(
+            group_openid=message.group_openid,
+            msg_type=0,
+            content="\n" + await mcping(msg),
+            msg_id=message.id
+        )
 
     if msg.startswith("/ask ") and msg.split(" ")[1] is not None:
         info = await get_answer_book()
@@ -398,5 +408,64 @@ async def handle_group_at_message_create(client, message: GroupMessage):
             group_openid=message.group_openid,
             msg_type=0,
             content=content,
+            msg_id=message.id
+        )
+    if msg == "jrrp":
+        content1,msgtype = await get_jrrp(message)
+        if msgtype == 0:
+            await client.api.post_group_message(
+                group_openid=message.group_openid,
+                msg_type=msgtype,
+                content=content1,
+                msg_id=message.id
+            )
+        elif msgtype == 2:
+            try:
+                await client.api.post_group_message(
+                    group_openid=message.group_openid,
+                    msg_type=msgtype,
+                    content=" ",
+                    markdown=content1,
+                    msg_id=message.id
+                )
+            except Exception as e:
+                现在时间 = datetime.now()
+                格式化后的现在时间 = 现在时间.strftime("%Y-%m-%d %H:%M:%S")
+                await client.api.post_group_message(group_openid=message.group_openid,msg_type=0,
+                content=f'''
+======AxTBot======
+错误：出现内部异常
+详细信息：{str(e)}
+==================
+AxTBot Public v1.2
+{格式化后的现在时间}''',
+                msg_id=message.id
+            )
+        else:
+            现在时间 = datetime.now()
+            格式化后的现在时间 = 现在时间.strftime("%Y-%m-%d %H:%M:%S")
+
+            print (f'''[ERROR]错误：msg_type超出预期值（0，2）
+msg_type:{msgtype}
+''')
+            await client.api.post_group_message(
+                group_openid=message.group_openid,
+                msg_type=0,
+                content=f'''
+======AxTBot======
+错误：请联系管理员处理
+详细信息：msg_type超出预期值
+当前msg_type:{msgtype}
+==================
+AxTBot Public v1.2
+{格式化后的现在时间}''',
+                msg_id=message.id
+            )
+    if msg.startswith("/steam"):
+        result = await get_steamid_info(msg)
+        await client.api.post_group_message(
+            group_openid=message.group_openid,
+            msg_type=0,
+            content=result,
             msg_id=message.id
         )
