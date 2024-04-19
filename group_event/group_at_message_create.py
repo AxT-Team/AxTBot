@@ -10,14 +10,14 @@ from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status,
 from utils.jrrp import get_jrrp
 from utils.mcping import mcping
 from utils.steam import get_steamid_info
+from datetime import datetime
+from botpy.message import GroupMessage
+from utils.message import post_group_message_decorator
 
-
-async def handle_group_at_message_create(client, message: GroupMessage):
+@post_group_message_decorator
+async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
     msg = message.content.lstrip()
-    print("[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "]" + "[GroupAtMessage]"
-          + " | GroupID:" + message.group_openid
-          + " | MsgID:" + message.id
-          + " | " + msg)
+    print("[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "]" + "[群消息]" + " | 群ID:" + message.group_openid + " | 消息ID:" + message.id + " | " + msg)
 
     if msg.startswith("/atinfo"):
         info = await get_system_info()
@@ -37,12 +37,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                   "官方社区群: 832275338" + "\n" + \
                   "==============="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
 
     # 菜单列表
     if msg == "/mc" or msg == "/mc ":
@@ -55,12 +50,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "[ID]为玩家用户名" + "\n" + \
                    "=========================="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     if msg == "/ping" or msg == "/ping ":
         contents = "\n========Ping查询菜单========" + "\n" + \
@@ -72,12 +62,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "使用示例: /ping 域名/IP cn" + "\n" + \
                    "=========================="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     if msg == "/ipinfo" or msg == "/ipinfo ":
         contents = "\n=======IPInfo查询菜单=======" + "\n" + \
@@ -86,12 +71,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "使用示例: /ipinfo IP" + "\n" + \
                    "=========================="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     if msg == "/whois" or msg == "/whois ":
         contents = "\n=======Whois查询菜单=======" + "\n" + \
@@ -100,12 +80,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "使用示例: /whois 域名" + "\n" + \
                    "=========================="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     if msg == "/hotlist" or msg == "/hotlist ":
         contents = "\n=======每日热榜菜单=======" + "\n" + \
@@ -121,21 +96,11 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "注:如果指令发送后无返回且无获取错误信息，视为热榜内含有违规信息，被QQ消息审核拦截" + "\n" + \
                    "=========================="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     # 功能区域
     if msg.startswith("/hyp"):
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content="\n" + await get_hypixel_info(msg, message.id),
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content="\n" + await get_hypixel_info(msg, message.id))
 
     if msg.startswith("/mc ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
@@ -150,12 +115,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
             formatted_history.append(f"{name} - {changed_to_at}")
 
         if uuid is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该玩家的信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, '未查询到该玩家的信息')
             return
 
         if history_info is None:
@@ -166,22 +126,12 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                    "| UUID: " + uuid + "\n" + \
                    "===历史用户名===\n" + "\n".join(formatted_history)
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=contents,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, contents)
 
     if msg.startswith("#mchead ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该玩家的信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='未查询到该玩家的信息')
             return
 
         upload_media = await client.api.post_group_file(
@@ -200,12 +150,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
     if msg.startswith("#mcbody ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该玩家的信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='未查询到该玩家的信息')
             return
 
         upload_media = await client.api.post_group_file(
@@ -224,12 +169,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
     if msg.startswith("#mcskin ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该玩家的信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='未查询到该玩家的信息')
             return
 
         upload_media = await client.api.post_group_file(
@@ -248,12 +188,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
     if msg.startswith("/ipinfo ") and msg.split(" ")[1] is not None:
         info = await get_ip_info(msg.split(" ")[1])
         if info is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该IP信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='未查询到该IP的信息')
             return
         else:
             content = "\n=====IP信息=====" + "\n" + \
@@ -268,24 +203,30 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                       "| ASN: " + info["asn"] + "\n" + \
                       "=============="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
 
     if msg.startswith("/ping ") and msg.split(" ")[1] is not None:
         info = None
         checkpoint = None
         ipinfo = await get_ip_info(msg.split(" ")[1])
-        node = msg.split(" ")[2]
+        try:
+            node = msg.split(" ")[2]
+        except IndexError:
+            node = 'cn'
         if node == "cn":
-            info = await get_ping_info(ipinfo["ip"], "cn")
-            checkpoint = "中国湖北十堰/电信"
+            try:
+                info = await get_ping_info(ipinfo["ip"], "cn")
+                checkpoint = "中国湖北十堰/电信"
+            except TypeError as e:
+                await post_group_message(client, message, content='未查询到该IP地址')
+                return
         elif node == "hk":
-            info = await get_ping_info(ipinfo["ip"], "hk")
-            checkpoint = "中国香港/腾讯云"
+            try:
+                info = await get_ping_info(ipinfo["ip"], "hk")
+                checkpoint = "中国香港/腾讯云"
+            except TypeError as e:
+                await post_group_message(client, message, content='未查询到该IP地址')
+                return
 
         content = "\n=====Ping信息=====" + "\n" + \
                   "主机名: " + info["host"] + "\n" + \
@@ -297,22 +238,12 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                   "| 检测点: " + checkpoint + "\n" + \
                   "=============="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
 
     if msg.startswith("/whois ") and msg.split(" ")[1] is not None:
         info = await get_whois_info(msg.split(" ")[1])
         if info is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该域名信息或暂不支持查询该格式",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content="未查询到该域名信息或暂不支持查询该格式")
             return
         else:
             domain_status_translated = translate_domain_status(info["domain_status"])
@@ -335,12 +266,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                       "由于QQ官方消息审核限制，域名相关的.已被替换为," + "\n" + \
                       "=============="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
 
     if msg.startswith("/hotlist ") and msg.split(" ")[1] is not None:
         hot_list = None
@@ -363,12 +289,7 @@ async def handle_group_at_message_create(client, message: GroupMessage):
             hot_type = "抖音-热搜榜"
 
         if hot_list is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="未查询到该热搜信息",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='未查询到该热搜信息')
             return
         else:
             content = "\n===" + hot_type + "===" + "\n" + \
@@ -377,48 +298,23 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                       hot_list["update_time"] + "\n" + \
                       "============="
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
     if msg.startswith("/mcping"):
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content="\n" + await mcping(msg),
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content="\n" + await mcping(msg))
 
     if msg.startswith("/ask ") and msg.split(" ")[1] is not None:
         info = await get_answer_book()
         if info is None:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content="获取失败，请联系管理员修复",
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content='获取失败，请联系管理员寻求帮助')
             return
         else:
             content = "\n" + info
 
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=content,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content)
     if msg == "jrrp":
         content1,msgtype = await get_jrrp(message)
         if msgtype == 0:
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=msgtype,
-                content=content1,
-                msg_id=message.id
-            )
+            await post_group_message(client, message, content1)
         elif msgtype == 2:
             try:
                 await client.api.post_group_message(
@@ -429,43 +325,9 @@ async def handle_group_at_message_create(client, message: GroupMessage):
                     msg_id=message.id
                 )
             except Exception as e:
-                现在时间 = datetime.now()
-                格式化后的现在时间 = 现在时间.strftime("%Y-%m-%d %H:%M:%S")
-                await client.api.post_group_message(group_openid=message.group_openid,msg_type=0,
-                content=f'''
-======AxTBot======
-错误：出现内部异常
-详细信息：{str(e)}
-==================
-AxTBot Public v1.2
-{格式化后的现在时间}''',
-                msg_id=message.id
-            )
+                pass
         else:
-            现在时间 = datetime.now()
-            格式化后的现在时间 = 现在时间.strftime("%Y-%m-%d %H:%M:%S")
-
-            print (f'''[ERROR]错误：msg_type超出预期值（0，2）
-msg_type:{msgtype}
-''')
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=0,
-                content=f'''
-======AxTBot======
-错误：请联系管理员处理
-详细信息：msg_type超出预期值
-当前msg_type:{msgtype}
-==================
-AxTBot Public v1.2
-{格式化后的现在时间}''',
-                msg_id=message.id
-            )
+            pass
     if msg.startswith("/steam"):
         result = await get_steamid_info(msg)
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=0,
-            content=result,
-            msg_id=message.id
-        )
+        await post_group_message(client, message, content=result)
