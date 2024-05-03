@@ -338,11 +338,15 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         if qqid is None:
             await post_group_message(client, message, content=touch("help"))
             return
+        touch_context = await touch(qqid)
+        if str(type(touch_context)) == "<class 'str'>":
+            await post_group_message(client, message, content=touch_context)
+            return
         else:
             upload_media = await client.api.post_group_file(
                 group_openid=message.group_openid,
                 file_type=1,
-                url=await touch(qqid)
+                url=touch_context
             )
 
             await client.api.post_group_message(
