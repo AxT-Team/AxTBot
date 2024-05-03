@@ -13,7 +13,7 @@ from utils.steam import get_steamid_info
 from datetime import datetime
 from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
-from utils.touch_head import touch
+from utils.touch import touch
 
 @post_group_message_decorator
 async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
@@ -333,7 +333,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
 
-    if msg.startswith("/touch ") and msg.split(" ")[1] is not None:
+    if msg.startswith("/摸") and msg.split(" ")[1] is not None:
         upload_media = await client.api.post_group_file(
             group_openid=message.group_openid,
             file_type=1,
