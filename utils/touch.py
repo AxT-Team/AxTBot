@@ -12,7 +12,7 @@ menu = '''使用方法:
 async def touch(qqid) -> None:
     if qqid == "help":
         return menu
-    elif str(type(qqid)) != "<class 'int'>":
+    elif isinstance(qqid, int) == True:
         return "请输入正确的QQ号！"
     elif qqid == "我":
         return "很抱歉，由于技术限制，暂时不能这么用，请直接输入您的QQ号。"
@@ -25,3 +25,5 @@ async def touch(qqid) -> None:
             response = requests.get(api)
             message = json.loads(response.text)
         return message['url']
+        
+# ----------------主程序-----------------
