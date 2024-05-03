@@ -336,22 +336,18 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
     if msg.startswith("/摸") and msg.split(" ")[1] is not None:
         qqid = msg.split(" ")[1]
         if qqid is None:
-            await post_group_message(client, message, content=touch("help"))
+            await post_group_message(client, message, content=touch(1))
             return
         touch_context = await touch(qqid)
-        if str(type(touch_context)) == "<class 'str'>":
-            await post_group_message(client, message, content=touch_context)
-            return
-        else:
-            upload_media = await client.api.post_group_file(
-                group_openid=message.group_openid,
-                file_type=1,
-                url=touch_context
-            )
+        upload_media = await client.api.post_group_file(
+            group_openid=message.group_openid,
+            file_type=1,
+            url=touch_context
+        )
 
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=7,
-                msg_id=message.id,
-                media=upload_media
-            )
+        await client.api.post_group_message(
+            group_openid=message.group_openid,
+            msg_type=7,
+            msg_id=message.id,
+            media=upload_media
+        )
