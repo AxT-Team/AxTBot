@@ -338,7 +338,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         #type = msg.split(" ")[2]
         #if len(msg.split(" ")) < 3:
         if len(msg.split(" ")) < 2:
-            await post_group_message(client, message, content=meme("help",1))
+            await post_group_message(client, message, content=meme(1,"a"))
             return
         qqid = msg.split(" ")[1]
         #touch_context = await touch(qqid,type)
