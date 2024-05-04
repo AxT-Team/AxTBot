@@ -334,9 +334,9 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         await post_group_message(client, message, content=result)
 
     #if msg.startswith("/meme") and msg.split(" ")[2] is not None:
-    if msg.startswith("/摸") and msg.split(" ")[2] is not None:
+    if msg.startswith("/摸") and msg.split(" ")[1] is not None:
         qqid = msg.split(" ")[1]
-        type = msg.split(" ")[2]
+        #type = msg.split(" ")[2]
         #if qqid is None or type is None:
         if qqid is None:
             await post_group_message(client, message, content=meme("help",1))
