@@ -333,8 +333,8 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
 
-    #if msg.startswith("/meme") and msg.split(" ")[2] is not None:
-    if msg.startswith("/摸") and msg.split(" ")[1] is not None:
+    #if msg.startswith("/meme"):
+    if msg.startswith("/摸"):
         qqid = msg.split(" ")[1]
         #type = msg.split(" ")[2]
         #if len(msg.split(" ")) < 3:
