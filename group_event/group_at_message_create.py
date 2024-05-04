@@ -337,8 +337,8 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
     if msg.startswith("/摸") and msg.split(" ")[1] is not None:
         qqid = msg.split(" ")[1]
         #type = msg.split(" ")[2]
-        #if qqid is None or type is None:
-        if qqid is None:
+        #if len(msg.split(" ")) < 3:
+        if len(msg.split(" ")) < 2:
             await post_group_message(client, message, content=meme("help",1))
             return
         #touch_context = await touch(qqid,type)
