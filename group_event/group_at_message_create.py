@@ -13,7 +13,7 @@ from utils.steam import get_steamid_info
 from datetime import datetime
 from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
-from utils.touch import touch
+from utils.meme import meme
 
 @post_group_message_decorator
 async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
@@ -333,21 +333,25 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
 
-    if msg.startswith("/摸"):
-        if len(msg.split(" ")) < 2:
-            await post_group_message(client, message, content=touch(1))
+    #if msg.startswith("/meme") and msg.split(" ")[2] is not None:
+    if msg.startswith("/摸") and msg.split(" ")[2] is not None:
+        qqid = msg.split(" ")[1]
+        type = msg.split(" ")[2]
+        #if qqid is None or type is None:
+        if qqid is None:
+            await post_group_message(client, message, content=meme("help",1))
             return
-        else:
-            touch_context = await touch(msg.split(" ")[1])
-            upload_media = await client.api.post_group_file(
-                group_openid=message.group_openid,
-                file_type=1,
-                url=touch_context
-            )
+        #touch_context = await touch(qqid,type)
+        meme_context = await meme(qqid,"摸")
+        upload_media = await client.api.post_group_file(
+            group_openid=message.group_openid,
+            file_type=1,
+            url=meme_context
+        )
 
-            await client.api.post_group_message(
-                group_openid=message.group_openid,
-                msg_type=7,
-                msg_id=message.id,
-                media=upload_media
-            )
+        await client.api.post_group_message(
+            group_openid=message.group_openid,
+            msg_type=7,
+            msg_id=message.id,
+            media=upload_media
+        )
