@@ -14,6 +14,7 @@ from datetime import datetime
 from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
 from utils.touch import touch
+import re
 
 @post_group_message_decorator
 async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
