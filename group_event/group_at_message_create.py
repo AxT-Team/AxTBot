@@ -333,20 +333,18 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
 
-    #if msg.startswith("/meme"):
-    if msg.startswith("/摸"):
-        #type = msg.split(" ")[2]
-        #if len(msg.split(" ")) < 3:
-        if len(msg.split(" ")) < 2:
-            await post_group_message(client, message, content=meme(1,"a"))
+    if re.match(r"(?:/)?摸\s*(\d+)", msg):
+        qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
+        try:
+            qqid2 = int(qqid)
+        except ValueError:
+            await post_group_message(client, message, "输入值有误，请输入QQ号。")
             return
-        qqid = msg.split(" ")[1]
-        #touch_context = await touch(qqid,type)
-        meme_context = await meme(qqid,"摸")
+        touch_context = await touch(qqid)
         upload_media = await client.api.post_group_file(
             group_openid=message.group_openid,
             file_type=1,
-            url=meme_context
+            url=touch_context
         )
 
         await client.api.post_group_message(
@@ -355,3 +353,6 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             msg_id=message.id,
             media=upload_media
         )
+    elif msg == "/摸" or "摸" or "/摸 " or "摸 ":
+        content = await touch("help")
+        await post_group_message(client, message, content)
