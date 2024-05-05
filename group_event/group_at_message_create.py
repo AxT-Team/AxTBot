@@ -13,7 +13,7 @@ from utils.steam import get_steamid_info
 from datetime import datetime
 from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
-from utils.meme import meme
+from utils.touch import touch
 
 @post_group_message_decorator
 async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
