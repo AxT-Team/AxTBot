@@ -46,9 +46,9 @@ async def get_jrrp(message): # 主操作
 async def update_jrrp(memid, jrrp): # 写数据库信息
     current_date = datetime.datetime.now().strftime("%Y%m%d")  # 获取系统时间
     if type(cusjrrp) == int and custom:
-	conn = sqlite3.connect(custom_database)  # 链接cusjrrp.db
+        conn = sqlite3.connect(custom_database)  # 链接cusjrrp.db
     else:
-	conn = sqlite3.connect(default_database) # 链接jrrp.db
+        conn = sqlite3.connect(default_database) # 链接jrrp.db
     cursor = conn.cursor()  # 指针选中
     table_name = f"今日人品表_{current_date}"  # 切换表头到当日时间
     cursor.execute(f"SELECT number FROM {table_name} WHERE id = ?", (memid,)) # 查询是否存在此人的信息记录
@@ -78,9 +78,9 @@ async def update_jrrp(memid, jrrp): # 写数据库信息
 async def update_database():
     current_date = datetime.datetime.now().strftime("%Y%m%d")  # 当日时间
     if type(cusjrrp) == int and custom:
-	conn = sqlite3.connect(custom_database)  # 链接cusjrrp.db
+        conn = sqlite3.connect(custom_database)  # 链接cusjrrp.db
     else:
-	conn = sqlite3.connect(default_database) # 链接jrrp.db
+        conn = sqlite3.connect(default_database) # 链接jrrp.db
     cursor = conn.cursor()  # 指针
     table_name = f"今日人品表_{current_date}"  # 列表
     cursor.execute(f"CREATE TABLE IF NOT EXISTS {table_name} (id TEXT PRIMARY KEY, number INTEGER)")  # 新开一个
@@ -93,23 +93,23 @@ async def content_load(jrrpnumber):  # 通过jrrp值判断输出内容
         return "error"
     else:
         content = {  # 构建消息串（用于Markdown）
-		    "custom_template_id": custom_template_id,  # 模板ID
-    	    "params": [
+            "custom_template_id": custom_template_id,  # 模板ID
+            "params": [
                 {
-				    "key": "jrrpnumber","values": [str(jrrpnumber)]
-	    		},{
-			    	"key": "paragraph1","values": [paragraph1]
-    			},{
-		    		"key": "paragraph2","values": [paragraph2]
-        		},{
-	        		"key": "paragraph3","values": [paragraph3]
-        		},{
-    	    		"key": "image","values": [image]
-        		},{
-    	    		"key": "imgsize","values": [imgsize]
-        		}
-	       	]
-	    }
+                    "key": "jrrpnumber","values": [str(jrrpnumber)]
+                },{
+                    "key": "paragraph1","values": [paragraph1]
+                },{
+                    "key": "paragraph2","values": [paragraph2]
+                },{
+                    "key": "paragraph3","values": [paragraph3]
+                },{
+                    "key": "image","values": [image]
+                },{
+                    "key": "imgsize","values": [imgsize]
+                }
+               ]
+        }
         return content  # 返回这个值用于发送markdown
 
 async def jrrp_note(jrrpnumber):

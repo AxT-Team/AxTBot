@@ -10,16 +10,27 @@ from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status,
 from utils.jrrp import get_jrrp
 from utils.mcping import mcping
 from utils.steam import get_steamid_info
-from datetime import datetime
-from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
+from utils.translate import translate
+import langid
 from utils.touch import touch
 import re
 
 @post_group_message_decorator
-async def handle_group_at_message_create(client, message: GroupMessage, post_group_message):
+async def handle_group_at_message_create(client, message: GroupMessage, post_group_message, post_group_file):
     msg = message.content.lstrip()
     print("[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "]" + "[群消息]" + " | 群ID:" + message.group_openid + " | 消息ID:" + message.id + " | " + msg)
+
+    if msg == "/myidinfo":
+        contents = "GroupID:" + message.group_openid + "\n" + \
+                   "MsgID:" + message.id + "\n" + \
+                   "EventID:" + message.event_id + "\n" + \
+                   "Time:" + message.timestamp
+
+        await post_group_message(client, message, contents)
+
+    if msg == "/debuginfo":
+        await post_group_message(client, message, str(message))
 
     if msg.startswith("/atinfo"):
         info = await get_system_info()
@@ -99,6 +110,14 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                    "=========================="
 
         await post_group_message(client, message, contents)
+    if msg == "/translate" or msg == "/translate ":
+        contents = "\n=======万能翻译菜单=======" + "\n" + \
+                   "/translate [翻译内容] - 翻译你想要的内容" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /translate 你好" + "\n" + \
+                   "注:如果指令发送后无返回且无获取错误信息，则翻译出错，请重试或寻找管理员" + "\n" + \
+                   "=========================="
+        await post_group_message(client, message, contents)
 
     # 功能区域
     if msg.startswith("/hyp"):
@@ -135,57 +154,21 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         if uuid is None:
             await post_group_message(client, message, content='未查询到该玩家的信息')
             return
-
-        upload_media = await client.api.post_group_file(
-            group_openid=message.group_openid,
-            file_type=1,
-            url="https://crafatar.com/avatars/" + uuid
-        )
-
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=7,
-            msg_id=message.id,
-            media=upload_media
-        )
+        await post_group_file(client,"https://crafatar.com/avatars/" + uuid)
 
     if msg.startswith("#mcbody ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
             await post_group_message(client, message, content='未查询到该玩家的信息')
             return
-
-        upload_media = await client.api.post_group_file(
-            group_openid=message.group_openid,
-            file_type=1,
-            url="https://crafatar.com/renders/body/" + uuid
-        )
-
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=7,
-            msg_id=message.id,
-            media=upload_media
-        )
+        await post_group_file(client,"https://crafatar.com/renders/body/" + uuid)
 
     if msg.startswith("#mcskin ") and msg.split(" ")[1] is not None:
         uuid = await get_minecraft_uuid(msg.split(" ")[1])
         if uuid is None:
             await post_group_message(client, message, content='未查询到该玩家的信息')
             return
-
-        upload_media = await client.api.post_group_file(
-            group_openid=message.group_openid,
-            file_type=1,
-            url="https://crafatar.com/skins/" + uuid
-        )
-
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=7,
-            msg_id=message.id,
-            media=upload_media
-        )
+        await post_group_file(client,"https://crafatar.com/skins/" + uuid)
 
     if msg.startswith("/ipinfo ") and msg.split(" ")[1] is not None:
         info = await get_ip_info(msg.split(" ")[1])
@@ -334,6 +317,26 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
 
+    if msg.startswith('/translate') and len(msg.split(" ")) > 1:
+        result = ""
+        content_result = ""
+        msgs = msg.split(" ")
+        source_lang = ""
+        target_lang = ""
+
+        if len(msgs) > 1:
+            source_lang = ' '.join(msgs[1:])
+
+        language, _ = langid.classify(source_lang)
+        if language == "zh":
+            target_lang = "en"
+        else:
+            target_lang = "zh"
+
+        if source_lang != "":
+                result = await translate(source_lang, target_lang, "bing")
+                content_result = "\n翻译的结果: " + result
+                
     if re.match(r"(?:/)?摸\s*(\d+)", msg):
         qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
         try:
@@ -342,18 +345,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             await post_group_message(client, message, "输入值有误，请输入QQ号。")
             return
         touch_context = await touch(qqid)
-        upload_media = await client.api.post_group_file(
-            group_openid=message.group_openid,
-            file_type=1,
-            url=touch_context
-        )
-
-        await client.api.post_group_message(
-            group_openid=message.group_openid,
-            msg_type=7,
-            msg_id=message.id,
-            media=upload_media
-        )
+        await post_group_file(client,touch_context)
     elif msg == "/摸" or "摸" or "/摸 " or "摸 ":
         content = await touch("help")
         await post_group_message(client, message, content)

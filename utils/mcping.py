@@ -1,5 +1,4 @@
 import requests
-import json
 
 # ------------------快速设置------------------
 sv_api = "https://api.imlazy.ink/mcapi/?type=json" # mcping的API接口，备用接口为 https://api.lazy.ink/mcapi/?type=json
