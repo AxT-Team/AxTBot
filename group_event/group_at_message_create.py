@@ -337,15 +337,16 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                 result = await translate(source_lang, target_lang, "bing")
                 content_result = "\n翻译的结果: " + result
                 
-    if re.match(r"(?:/)?摸\s*(\d+)", msg):
-        qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
-        try:
-            qqid2 = int(qqid)
-        except ValueError:
-            await post_group_message(client, message, "输入值有误，请输入QQ号。")
-            return
-        touch_context = await touch(qqid)
-        await post_group_file(client,touch_context)
-    elif msg == "/摸" or "摸" or "/摸 " or "摸 ":
-        content = await touch("help")
-        await post_group_message(client, message, content)
+    if msg.startswith("/摸") or msg.startswith("摸"):
+        if re.match(r"(?:/)?摸\s*(\d+)", msg):
+            qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
+            try:
+                qqid2 = int(qqid)
+            except ValueError:
+                await post_group_message(client, message, "输入值有误，请输入QQ号。")
+                return
+            touch_context = await touch(qqid)
+            await post_group_file(client,touch_context)
+        else:
+            content = await touch("help")
+            await post_group_message(client, message, content)
