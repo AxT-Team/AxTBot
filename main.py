@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import botpy
+import toml
 from botpy import logging
 from botpy.message import DirectMessage, GroupMessage, C2CMessage, Message
 
@@ -85,7 +86,7 @@ class AxTBot(botpy.Client):
         # await self.handle_at_message.send_message(message)
 
 
-def run_client(appid, secret):
+def run_client(appid, secret, sandbox):
     intents = botpy.Intents(
         public_messages=True,
         public_guild_messages=True,
@@ -97,8 +98,14 @@ def run_client(appid, secret):
         interaction=False,
         message_audit=True
     )
-    AxTBot(intents=intents, is_sandbox=False).run(appid=appid, secret=secret)
+    AxTBot(intents=intents, is_sandbox=sandbox).run(appid=appid, secret=secret)
 
 
 if __name__ == '__main__':
-    run_client("appid", "secret")
+    appid = toml.load("config.toml")['robot']['appid']
+    secret = toml.load("config.toml")['robot']['secret']
+    if toml.load("config.toml")['robot']['sandbox'] == "True":
+        sandbox = True
+    elif toml.load("config.toml")['robot']['sandbox'] == "False":
+        sandbox = False
+    run_client(appid, secret, sandbox)

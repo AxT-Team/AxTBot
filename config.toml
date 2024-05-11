@@ -1,0 +1,4 @@
+[robot]
+appid = "" #填入你的appid
+secret = "" #填入你的secret
+sandbox = "False" # "True"

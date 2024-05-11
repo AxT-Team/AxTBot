@@ -26,8 +26,8 @@ pip install requests
 ```
 
 ### 使用:
-在 ``main.py`` 里填入 ``appID`` ``secretKey``
-
+在 ``config.toml`` 里填入 ``appID`` ``secretKey``
+随后，在含有 ``main.py`` 文件的目录下运行：
 ```bash
 python main.py
 ```
