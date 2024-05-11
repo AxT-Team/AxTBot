@@ -1,6 +1,5 @@
 # AxTBot-Public
 基于 **[QQ官方PythonSDK](https://github.com/tencent-connect/botpy)** 开发的 **AxTBot-Public** 机器人程序<br>
-
 <br>
 
 ## Hypixel查询注意事项:
@@ -20,9 +19,7 @@ Hypixel查询是基于 **[Spelako](https://github.com/Spelako)** 项目修改而
 建议使用venv来控制项目依赖环境:
 
 ```bash
-pip install qq-botpy
-pip install psutil
-pip install requests
+pip install -r requirements.txt
 ```
 
 ### 使用:

@@ -5,3 +5,4 @@ Requests==2.31.0
 translators==5.9.1
 datetime==5.5
 functools==0.5
+toml
