@@ -26,4 +26,4 @@ async def touch(qqid) -> None:
             time.sleep(3)
             response = requests.get(api)
             message = json.loads(response.text)
-        return message['url']
+        return message['data']['image_url']
