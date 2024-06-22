@@ -17,6 +17,7 @@ def post_group_message_decorator(func):
                     content='消息被去重，请重新唤起该指令',
                     msg_id=message.id
                 )
+            return
         async def post_group_file(client, url):
             try:
                 upload = await client.api.post_group_file(
@@ -37,5 +38,6 @@ def post_group_message_decorator(func):
                     content='消息被去重，请重新唤起该指令',
                     msg_id=message.id
                 )
+            return
         return await func(client, message, post_group_message, post_group_file, *args, **kwargs)
     return wrapper

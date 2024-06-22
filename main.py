@@ -9,6 +9,8 @@ from group_event.group_at_message_create import handle_group_at_message_create
 from guild_event.guild_at_message_create import handle_guild_at_message_create
 from guild_event.guild_c2c_message_create import handle_guild_c2c_message_create
 
+from handle_at_message import HandleAtMessage
+
 _log = logging.get_logger()
 
 
@@ -27,6 +29,8 @@ class AxTBot(botpy.Client):
         self.friend_message_number = 0
         self.guild_group_message_number = 0
         self.guild_friend_message_number = 0
+
+        self.handle_at_message = HandleAtMessage(self)
 
     # 获取运行时间
     def get_run_time(self):
@@ -99,6 +103,5 @@ def run_client(appid, secret):
     )
     AxTBot(intents=intents, is_sandbox=False).run(appid=appid, secret=secret)
 
-
 if __name__ == '__main__':
-    run_client("appid", "secret")
+    run_client("APPID", "APPSECRET")

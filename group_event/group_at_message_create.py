@@ -10,9 +10,9 @@ from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status,
 from utils.jrrp import get_jrrp
 from utils.mcping import mcping
 from utils.steam import get_steamid_info
+from datetime import datetime
+from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
-from utils.translate import translate
-import langid
 from utils.touch import touch
 import re
 
@@ -296,6 +296,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             content = "\n" + info
 
         await post_group_message(client, message, content)
+
     if msg == "jrrp":
         content1,msgtype = await get_jrrp(message)
         if msgtype == 0:
@@ -310,33 +311,15 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                     msg_id=message.id
                 )
             except Exception as e:
-                pass
+                print(f"出现错误：{e}")
         else:
-            pass
+            return
+        return
+    
     if msg.startswith("/steam"):
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
-
-    if msg.startswith('/translate') and len(msg.split(" ")) > 1:
-        result = ""
-        content_result = ""
-        msgs = msg.split(" ")
-        source_lang = ""
-        target_lang = ""
-
-        if len(msgs) > 1:
-            source_lang = ' '.join(msgs[1:])
-
-        language, _ = langid.classify(source_lang)
-        if language == "zh":
-            target_lang = "en"
-        else:
-            target_lang = "zh"
-
-        if source_lang != "":
-                result = await translate(source_lang, target_lang, "bing")
-                content_result = "\n翻译的结果: " + result
-                
+    
     if msg.startswith("/摸") or msg.startswith("摸"):
         if re.match(r"(?:/)?摸\s*(\d+)", msg):
             qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
