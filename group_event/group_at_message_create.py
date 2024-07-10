@@ -21,17 +21,6 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
     msg = message.content.lstrip()
     print("[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "]" + "[群消息]" + " | 群ID:" + message.group_openid + " | 消息ID:" + message.id + " | " + msg)
 
-    if msg == "/myidinfo":
-        contents = "GroupID:" + message.group_openid + "\n" + \
-                   "MsgID:" + message.id + "\n" + \
-                   "EventID:" + message.event_id + "\n" + \
-                   "Time:" + message.timestamp
-
-        await post_group_message(client, message, contents)
-
-    if msg == "/debuginfo":
-        await post_group_message(client, message, str(message))
-
     if msg.startswith("/atinfo"):
         info = await get_system_info()
         content = "\nAxTBot Public v" + str(client.get_version()) + "\n" + \
