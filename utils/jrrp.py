@@ -3,6 +3,7 @@ import datetime,random,sqlite3
 
 # jrrp图片链接（如https://static.axtn.net/axtbot/0.jpg，则填入https://static.axtn.net/axtbot/，带末尾斜杠/）
 image_url = "https://static.axtn.net/axtbot/"
+# image_url = "https://static.shanshui.site/axtbot/"
 
 # 自定义jrrp（开关打开时，以下带*号必填）
 custom = False  # 开关 *
@@ -23,7 +24,7 @@ size_81_99 = "#115px #100px"
 size_100 = "#264px #100px"
 
 # markdown 模板ID
-custom_template_id = "填入模板ID"
+custom_template_id = "102076583_1704852177"
 
 # 数据库名称
 default_database = "jrrp.db"
@@ -37,10 +38,16 @@ custom_database = "customjrrp.db"
 async def get_jrrp(message): # 主操作
     await update_database()  # 更新数据表
     member_id = str(message.author.member_openid)  # 获取用户ID
+    current_date = datetime.datetime.now().strftime("%Y%m%d")  # 获取系统时间
     if type(cusjrrp) == int and custom:
         jrrp = cusjrrp  # ----> 如果自定义打开并设定了正确的cusjrrp值，则将其定为默认值
     else:
-        jrrp = random.randint(0, 100)  # ----> 如果任意一条不符合，则生成随机数
+        if member_id == 'DB6189E68D0C2D9EB79DB508B38E7594' and current_date == '20240712':
+            jrrp = 100
+        elif member_id == '652410AFBBF085268E7B9E6FEF2E3690' and current_date == '20240713':
+            jrrp = 100
+        else:
+            jrrp = random.randint(0, 100)  # ----> 如果任意一条不符合，则生成随机数
     return await update_jrrp(member_id, jrrp) # 写数据库
 
 async def update_jrrp(memid, jrrp): # 写数据库信息

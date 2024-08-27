@@ -14,7 +14,7 @@ def post_group_message_decorator(func):
                 await client.api.post_group_message(
                     group_openid=message.group_openid,
                     msg_type=0,
-                    content='消息被去重，请重新唤起该指令',
+                    content=str(e),
                     msg_id=message.id
                 )
             return
@@ -35,7 +35,7 @@ def post_group_message_decorator(func):
                 await client.api.post_group_message(
                     group_openid=message.group_openid,
                     msg_type=0,
-                    content='消息被去重，请重新唤起该指令',
+                    content=str(e),
                     msg_id=message.id
                 )
             return

@@ -6,14 +6,12 @@ from utils.get_system_info import get_system_info
 from utils.get_minecraft_info import get_minecraft_uuid, get_player_history
 from utils.get_hypixel_info import get_hypixel_info
 from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status, get_whois_info, get_hot_list, \
-    format_hot_search, get_answer_book
+    format_hot_search, get_answer_book, get_touch_url, get_steamid_info
 from utils.jrrp import get_jrrp
 from utils.mcping import mcping
-from utils.steam import get_steamid_info
 from datetime import datetime
 from botpy.message import GroupMessage
 from utils.message import post_group_message_decorator
-from utils.touch import touch
 import re
 
 @post_group_message_decorator
@@ -21,6 +19,109 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
     msg = message.content.lstrip()
     print("[" + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "]" + "[群消息]" + " | 群ID:" + message.group_openid + " | 消息ID:" + message.id + " | " + msg)
 
+    # ------------------------------------菜单区域------------------------------------
+    if msg == "/mc" or msg == "/mc ":
+        contents = "\n======Minecraft查询菜单======" + "\n" + \
+                   "/mc [ID] - 查询玩家UUID及历史用户名" + "\n" + \
+                   "/mcskin [ID] - 查询玩家皮肤" + "\n" + \
+                   "/mchead [ID] - 查询玩家皮肤Head" + "\n" + \
+                   "/mcbody [ID] - 查询玩家皮肤Body" + "\n" + \
+                   "==========================" + "\n" + \
+                   "[ID]为玩家用户名" + "\n" + \
+                   "=========================="
+
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == "/ping" or msg == "/ping ":
+        contents = "\n========Ping查询菜单========" + "\n" + \
+                   "/ping [IP] [查询节点] - 查询IP地址延迟及归属地" + "\n" + \
+                   "可选的查询节点有:" + "\n" + \
+                   "- cn | 中国湖北十堰/电信" + "\n" + \
+                   "- hk | 中国香港/腾讯云" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /ping 域名/IP cn" + "\n" + \
+                   "=========================="
+
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == "/ipinfo" or msg == "/ipinfo ":
+        contents = "\n=======IPInfo查询菜单=======" + "\n" + \
+                   "/ipinfo [IP] - 查询IP详细信息" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /ipinfo IP" + "\n" + \
+                   "=========================="
+
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == "/whois" or msg == "/whois ":
+        contents = "\n=======Whois查询菜单=======" + "\n" + \
+                   "/whois [域名] - 查询域名信息" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /whois 域名" + "\n" + \
+                   "=========================="
+
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == "/hotlist" or msg == "/hotlist ":
+        contents = "\n=======每日热榜菜单=======" + "\n" + \
+                   "/hotlist [热榜类型] - 查询指定热榜信息" + "\n" + \
+                   "可选的热榜类型有:" + "\n" + \
+                   "- weibo | 微博热搜榜" + "\n" + \
+                   "- bilibili | 哔哩哔哩全站日榜" + "\n" + \
+                   "- bilihot | 哔哩哔哩热搜榜" + "\n" + \
+                   "- zhihu | 知乎热搜榜" + "\n" + \
+                   "- douyin | 抖音热搜榜" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /hotlist weibo" + "\n" + \
+                   "注:如果指令发送后无返回且无获取错误信息，视为热榜内含有违规信息，被QQ消息审核拦截" + "\n" + \
+                   "=========================="
+
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == "/mcping" or msg == "/mcping ":
+        contents = "\n=======服务器查询菜单=======" + "\n" + \
+                   "/mcping [IP]:[端口] [服务器类型] - 请求该服务器信息" + "\n" + \
+                   "可选的服务器类型有:" + "\n" + \
+                   "- java | Java Edition服务器" + "\n" + \
+                   "- be | BedRock 基岩服务器" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /mcping mc.hypixel.net" + "\n" + \
+                   "注:如果指令发送后无返回且无获取错误信息，则可能是请求出错或服务器错误，请重试或寻找管理员" + "\n" + \
+                   "=========================="
+        
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == '摸' or msg == '/摸' or msg == '/摸 ' or msg == '摸 ':
+        contents = "\n=======摸一摸菜单=======" + "\n" + \
+                   "/摸 [QQ号] - 生成摸一摸GIF" + "\n" + \
+                   "==========================" + "\n" + \
+                   "使用示例: /摸 3889003621" + "\n" + \
+                   "注:如果指令发送后无返回且无获取错误信息，可能是请求出错或服务器错误，请重试或寻找管理员" + "\n" + \
+                   "如果指令发送后提示被去重，则可能是QQ开放平台侧的问题，请等1分钟左右再重试一次" + "\n" + \
+                   "=========================="
+        
+        await post_group_message(client, message, contents)
+        return
+
+    if msg == '/steam' or msg == '/steam ':
+        contents = "\n=======Steam账户查询=======" + "\n" + \
+                   "/steam [昵称/ID] - 查询指定Steam账户信息" + "\n" + \
+                   "=======================" + "\n" + \
+                   "使用示例: /steam 114514" + "\n" + \
+                   "注:如果指令发送后无返回且无获取错误信息，可能是请求出错或服务器错误，请重试或寻找管理员" + "\n" + \
+                   "如果指令发送后提示被去重，则可能是QQ开放平台侧的问题，请等1分钟左右再重试一次" + "\n" + \
+                   "======================="
+        
+        await post_group_message(client, message, contents)
+        return
+
+    # ------------------------------------功能区域------------------------------------
     if msg.startswith("/atinfo"):
         info = await get_system_info()
         content = "\nAxTBot Public v" + str(client.get_version()) + "\n" + \
@@ -40,124 +141,45 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                   "==============="
 
         await post_group_message(client, message, content)
-
-    # 菜单列表
-    if msg == "/mc" or msg == "/mc ":
-        contents = "\n======Minecraft查询菜单======" + "\n" + \
-                   "/mc [ID] - 查询玩家UUID及历史用户名" + "\n" + \
-                   "#mcskin [ID] - 查询玩家皮肤" + "\n" + \
-                   "#mchead [ID] - 查询玩家皮肤Head" + "\n" + \
-                   "#mcbody [ID] - 查询玩家皮肤Body" + "\n" + \
-                   "==========================" + "\n" + \
-                   "[ID]为玩家用户名" + "\n" + \
-                   "=========================="
-
-        await post_group_message(client, message, contents)
-
-    if msg == "/ping" or msg == "/ping ":
-        contents = "\n========Ping查询菜单========" + "\n" + \
-                   "/ping [IP] [查询节点] - 查询IP地址延迟及归属地" + "\n" + \
-                   "可选的查询节点有:" + "\n" + \
-                   "- cn | 中国湖北十堰/电信" + "\n" + \
-                   "- hk | 中国香港/腾讯云" + "\n" + \
-                   "==========================" + "\n" + \
-                   "使用示例: /ping 域名/IP cn" + "\n" + \
-                   "=========================="
-
-        await post_group_message(client, message, contents)
-
-    if msg == "/ipinfo" or msg == "/ipinfo ":
-        contents = "\n=======IPInfo查询菜单=======" + "\n" + \
-                   "/ipinfo [IP] - 查询IP详细信息" + "\n" + \
-                   "==========================" + "\n" + \
-                   "使用示例: /ipinfo IP" + "\n" + \
-                   "=========================="
-
-        await post_group_message(client, message, contents)
-
-    if msg == "/whois" or msg == "/whois ":
-        contents = "\n=======Whois查询菜单=======" + "\n" + \
-                   "/whois [域名] - 查询域名信息" + "\n" + \
-                   "==========================" + "\n" + \
-                   "使用示例: /whois 域名" + "\n" + \
-                   "=========================="
-
-        await post_group_message(client, message, contents)
-
-    if msg == "/hotlist" or msg == "/hotlist ":
-        contents = "\n=======每日热榜菜单=======" + "\n" + \
-                   "/hotlist [热榜类型] - 查询指定热榜信息" + "\n" + \
-                   "可选的热榜类型有:" + "\n" + \
-                   "- weibo | 微博热搜榜" + "\n" + \
-                   "- bilibili | 哔哩哔哩全站日榜" + "\n" + \
-                   "- bilihot | 哔哩哔哩热搜榜" + "\n" + \
-                   "- zhihu | 知乎热搜榜" + "\n" + \
-                   "- douyin | 抖音热搜榜" + "\n" + \
-                   "==========================" + "\n" + \
-                   "使用示例: /hotlist weibo" + "\n" + \
-                   "注:如果指令发送后无返回且无获取错误信息，视为热榜内含有违规信息，被QQ消息审核拦截" + "\n" + \
-                   "=========================="
-
-        await post_group_message(client, message, contents)
-    if msg == "/translate" or msg == "/translate ":
-        contents = "\n=======万能翻译菜单=======" + "\n" + \
-                   "/translate [翻译内容] - 翻译你想要的内容" + "\n" + \
-                   "==========================" + "\n" + \
-                   "使用示例: /translate 你好" + "\n" + \
-                   "注:如果指令发送后无返回且无获取错误信息，则翻译出错，请重试或寻找管理员" + "\n" + \
-                   "=========================="
-        await post_group_message(client, message, contents)
-
-    # 功能区域
+        return
+        
     if msg.startswith("/hyp"):
         await post_group_message(client, message, content="\n" + await get_hypixel_info(msg, message.id))
+        return
 
-    if msg.startswith("/mc ") and msg.split(" ")[1] is not None:
-        uuid = await get_minecraft_uuid(msg.split(" ")[1])
+    if msg.startswith("/mc ") and len(msg.split(" ")) > 1:
+        player_name = msg.split(" ")[1]
+        uuid = await get_minecraft_uuid(player_name)
         history_info = await get_player_history(uuid)
-
-        # 用于存储格式化的历史记录
-        formatted_history = []
-
-        for record in history_info:
-            name = record.get("name", "")
-            changed_to_at = record.get("changedToAt", "")
-            formatted_history.append(f"{name} - {changed_to_at}")
-
-        if uuid is None:
+        if uuid is None or not history_info:
             await post_group_message(client, message, '未查询到该玩家的信息')
             return
-
-        if history_info is None:
-            formatted_history = "未查询到当前玩家的历史用户名信息"
-
-        contents = "\n===Minecraft玩家查询===" + "\n" + \
-                   "| 玩家ID: " + msg.split(" ")[1] + "\n" + \
-                   "| UUID: " + uuid + "\n" + \
-                   "===历史用户名===\n" + "\n".join(formatted_history)
-
+        formatted_history = "\n".join([f"{name} - {changed_at}" for name, changed_at in history_info.items()])
+        contents = f"\n===Minecraft玩家查询===\n| 玩家名: {player_name}\n| UUID: {uuid}\n===历史用户名===\n{formatted_history}"
         await post_group_message(client, message, contents)
+        return
 
-    if msg.startswith("#mchead ") and msg.split(" ")[1] is not None:
-        uuid = await get_minecraft_uuid(msg.split(" ")[1])
+    async def post_minecraft_image(client, message, avatar_type, content):
+        player_name = msg.split(" ")[1]
+        uuid = await get_minecraft_uuid(player_name)
         if uuid is None:
             await post_group_message(client, message, content='未查询到该玩家的信息')
             return
-        await post_group_file(client,"https://crafatar.com/avatars/" + uuid)
+        image_url = f"https://crafatar.com/{avatar_type}{uuid}"
+        await post_group_file(client, image_url)
+        return
 
-    if msg.startswith("#mcbody ") and msg.split(" ")[1] is not None:
-        uuid = await get_minecraft_uuid(msg.split(" ")[1])
-        if uuid is None:
-            await post_group_message(client, message, content='未查询到该玩家的信息')
-            return
-        await post_group_file(client,"https://crafatar.com/renders/body/" + uuid)
+    if msg.startswith("/mchead ") and len(msg.split(" ")) > 1:
+        await post_minecraft_image(client, message, "avatars/", "未查询到该玩家的信息")
+        return
 
-    if msg.startswith("#mcskin ") and msg.split(" ")[1] is not None:
-        uuid = await get_minecraft_uuid(msg.split(" ")[1])
-        if uuid is None:
-            await post_group_message(client, message, content='未查询到该玩家的信息')
-            return
-        await post_group_file(client,"https://crafatar.com/skins/" + uuid)
+    if msg.startswith("/mcbody ") and len(msg.split(" ")) > 1:
+        await post_minecraft_image(client, message, "renders/body/", "未查询到该玩家的信息")
+        return
+
+    if msg.startswith("/mcskin ") and len(msg.split(" ")) > 1:
+        await post_minecraft_image(client, message, "skins/", "未查询到该玩家的信息")
+        return
 
     if msg.startswith("/ipinfo ") and msg.split(" ")[1] is not None:
         info = await get_ip_info(msg.split(" ")[1])
@@ -165,6 +187,10 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             await post_group_message(client, message, content='未查询到该IP的信息')
             return
         else:
+            # LLC = company
+            # asn = 'AS' + str(asn)
+            # remove ISP
+
             content = "\n=====IP信息=====" + "\n" + \
                       "IP: " + info["ip"] + "\n" + \
                       "| 开始 IP: " + info["beginip"] + "\n" + \
@@ -178,10 +204,10 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                       "=============="
 
         await post_group_message(client, message, content)
+        return
 
     if msg.startswith("/ping ") and msg.split(" ")[1] is not None:
-        info = None
-        checkpoint = None
+        info = checkpoint = None
         ipinfo = await get_ip_info(msg.split(" ")[1])
         try:
             node = msg.split(" ")[2]
@@ -213,6 +239,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                   "=============="
 
         await post_group_message(client, message, content)
+        return
 
     if msg.startswith("/whois ") and msg.split(" ")[1] is not None:
         info = await get_whois_info(msg.split(" ")[1])
@@ -241,6 +268,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                       "=============="
 
         await post_group_message(client, message, content)
+        return
 
     if msg.startswith("/hotlist ") and msg.split(" ")[1] is not None:
         hot_list = None
@@ -273,23 +301,23 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                       "============="
 
         await post_group_message(client, message, content)
-    if msg.startswith("/mcping"):
-        await post_group_message(client, message, content="\n" + await mcping(msg))
+        return
+
+    if msg.startswith("/mcping "):
+        await post_group_message(client, message, content=await mcping(msg))
+        return
 
     if msg.startswith("/ask ") and msg.split(" ")[1] is not None:
         info = await get_answer_book()
-        if info is None:
-            await post_group_message(client, message, content='获取失败，请联系管理员寻求帮助')
-            return
-        else:
-            content = "\n" + info
-
+        content = "\n" + info
         await post_group_message(client, message, content)
+        return
 
     if msg == "jrrp":
-        content1,msgtype = await get_jrrp(message)
+        content1, msgtype = await get_jrrp(message)
         if msgtype == 0:
             await post_group_message(client, message, content1)
+            return
         elif msgtype == 2:
             try:
                 await client.api.post_group_message(
@@ -299,26 +327,25 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                     markdown=content1,
                     msg_id=message.id
                 )
+                return
             except Exception as e:
                 print(f"出现错误：{e}")
+                return
         else:
             return
         return
     
-    if msg.startswith("/steam"):
+    if msg.startswith("/steam "):
         result = await get_steamid_info(msg)
         await post_group_message(client, message, content=result)
+        return
     
     if msg.startswith("/摸") or msg.startswith("摸"):
         if re.match(r"(?:/)?摸\s*(\d+)", msg):
-            qqid = re.match(r"(?:/)?摸\s*(\d+)", msg).group(1)
             try:
-                qqid2 = int(qqid)
+                qqid = int(re.match(r"(?:/)?摸\s*(\d+)", msg).group(1))
             except ValueError:
                 await post_group_message(client, message, "输入值有误，请输入QQ号。")
                 return
-            touch_context = await touch(qqid)
-            await post_group_file(client,touch_context)
-        else:
-            content = await touch("help")
-            await post_group_message(client, message, content)
+            await post_group_file(client, await get_touch_url(qqid))
+            return
