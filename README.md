@@ -3,6 +3,9 @@
 
 <br>
 
+## 使用文档
+- [AxTBot | AxT Docs](https://docs.axtn.net/AxTBot/)
+
 ## Hypixel查询注意事项:
 Hypixel查询是基于 **[Spelako](https://github.com/Spelako)** 项目修改而来<br>
 此存库**只提供用于启动PHP服务器API接口的代码**，其他代码请到原存库进行获取<br>
@@ -20,9 +23,7 @@ Hypixel查询是基于 **[Spelako](https://github.com/Spelako)** 项目修改而
 建议使用venv来控制项目依赖环境:
 
 ```bash
-pip install qq-botpy
-pip install psutil
-pip install requests
+pip install -r requirements.txt
 ```
 
 ### 使用:
