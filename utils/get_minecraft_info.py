@@ -14,7 +14,8 @@ async def get_minecraft_uuid(username):
 
 
 async def get_player_history(uuid):
-    url = f"https://api.axtn.net/api/mchistoryid?uuid={uuid}"
+    # url = f"https://api.axtn.net/api/mchistoryid?uuid={uuid}"
+    url = f"https://api.uapis.cn/minecraft/history-username?info={uuid}"
     try:
         response = requests.get(url)
         response.raise_for_status()
