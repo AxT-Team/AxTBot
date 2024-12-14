@@ -22,7 +22,7 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
 
     # ------------------------------------菜单区域------------------------------------
 
-    if msg == '/help' or msg == '/help ':
+    if msg == '/help' or msg == '/help ' or msg == "help" or msg == "help ":
         contents = "\n=======AxT社区机器人=======" + "\n" + \
                    "| help | - 获取帮助菜单" + "\n" + \
                    "| ping | - 显示Ping菜单" + "\n" + \
