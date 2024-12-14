@@ -32,11 +32,13 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
                    "| mc | - 查询Minecraft相关内容" + "\n" + \
                    "| jrrp | - 获取今日人品" + "\n" + \
                    "| remake | - 重来一世 你会变成什么" + "\n" + \
+                   "| ask | - 读赛博之书 品百味人生" + "\n" + \
                    "===============" + "\n" + \
                    "官方社区群: 832275338" + "\n" + \
                    "===============" + "\n" + \
                    "AxTBot Public v" + str(client.get_version())
-
+        await post_group_message(client, message, contents)
+        return
 
     if msg in [
         "/mc", "/mc ", "mc", "mc ", 
