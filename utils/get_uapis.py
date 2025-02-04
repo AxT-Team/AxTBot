@@ -2,13 +2,14 @@ import json
 import requests
 from requests import HTTPError, Timeout, RequestException
 
-# uapi = "111.180.190.141:23330"
-uapi = "uapis.cn"
+
+uapi = "api.uapis.cn"
+uapi_old = "uapis.cn"
 axtn = "api.axtn.net"
 
 
 async def get_ip_info(ip):
-    url = "https://" + uapi + "/api/ipinfo?ip={}".format(ip)
+    url = "https://" + uapi + "/ipinfo?ip={}".format(ip)
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -21,10 +22,10 @@ async def get_ip_info(ip):
 async def get_ping_info(ip, node):
     url = None
     if node == "cn":
-        url = "https://" + uapi + "/api/ping?host={}".format(ip)
+        url = "https://" + uapi + "/ping?host={}".format(ip)
 
     if node == "hk":
-        url = "https://" + axtn + "/api/ping?host={}".format(ip)
+        url = "https://" + axtn + "/ping?host={}".format(ip)
 
     try:
         response = requests.get(url)
@@ -36,7 +37,7 @@ async def get_ping_info(ip, node):
 
 
 async def get_whois_info(domain):
-    url = "https://" + uapi + "/api/whois?domain={}".format(domain)
+    url = "https://" + uapi + "/whois?domain={}".format(domain)
     response = requests.get(url)
     try:
         response = requests.get(url)
@@ -48,7 +49,7 @@ async def get_whois_info(domain):
 
 
 async def get_icp_info(domain):
-    url = "https://" + uapi + "/api/icp?domain={}".format(domain)
+    url = "https://" + uapi_old + "/api/icp?domain={}".format(domain)
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -59,7 +60,7 @@ async def get_icp_info(domain):
 
 
 async def get_hot_list(hot_type):
-    url = "https://" + uapi + "/api/hotlist?type={}".format(hot_type)
+    url = "https://" + uapi_old + "/api/hotlist?type={}".format(hot_type)
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -70,7 +71,7 @@ async def get_hot_list(hot_type):
 
 
 async def get_answer_book():
-    url = "https://" + uapi + "/api/answerbook"
+    url = "https://" + uapi_old + "/api/answerbook"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -80,14 +81,14 @@ async def get_answer_book():
         return '获取失败，请联系管理员寻求帮助'
 
 async def get_touch_url(qqid):
-    url = "https://" + uapi + "/api/mt?qq=" + str(qqid)
+    url = "https://" + uapi_old + "/api/mt?qq=" + str(qqid)
     return url
 
 async def get_steamid_info(steamid):
     
     split_str = steamid.split(" ")
     steamid = split_str[1]  # 获取分割后的第二个子字符串
-    response = requests.get("https://" + uapi + "/api/steamuserinfo?input=" + str(steamid))
+    response = requests.get("https://" + uapi_old + "/api/steamuserinfo?input=" + str(steamid))
     if response.status_code == 200:
         data = json.loads(response.text)
         if data.get("code") == 200:
@@ -122,11 +123,17 @@ async def get_steamid_info(steamid):
 def translate_domain_status(status_list):
     status_translations = {
         "clientDeleteProhibited": "客户端删除禁止",
+        "clientdeleteprohibited": "客户端删除禁止",
         "clientTransferProhibited": "客户端转移禁止",
+        "clienttransferprohibited": "客户端转移禁止",
         "clientUpdateProhibited": "客户端更新禁止",
+        "clientupdateprohibited": "客户端更新禁止",
         "serverDeleteProhibited": "服务器删除禁止",
+        "serverdeleteprohibited": "服务器删除禁止",
         "serverTransferProhibited": "服务器转移禁止",
-        "serverUpdateProhibited": "服务器更新禁止"
+        "servertransferprohibited": "服务器转移禁止",
+        "serverUpdateProhibited": "服务器更新禁止",
+        "serverupdateprohibited": "服务器更新禁止"
     }
 
     # 翻译状态列表

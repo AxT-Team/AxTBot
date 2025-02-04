@@ -1,2 +1,8 @@
-*.log
-*.db
+#运行时生成文件
+guild_event/__pycache__
+group_event/__pycache__
+utils/__pycache__
+__pycache__
+
+#运行时日志文件
+botpy.log

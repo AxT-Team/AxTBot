@@ -178,8 +178,8 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             await post_group_message(client, message, '未查询到该玩家的信息')
             return
         history_info = await get_player_history(uuid)
-        if history_info is None:
-            formatted_history = "\n".join([f"{name} - {changed_at}" for name, changed_at in history_info.items()])
+        if history_info is not None:
+            formatted_history = history_info
         else:
             formatted_history = "未查询到当前玩家的历史用户名信息"
         contents = f"\n===Minecraft玩家查询===\n| 玩家名: {player_name}\n| UUID: {uuid}\n===历史用户名===\n{formatted_history}"
@@ -248,19 +248,22 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
             except TypeError as e:
                 await post_group_message(client, message, content='未查询到该IP地址')
                 return
+        if info:
+            content = "\n=====Ping信息=====" + "\n" + \
+                      "主机名: " + info["host"].replace('.',',') + "\n" + \
+                      "| IP: " + info["ip"] + "\n" + \
+                      "| 最大延迟: " + str(info["max"]) + " ms\n" + \
+                      "| 平均延迟: " + str(info["avg"]) + " ms\n" + \
+                      "| 最小延迟: " + str(info["min"]) + " ms\n" + \
+                      "| 归属地: " + str(info["location"]) + "\n" + \
+                      "| 检测点: " + checkpoint + "\n" + \
+                      "=============="
 
-        content = "\n=====Ping信息=====" + "\n" + \
-                  "主机名: " + info["host"].replace('.',',') + "\n" + \
-                  "| IP: " + info["ip"] + "\n" + \
-                  "| 最大延迟: " + str(info["max"]) + " ms\n" + \
-                  "| 平均延迟: " + str(info["avg"]) + " ms\n" + \
-                  "| 最小延迟: " + str(info["min"]) + " ms\n" + \
-                  "| 归属地: " + str(info["location"]) + "\n" + \
-                  "| 检测点: " + checkpoint + "\n" + \
-                  "=============="
-
-        await post_group_message(client, message, content)
-        return
+            await post_group_message(client, message, content)
+            return
+        else:
+            await post_group_message(client, message, content='未查询到该IP地址')
+            return
 
     if msg.startswith(("/whois ","whois ")) and msg.split(" ")[1] is not None:
         info = await get_whois_info(msg.split(" ")[1])
@@ -328,13 +331,13 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
         await post_group_message(client, message, content=await mcping(msg))
         return
 
-    if msg.startswith(("/ask ","ask ")) and msg.split(" ")[1] is not None:
+    if msg.startswith(("/ask ","ask ")):
         info = await get_answer_book()
         content = "\n" + info
         await post_group_message(client, message, content)
         return
 
-    if msg in ["jrrp","/jrrp"]:
+    if msg in ["jrrp","/jrrp","jrrp ","/jrrp "]:
         content1, msgtype = await get_jrrp(message)
         if msgtype == 0:
             await post_group_message(client, message, content1)

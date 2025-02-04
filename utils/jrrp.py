@@ -8,9 +8,9 @@ image_url = "https://static.axtn.net/axtbot/"
 # 自定义jrrp（开关打开时，以下带*号必填）
 custom = False  # 开关 *
 cusjrrp = 100 # jrrp值 *
-custom1 = "龙行龘龘 | AxT社区祝您新春快乐" # 段落1 
-custom2 = "瑞兔辞旧去，龙腾新年来 在这辞旧迎新的美好时刻，AxT社区携全体员工给您拜年啦！" # 段落2 
-custom3 = "在这喜庆的日子，祝您在新的一年里：万事如意，心想事成，顺风顺水顺财神！过龙年，用龙图，祝您在龙年里：有着龙马精神，鱼跃龙门，心想事成" # 段落3 
+custom1 = "您今日的人品值是：2025！！！" # 段落1 
+custom2 = "AxT 团队在此祝福大家新年快乐~" # 段落2 
+custom3 = "在这喜庆的日子，祝您在新的一年里：万事如意，心想事成，顺风顺水顺财神！" # 段落3 
 img = "https://static.axtn.net/axtbot/100.jpg" # 图片URL 
 cus_size = "#264px #100px" # 图片尺寸 *
 
@@ -42,12 +42,7 @@ async def get_jrrp(message): # 主操作
     if type(cusjrrp) == int and custom:
         jrrp = cusjrrp  # ----> 如果自定义打开并设定了正确的cusjrrp值，则将其定为默认值
     else:
-        if member_id == 'DB6189E68D0C2D9EB79DB508B38E7594' and current_date == '20240712':
-            jrrp = 100
-        elif member_id == '652410AFBBF085268E7B9E6FEF2E3690' and current_date == '20240713':
-            jrrp = 100
-        else:
-            jrrp = random.randint(0, 100)  # ----> 如果任意一条不符合，则生成随机数
+        jrrp = random.randint(0, 100)  # ----> 如果任意一条不符合，则生成随机数
     return await update_jrrp(member_id, jrrp) # 写数据库
 
 async def update_jrrp(memid, jrrp): # 写数据库信息
