@@ -3,7 +3,7 @@ from datetime import datetime
 from botpy.message import GroupMessage
 
 from utils.get_system_info import get_system_info
-from utils.get_minecraft_info import get_minecraft_uuid, get_player_history
+from utils.get_minecraft_info import get_minecraft_uuid, get_player_history, check_server
 from utils.get_hypixel_info import get_hypixel_info
 from utils.get_uapis import get_ip_info, get_ping_info, translate_domain_status, get_whois_info, get_hot_list, \
     format_hot_search, get_answer_book, get_touch_url, get_steamid_info
@@ -377,3 +377,8 @@ async def handle_group_at_message_create(client, message: GroupMessage, post_gro
     if msg.startswith(("/remake","remake")):
         result = '\n' + await remake(str(message.author.member_openid))
         await post_group_message(client, message, content=result)
+
+    if msg in ['/mcstatus','/mcstatus ', 'mcstatus', 'mcstatus ']:
+        result = '\n' + await check_server()
+        await post_group_message(client, message, content=result)
+        return

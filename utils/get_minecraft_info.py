@@ -34,3 +34,34 @@ async def get_player_history(uuid):
         except (aiohttp.ClientError, asyncio.TimeoutError) as e:
             print(f"请求错误: {e}")
             return None
+
+
+async def check_server():
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post('https://sessionserver.mojang.com/') as response:
+                code = response.status
+                if code == 403:
+                    status1 = '正常'
+                else:
+                    status1 = f'异常，返回码{code}'
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            print(f"请求错误: {e}")
+            status1 = f'请求出错：{e}'
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get('https://api.mojang.com/') as response:
+                code = response.status
+                statusall = await response.json()
+                statusall = statusall.get('Status')
+                if code == 200 and statusall == 'OK':
+                    status2 = '正常'
+                else:
+                    status2 = f'异常，返回码{code}，在线状态{statusall}'
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            print(f"请求错误: {e}")
+            status2 = f'请求出错：{e}'
+    result = f'''===MC验证服务器在线状态===
+| 会话验证：{status1}
+| API服务：{status2}'''
+    return result
