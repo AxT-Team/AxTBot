@@ -1,6 +1,9 @@
 # AxTBot-Public
 基于 **[QQ官方PythonSDK](https://github.com/tencent-connect/botpy)** 开发的 **AxTBot-Public** 机器人程序<br>
 
+> [!CAUTION]
+> 此分支已过期，我们将不再维护当前分支并尝试使用Webhook消息推送链路
+
 <br>
 
 ## 使用文档
