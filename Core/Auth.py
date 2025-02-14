@@ -8,6 +8,7 @@ import requests
 import json
 import threading
 from Core.Logger import logger
+from datetime import timedelta
 
 # 从 QQ 机器人控制台获取的 Bot Secret
 BOT_SECRET = "您的BOTSecret"
@@ -17,6 +18,8 @@ APP_ID = "您的APPID"
 # 全局变量存储 access_token 和过期时间
 access_token = None
 expires_at = 0
+
+start_time = None
 
 # 验证签名
 def verify_signature(bot_secret: str, signature_hex: str, timestamp: str, http_body: bytes) -> bool:
@@ -71,7 +74,8 @@ def get_access_token(app_id: str, client_secret: str) -> dict:
 
 # 守护线程函数
 def token_refresh_thread(app_id: str, client_secret: str):
-    global access_token, expires_at
+    global access_token, expires_at, start_time
+    start_time = time.time()
     while True:
         try:
             # 获取新的 access_token
@@ -100,3 +104,35 @@ def get_current_access_token():
     if access_token is None or time.time() >= expires_at:
         raise Exception("Access token is not available or has expired.")
     return access_token
+
+
+def format_timedelta(delta: timedelta) -> str:
+    """
+    将 timedelta 对象格式化为 'XX天 XX时 XX分 XX秒' 的字符串
+    """
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{days}天 {hours:02d}时 {minutes:02d}分 {seconds:02d}秒"
+
+def get_current_run_time(string_out: bool = True) -> timedelta or str:
+    """
+    获取当前运行时间
+
+    Args:
+        string_out (bool): 是否返回格式化后的字符串。默认为 True，返回格式化后的字符串。
+                           如果设置为 False，则返回 timedelta 对象。
+
+    Returns:
+        timedelta or str: 根据 string_out 参数返回 timedelta 对象或格式化后的字符串。
+    """
+    global start_time
+    if start_time is None:
+        start_time = time.time()
+    now = time.time()
+    elapsed_time = timedelta(seconds=int(now - start_time))
+
+    if string_out:
+        return format_timedelta(elapsed_time)
+    else:
+        return elapsed_time

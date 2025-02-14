@@ -12,7 +12,7 @@ if not os.path.exists('./config.yml'):
         logdir = './logs'
     config = Default_Config()
 else:
-    from .Config import config # 预留Config配置
+    from .Config import config  # 预留Config配置
 
 # 配置日志目录
 os.makedirs(config.logdir, exist_ok=True)
@@ -72,6 +72,7 @@ field_styles = {
     'message': {'color': 'white'}
 }
 
+# 安装 coloredlogs
 coloredlogs.install(level=config.loglevel, logger=logger, fmt='[%(asctime)s][%(levelname)s] %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S', level_styles=level_styles, field_styles=field_styles)
 

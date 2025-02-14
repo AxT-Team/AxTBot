@@ -1,15 +1,19 @@
+from ast import Tuple
 import importlib
 import os
 from Core.Auth import get_current_access_token
 from typing import Callable, Dict, List
 from functools import wraps
-import aiohttp
+import aiohttp, asyncio
 import re
 from Core.Logger import logger
 
 # 用于存储插件的字典
 plugin_registry: Dict[str, List[Callable]] = {}
 
+# 线程安全的全局消息计数字典
+message_count: Dict[str, int] = {}
+message_count_lock = asyncio.Lock()
 
 def group_handle_event(*commands):
     def decorator(func: Callable):
@@ -100,6 +104,12 @@ async def handle_event(event_type: str, event_data: dict) -> None:
         event_type (str): 事件类型
         event_data (dict): 事件数据的字典
     """
+    # 更新消息计数
+    async with message_count_lock:
+        if event_type not in message_count:
+            message_count[event_type] = 0
+        message_count[event_type] += 1
+
     event = Event(
         msg_id=event_data.get('id'),
         content=event_data.get('content'),
@@ -147,12 +157,16 @@ async def handle_event(event_type: str, event_data: dict) -> None:
 
 
 
+async def get_message_count(event_type: str) -> int:
+    """
+    获取指定消息类型的总消息数（线程安全）
+    """
+    async with message_count_lock:
+        return int(message_count.get(event_type, 0))
 
 
 
-
-
-async def send_group_message(group_openid: str, msg_type: int, content: str, msg_id: str, msg_seq=None, event_id=None, markdown=None, ark=None, embed=None, media=None):
+async def send_group_message(group_openid: str, msg_type: int, content: str, msg_id: str, msg_seq=None, event_id=None, markdown=None, ark=None, embed=None, media=None) -> Tuple[str , str]:
     """
     发送群聊消息，支持多种消息类型
 
@@ -215,12 +229,25 @@ async def send_group_message(group_openid: str, msg_type: int, content: str, msg
     if event_id:
         data["event_id"] = event_id
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data) as response:
-            if response.status == 200:
-                logger.debug("框架 >>> 群聊消息发送成功")
-            else:
-                logger.error(f"框架 >>> 群聊消息发送失败: {await response.text()}")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=data) as response:
+                if response.status == 200:
+                    return_id = response.json()['id']
+                    timestamp = response.json()['timestamp']
+                    logger.debug(f"框架 >>> 群聊消息发送成功")
+                    async with message_count_lock:
+                        if "GROUP_AT_MESSAGE_SEND" not in message_count:
+                            message_count["GROUP_AT_MESSAGE_SEND"] = 0
+                        message_count["GROUP_AT_MESSAGE_SEND"] += 1
+                    return (return_id, timestamp)
+                else:
+                    logger.error(f"框架 >>> 群聊消息发送失败: {await response.text()}")
+                    return 
+    except Exception as e:
+        await send_group_message(group_openid, 0, f"尝试发送消息失败，错误信息：{str(e)}", msg_id)
+    
 
 async def upload_media(group_openid, file_type: int, url: str, srv_send_msg: bool):
     """
