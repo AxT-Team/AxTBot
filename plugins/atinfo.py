@@ -11,7 +11,7 @@ async def atinfo(event):
     pr = await get_message_count("C2C_MESSAGE_CREATE")
     guildr = await get_message_count("DIRECT_MESSAGE_CREATE")
     guilds = await get_message_count("AT_MESSAGE_CREATE")
-    reply = "\nAxTBot Public v 2.2\n" + \
+    reply = "\nAxTBot Public v 2.0\n" + \
               "===============" + "\n" + \
               "CPU: " + info["cpu_usage"] + "\n" + \
               "RAM: " + info["ram_usage"] + "\n" + \
