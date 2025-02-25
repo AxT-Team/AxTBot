@@ -39,6 +39,9 @@ async def hotlist_handler(event):
             elif msg.split(" ")[1] == "douyin":
                 hot_list = await get_hot_list("douyin")
                 hot_type = "抖音-热搜榜"
+            else:
+                await send_group_message(event.group_openid, msg_type=0, content='请指定热榜类型', msg_id=event.msg_id)
+                return
 
             if hot_list is None:
                 await send_group_message(event.group_openid, msg_type=0, content='未查询到该热搜信息', msg_id=event.msg_id)

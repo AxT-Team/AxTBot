@@ -1,6 +1,6 @@
 from Core.Event import group_handle_event, get_message_count, send_group_message
 from utils.get_system_info import get_system_info
-from Core.Auth import get_current_run_time
+from Core.Auth import auth
 
 
 @group_handle_event("/atinfo","atinfo")
@@ -22,7 +22,7 @@ async def atinfo(event):
               "频道私聊收/发: " + str(guildr) + "\n" + \
               "===============" + "\n" + \
               "已正常运行" + "\n" + \
-              str(get_current_run_time()) + "\n" + \
+              str(auth.get_current_run_time()) + "\n" + \
               "===============" + "\n" + \
               "官方社区群: 832275338" + "\n" + \
               "==============="

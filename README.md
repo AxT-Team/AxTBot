@@ -5,7 +5,7 @@
 <br />
 
 ## 使用文档
-- [AxTBot | AxT Docs](https://docs.axtn.net/AxTBot/)
+- [AxTBot-v2 | AxT Docs](https://docs.axtn.net/AxTBot-v2/)
 
 ## Hypixel查询注意事项:
 Hypixel查询是基于 **[Spelako](https://github.com/Spelako)** 项目修改而来<br>
@@ -31,35 +31,33 @@ D:\AxTBot> py -m venv <文件夹名>
 
 3. 安装依赖
 
-如果你使用venv虚拟环境，那么在venv虚拟环境中安装依赖（我还没写依赖，后续版本会提供的（（（
+如果你使用venv虚拟环境，那么在venv虚拟环境中安装依赖
 ```bash
 D:\AxTBot> <虚拟环境文件夹>\Scripts\Activate
 (venv) D:\AxTBot> pip install -r requirements.txt
 ```
 
-4. 运行
+4. 配置
+
+将`.env.example`文件重命名为`.env` 并填入机器人相关信息
+
+5. 运行
 ```bash
 (venv) D:\AxTBot> py main.py
 ```
 
 ## 注意事项
-1. 由于配置Config.py尚未完成，目前的机器人参数散落在main.py与Core\Auth.py文件中，将会在后续版本中解决该问题
+1. 日志并非即时更改，所以框架刚开机时日志文件为空，将在后续版本中解决该问题
 
-2. 日志并非即时更改，所以框架刚开机时日志文件为空，将在后续版本中解决该问题
-
-3. 由于历史遗留问题，remake.db不会自动生成，将在后续版本中解决问题
-
-4. 由于历史遗留问题，uapis请求接口返回错误之后不会回传给用户，将在后续版本中解决问题
+2. 由于设定问题，目前每次接收消息后均会reload一次插件，可能导致不必要的性能开销，将在未来的版本中解决该问题
 
 ## 快速开发
 
-> [!CAUTION]
-> 此章节未完工，请暂时参照plugins文件夹中的插件进行开发
+本节详阅[快速开发 - AxTBot-v2 | AxT Docs](https://docs.axtn.net/AxTBot-v2/Developer/)
 
 *你没看错，新框架允许你自己开发插件供你自己机器人使用了（*
 
-
-<br>
+<hr>
 
 ## Mirai&CQ版本已转移到以下存库(内部号)
 - https://github.com/XiaoXianHW/ATBot

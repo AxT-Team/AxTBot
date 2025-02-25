@@ -18,6 +18,9 @@ async def whois_handler(event):
                 await send_group_message(event.group_openid, msg_type=0, content="未查询到该域名信息或暂不支持查询该格式", msg_id=event.msg_id)
                 return
             else:
+                if info in [{"error": "网络请求失败，请稍后再试。"},{"error": "SSL 证书验证失败，请稍后再试或联系管理员。"}]:
+                    await send_group_message(event.group_openid, msg_type=0, content=f"请求失败，请稍后再试。\n详细信息：{info}", msg_id=event.msg_id)
+                    return
                 domain_status_translated = translate_domain_status(info["domain_status"])
                 domain_status_str = "\n".join([status for status in domain_status_translated])
                 dns_str = ", ".join([dns.replace(".", ",") for dns in info["dns"]])
@@ -26,7 +29,7 @@ async def whois_handler(event):
                                                                                                                 ",") + "\n" + \
                         "| 注册邮箱: " + info["email"].replace(".", ",") + "\n" + \
                         "| 注册电话: " + info["phone"] + "\n" + \
-                        "| 注册公司: " + info["LLC"] + "\n" + \
+                        "| 注册公司: " + info["LLC"].replace(".", ",") + "\n" + \
                         "| 注册日期: " + info["reg_date"].replace("T", " ").replace("Z", "") + "\n" + \
                         "| 更新日期: " + info["updated_date"].replace("T", " ").replace("Z", "") + "\n" + \
                         "| 过期日期: " + info["exp_date"].replace("T", " ").replace("Z", "") + "\n" + \

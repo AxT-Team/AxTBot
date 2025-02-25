@@ -1,6 +1,7 @@
 import aiohttp
 from aiohttp import ClientError
 import asyncio
+from Core.Logger import logger
 
 
 async def get_hypixel_info(command, userid):
@@ -11,5 +12,5 @@ async def get_hypixel_info(command, userid):
                 response.raise_for_status()
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
-            return None
+            logger.error(f"请求错误: {e}")
+            return "请求出错！具体信息：" + str(e)

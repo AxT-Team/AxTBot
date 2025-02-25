@@ -1,6 +1,6 @@
-import json
+from Core.Logger import logger
 import aiohttp
-from aiohttp import ClientError, ClientSSLError, ClientSession
+from aiohttp import ClientError, ClientSSLError
 import asyncio
 
 
@@ -17,16 +17,17 @@ async def get_ip_info(ip):
                 response.raise_for_status()
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return None
 
 
 async def get_ping_info(ip, node):
-    url = None
     if node == "cn":
         url = f"https://{uapi}/ping?host={ip}"
     elif node == "hk":
         url = f"https://{axtn}/ping?host={ip}"
+    else:
+        return None
 
     async with aiohttp.ClientSession() as session:
         try:
@@ -34,7 +35,7 @@ async def get_ping_info(ip, node):
                 response.raise_for_status()
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return None
 
 
@@ -46,11 +47,12 @@ async def get_whois_info(domain):
                 response.raise_for_status()
                 return await response.json()
         except ClientSSLError as e:
-            print(f"SSL 错误：{e}")
+            logger.error(f"SSL 错误：{e}")
             return {"error": "SSL 证书验证失败，请稍后再试或联系管理员。"}
         except ClientError as e:
-            print(f"请求错误：{e}")
-            return {"error": "网络请求失败，请稍后再试。"}
+            logger.error(f"请求错误：{e}")
+            info = await response.json()['error'] if "error" in response.json() else "未返回正确值"
+            return {"error": "info"}
 
 
 async def get_icp_info(domain):
@@ -61,7 +63,7 @@ async def get_icp_info(domain):
                 response.raise_for_status()
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return None
 
 
@@ -73,7 +75,7 @@ async def get_hot_list(hot_type):
                 response.raise_for_status()
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return None
 
 
@@ -85,7 +87,7 @@ async def get_answer_book():
                 response.raise_for_status()
                 return (await response.json()).get("content")
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return "获取失败，请联系管理员寻求帮助"
 
 
@@ -110,7 +112,7 @@ async def get_steamid_info(steamid):
                         realname = data.get("realname") if data.get("realname") != 'N/A' else "未知"
                         accountcreationdate = data.get("accountcreationdate") if data.get("accountcreationdate") != 'N/A' else "未知"
                         lastlogoff = data.get("lastlogoff") if data.get("lastlogoff") != '1970-01-01 08:00:00' and data.get("lastlogoff") != 'N/A' else "未知"
-                        location = data(".getlocation") if data.get("location") != 'N/A' else "未知"
+                        location = data.get("location") if data.get("location") != 'N/A' else "未知"
                         return f"""
 ====Steam账户信息====
 | 社区资料状态：{communitystate}
@@ -129,7 +131,7 @@ async def get_steamid_info(steamid):
                 else:
                     return f"\n查询失败，请联系管理员处理\n状态码：{response.status}"
         except (ClientError, asyncio.TimeoutError) as e:
-            print(f"请求错误: {e}")
+            logger.error(f"请求错误: {e}")
             return "\n查询失败，请联系管理员处理"
 
 
