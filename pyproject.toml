@@ -1,6 +1,6 @@
 [project]
 name = "AxTBot-Public"
-version = "2.1.0+13020"
+version = "2.1.0+13021"
 description = "AxTBot 社区机器人是由 AxT社区 开发并维护的公共、公益性QQ官方机器人，基于QQ开放平台 ，使用 Python 和 FastAPI 构建"
 authors = [
     {name = "Shanshui2024", email = "shanshui@shanshui.site"},
