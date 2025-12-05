@@ -191,4 +191,5 @@ async def get_hypixel_info(command, userid):
                 return await response.json()
         except (ClientError, asyncio.TimeoutError) as e:
             logger.error(f"请求错误: {e}")
-            return "请求出错！具体信息：" + str(e)
+            msg = str(e.message) # 兼顾低版本Python
+            return "请求出错！错误信息：" + msg
