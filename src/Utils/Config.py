@@ -5,7 +5,7 @@ from src.Utils.ConfigCli import load_config  # 导入配置加载函数
 from src.Utils.ConfigClass import ConfigBase
 
 
-load_config(Path("config.yaml"))  # 确保配置已加载
+asyncio.run(load_config(Path("config.yaml")))  # 确保配置已加载
 
 def __init__ (self):
     """初始化配置"""

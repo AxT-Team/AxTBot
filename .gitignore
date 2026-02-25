@@ -4,10 +4,7 @@ src/app/__pycache__
 src/Utils/__pycache__
 
 # 数据文件
-data/*.pem
-data/*.db
-data/*.db-wal
-data/*.db-shm
+data
 
 # 运行时日志文件
 logs
@@ -17,3 +14,18 @@ logs
 
 # 操作记录
 .vscode
+
+# 临时分析文件
+temp.log
+
+# 文档
+docs/.vitepress/cache
+docs/.vitepress/dist
+docs/node_modules
+
+
+# 测试相关
+tests/__pycache__
+.coverage
+AxTBot_Public.egg-info
+.pytest_cache

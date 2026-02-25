@@ -141,7 +141,7 @@ def save_config(config: ConfigBase, path: Path):
     
     print(f"✅ 配置文件已生成: {path}\n请阅读以下文档：https://docs.axtn.net/axtbot/v2.1/config/global.html 了解配置项含义")
 
-def load_config(config_path: Path) -> ConfigBase:
+async def load_config(config_path: Path) -> ConfigBase:
     """加载配置，如果不存在则引导创建"""
     # 情况1: 配置文件不存在
     if not config_path.exists():

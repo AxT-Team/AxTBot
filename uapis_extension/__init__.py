@@ -4,7 +4,7 @@ from aiohttp import ClientError
 from src.Utils.Logger import logger
 from uapis_extension.Config import apiconfig
 
-from uapis_extension.functions import format_hot_search, translate_domain_status
+from uapis_extension.functions import format_hot_search, translate_domain_status, get_hypixel_info, format_count, fetch_screenshot_from_service, delayed_remove, _upload
 
 
 """
@@ -18,6 +18,8 @@ async def post_for_api(url: str, body = None, headers = None) -> dict:
 
     Args:
         url: 要请求的URL
+        body: 请求体数据
+        headers: 请求头
 
     Returns:
         验证后的响应模型实例
@@ -31,23 +33,89 @@ async def post_for_api(url: str, body = None, headers = None) -> dict:
     async with aiohttp.ClientSession() as session:
         try:
             if body:
-                async with session.post(apiconfig.url + url, body=body, headers=headers) as response:
-                    data = await response.json()
+                async with session.post(apiconfig.url + url, headers=headers, data=body) as response:
+                    # 检查 Content-Type 来判断响应类型
+                    content_type = response.headers.get('Content-Type', '').lower()
+                    
                     if response.status == 200:
-                        return data
+                        # 如果是 JSON 响应
+                        if 'application/json' in content_type:
+                            try:
+                                import json
+                                response_text = await response.text()
+                                return json.loads(response_text)
+                            except json.JSONDecodeError as e:
+                                logger.error(f"❌ API POST JSON解析失败")
+                                logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                                logger.error(f"  ├─ 响应状态码: {response.status}")
+                                logger.error(f"  ├─ Content-Type: {content_type}")
+                                logger.error(f"  └─ 错误: {str(e)}")
+                                return None
+                        # 如果是二进制数据（图片等）
+                        elif 'image/' in content_type or 'application/octet-stream' in content_type:
+                            logger.error(f"❌ API返回了二进制数据而不是JSON")
+                            logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                            logger.error(f"  ├─ Content-Type: {content_type}")
+                            logger.error(f"  └─ 提示: API应该返回包含图片URL的JSON，而不是直接返回图片")
+                            return None
+                        else:
+                            # 尝试作为文本处理
+                            try:
+                                response_text = await response.text()
+                                logger.error(f"❌ API POST返回了非JSON内容")
+                                logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                                logger.error(f"  ├─ Content-Type: {content_type}")
+                                logger.error(f"  └─ 响应内容: {response_text[:300]}...")
+                                return None
+                            except UnicodeDecodeError:
+                                logger.error(f"❌ API POST返回了无法解码的二进制数据")
+                                logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                                logger.error(f"  └─ Content-Type: {content_type}")
+                                return None
                     else:
-                        logger.error(
-                            f"""❌ 请求失败，状态码: {response.status} API POST返回错误 (HTTP {response.status}): Code: {data.get('code')}, Message: {data.get('message')}"""
-                        )
+                        # 错误响应
+                        try:
+                            response_text = await response.text()
+                        except UnicodeDecodeError:
+                            response_text = "[二进制数据，无法显示]"
+                        
+                        logger.error(f"❌ API POST返回错误")
+                        logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                        logger.error(f"  ├─ 状态码: {response.status}")
+                        logger.error(f"  ├─ Content-Type: {content_type}")
+                        logger.error(f"  └─ 响应内容: {response_text[:300]}...")
+                        return None
             else:
                 async with session.post(apiconfig.url + url, headers=headers) as response:
-                    data = await response.json()
+                    content_type = response.headers.get('Content-Type', '').lower()
+                    
                     if response.status == 200:
-                        return data
+                        if 'application/json' in content_type:
+                            try:
+                                import json
+                                response_text = await response.text()
+                                return json.loads(response_text)
+                            except json.JSONDecodeError:
+                                logger.error(f"❌ API POST JSON解析失败")
+                                logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                                logger.error(f"  └─ Content-Type: {content_type}")
+                                return None
+                        else:
+                            logger.error(f"❌ API POST返回了非JSON内容")
+                            logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                            logger.error(f"  └─ Content-Type: {content_type}")
+                            return None
                     else:
-                        logger.error(
-                            f"""❌ 请求失败，状态码: {response.status} API POST返回错误 (HTTP {response.status}): Code: {data.get('code')}, Message: {data.get('message')}"""
-                        )
+                        try:
+                            response_text = await response.text()
+                        except UnicodeDecodeError:
+                            response_text = "[二进制数据，无法显示]"
+                        
+                        logger.error(f"❌ API POST返回错误")
+                        logger.error(f"  ├─ URL: {apiconfig.url + url}")
+                        logger.error(f"  ├─ 状态码: {response.status}")
+                        logger.error(f"  └─ 响应内容: {response_text[:300]}...")
+                        return None
 
         except aiohttp.ClientError as e:
             logger.error(f"❌ HTTP请求失败: {e}")
@@ -180,16 +248,3 @@ async def create_text(data):
 =====================
 请注意：请确保您的服务器描述、版本或其他信息合法。
 任何由于查询信息中含有违规内容而导致的封禁行为，将受到管控和消息二审"""
-
-
-async def get_hypixel_info(command, userid):
-    url = "http://localhost:30001/hypixel?" + "command=" + command + "&userId=" + userid
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.get(url) as response:
-                response.raise_for_status()
-                return await response.json()
-        except (ClientError, asyncio.TimeoutError) as e:
-            logger.error(f"请求错误: {e}")
-            msg = str(e.message) # 兼顾低版本Python
-            return "请求出错！错误信息：" + msg

@@ -56,7 +56,16 @@ async def mc_handler(event: GroupMessageEvent):
             if uuid is None:
                 await event.reply(content="未查询到该玩家的信息")
                 return
-            image_url = f"https://crafatar.com/{avatar_type}{uuid}"
+            image_url = f"https://mc-api.io/render/{avatar_type}{uuid}"
+            
+            # 记录上传尝试
+            from src.Utils.Logger import logger
+            logger.debug(f"Minecraft插件 >>> 尝试上传玩家皮肤")
+            logger.debug(f"  ├─ 玩家名: {player_name}")
+            logger.debug(f"  ├─ UUID: {uuid}")
+            logger.debug(f"  ├─ 图片类型: {avatar_type}")
+            logger.debug(f"  └─ 图片URL: {image_url}")
+            
             response = await upload_file(
                 MediaUploadPayload(file_type=1, url=image_url, event=event)
             )
@@ -68,16 +77,20 @@ async def mc_handler(event: GroupMessageEvent):
                 if event.event_type in ["频道私信", "频道艾特", "私域频道"]:
                     await event.reply(content="上传失败，频道-文字子频道和频道私聊不支持富媒体，请转到群/私聊请求")
                 else:
-                    await event.reply(content="获取贴图失败，富媒体文件上传超时")
+                    logger.error(f"Minecraft插件 >>> 皮肤上传失败")
+                    logger.error(f"  ├─ 玩家名: {player_name}")
+                    logger.error(f"  ├─ UUID: {uuid}")
+                    logger.error(f"  └─ 图片URL: {image_url}")
+                    await event.reply(content="获取贴图失败，富媒体文件上传失败。请查看日志了解详情。")
 
         if msg.startswith(("/mchead ","mchead ")) and len(msg.split(" ")) > 1:
-            await post_minecraft_image("avatars/", "未查询到该玩家的信息")
+            await post_minecraft_image("face/", "未查询到该玩家的信息")
 
         if msg.startswith(("/mcbody ","mcbody ")) and len(msg.split(" ")) > 1:
-            await post_minecraft_image("renders/body/", "未查询到该玩家的信息")
+            await post_minecraft_image("bust/", "未查询到该玩家的信息")
 
         if msg.startswith(("/mcskin ","mcskin ")) and len(msg.split(" ")) > 1:
-            await post_minecraft_image("skins/", "未查询到该玩家的信息")
+            await post_minecraft_image("full/", "未查询到该玩家的信息")
 
 
 @command(["/mcstatus", "mcstatus"])

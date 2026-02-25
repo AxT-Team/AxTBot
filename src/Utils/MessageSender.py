@@ -10,6 +10,7 @@ from src.Utils.EventClass import (
 )
 from src.Utils.Logger import logger
 from src.Utils.EventSenderApp import SentMessageStore
+from src.Utils.EventSender import SentGroupMessage
 
 open_url = "https://api.sgroup.qq.com"
 
@@ -17,6 +18,33 @@ open_url = "https://api.sgroup.qq.com"
 async def send_group_message(group_openid, payload: MessageSenderBasePayload) -> None:
     logger.debug(f"发送群聊消息 -> {group_openid}: {payload.content}")
     from src.Utils.GetAccessToken import ACCESS_TOKEN
+
+    # 检查是否有相同的消息正在发送或最近已发送（5秒内）
+    recent_time = datetime.now() - timedelta(seconds=5)
+    
+    # 查询最近5秒内相同内容的消息
+    recent_same_message = await SentGroupMessage.filter(
+        group_id=group_openid,
+        message=payload.content,
+        timestamp__gte=recent_time
+    ).first()
+    
+    if recent_same_message:
+        logger.warning(f"消息去重检测 >>> 检测到重复消息")
+        logger.warning(f"  ├─ 群组ID: {group_openid}")
+        logger.warning(f"  ├─ 消息内容: {payload.content[:50]}...")
+        logger.warning(f"  ├─ 上次发送时间: {recent_same_message.timestamp}")
+        logger.warning(f"  ├─ 上次发送状态: {recent_same_message.status}")
+        logger.warning(f"  └─ 建议: 跳过发送，避免被QQ平台去重")
+        
+        # 如果上次发送成功，直接返回
+        if recent_same_message.status == "success":
+            logger.info(f"消息去重 >>> 消息已在5秒内成功发送，跳过本次发送")
+            return
+        # 如果上次发送pending，也跳过
+        elif recent_same_message.status == "pending":
+            logger.info(f"消息去重 >>> 消息正在发送中，跳过本次发送")
+            return
 
     record = await SentMessageStore.log_sent_group_message(
         group_id=group_openid, message=payload.content
@@ -57,8 +85,37 @@ async def send_group_message(group_openid, payload: MessageSenderBasePayload) ->
                 logger.debug(f"发信 >>> 错误：请求被限制，请检查请求频率")
             elif response.status in [500, 504]:
                 logger.debug(f"发信 >>> 错误：开放平台处理失败")
+            
             errinfo = await response.json()
-            logger.error(f"发信 >>> 错误：{errinfo}")
+            
+            # 详细的错误日志
+            error_code = errinfo.get('code', '未知')
+            error_msg = errinfo.get('message', '未知错误')
+            err_code = errinfo.get('err_code', '未知')
+            trace_id = errinfo.get('trace_id', '未知')
+            
+            logger.error(f"❌ 发送群消息失败")
+            logger.error(f"  ├─ 群组ID: {group_openid}")
+            logger.error(f"  ├─ 消息内容: {payload.content[:100]}...")
+            logger.error(f"  ├─ HTTP状态码: {response.status}")
+            logger.error(f"  ├─ 错误代码: {error_code}")
+            logger.error(f"  ├─ 错误信息: {error_msg}")
+            logger.error(f"  ├─ 内部错误码: {err_code}")
+            logger.error(f"  └─ 追踪ID: {trace_id}")
+            
+            # 根据错误代码提供建议
+            if error_code == 40054005:
+                logger.error(f"  💡 建议: 消息被去重")
+                logger.error(f"     - 原因：5秒内发送了相同的消息")
+                logger.error(f"     - 解决：等待5秒后重试，或修改消息内容")
+                logger.error(f"     - 注意：本地去重检查可能未生效，请检查数据库连接")
+            elif error_code == 304023:
+                logger.error(f"  💡 建议: 消息发送频率过高")
+                logger.error(f"     - 解决：降低消息发送频率")
+            elif error_code == 304024:
+                logger.error(f"  💡 建议: 消息内容违规")
+                logger.error(f"     - 解决：检查消息内容是否包含敏感词")
+            
             await SentMessageStore.update_message_status(
                 record_id=record.id,
                 message_type="group",
@@ -263,7 +320,6 @@ async def send_auto_reply(payload: AutoReplyPayload) -> None:
     elif payload.channel_id and payload.is_direct_message == False:
         base_payload.content = payload.content
         await send_channel_message(payload.channel_id, payload.guild_id, base_payload)
-        pass
     elif payload.guild_id:
         base_payload.content = payload.content
         await send_channel_dms(payload.guild_id, base_payload)
@@ -307,10 +363,42 @@ async def upload_file(payload: MediaUploadPayload):
             json=payload.to_dict(),
             headers={"Authorization": f"QQBot {ACCESS_TOKEN}"},
         ) as response:
+            logger.debug(str(payload.to_dict()) + "，请求URL为：" + url)
             if response.status == 200:
                 file_info = await response.json()
                 return MediaPayload(file_info)
             else:
                 message = await response.json()
-                logger.error("上传文件失败: " + str(message))
-            logger.debug(str(payload.to_dict()) + "，请求URL为：" + url)
+                # 详细的错误日志
+                logger.error(f"❌ 上传文件失败")
+                logger.error(f"  ├─ 消息类型: {payload.event.event_type}")
+                logger.error(f"  ├─ 文件类型: {payload.file_type} (1=图片, 2=视频, 3=语音, 4=文件)")
+                logger.error(f"  ├─ 文件URL: {payload.url}")
+                logger.error(f"  ├─ 请求URL: {url}")
+                logger.error(f"  ├─ HTTP状态码: {response.status}")
+                
+                # 解析错误信息
+                error_code = message.get('code', '未知')
+                error_msg = message.get('message', '未知错误')
+                err_code = message.get('err_code', '未知')
+                trace_id = message.get('trace_id', '未知')
+                
+                logger.error(f"  ├─ 错误代码: {error_code}")
+                logger.error(f"  ├─ 错误信息: {error_msg}")
+                logger.error(f"  ├─ 内部错误码: {err_code}")
+                logger.error(f"  └─ 追踪ID: {trace_id}")
+                
+                # 根据错误代码提供建议
+                if error_code == 850026:
+                    logger.error(f"  💡 建议: 富媒体文件下载失败，可能原因：")
+                    logger.error(f"     - 文件URL无法访问或已失效")
+                    logger.error(f"     - 文件服务器拒绝QQ服务器访问")
+                    logger.error(f"     - 文件格式不支持或文件损坏")
+                    logger.error(f"     - 网络连接问题")
+                elif error_code == 304003:
+                    logger.error(f"  💡 建议: URL非法，请检查文件URL格式")
+                elif error_code == 304004:
+                    logger.error(f"  💡 建议: 文件大小超过限制")
+                elif error_code == 304005:
+                    logger.error(f"  💡 建议: 文件格式不支持")
+                raise

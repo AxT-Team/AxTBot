@@ -55,10 +55,11 @@ async def hotlist_handler(event: MessageEventPayload):
             await event.reply('未查询到该热搜信息')
             return
         else:
+            update_time = hot_list.get("update_time", "未知")
             content = "===" + hot_type + "===" + "\n" + \
                     format_hot_search(hot_list) + "\n" + \
                     "=============" + "\n" + \
-                    hot_list["update_time"] + "\n" + \
+                    update_time + "\n" + \
                     "============="
         await event.reply(content)
     else:

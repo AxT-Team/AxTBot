@@ -442,6 +442,7 @@ class AutoReplyPayload:
         self.media: MediaPayload = None
         self.image = None
         self.event_id: str = None
+        self.msg_seq: int = 1
 
     def set_content(self, content):
         self.content = content
@@ -460,6 +461,10 @@ class AutoReplyPayload:
         return self
     def set_image(self, image: str = None):
         self.image = image
+        return self
+
+    def set_seq(self, msg_seq: int = None):
+        self.msg_seq = msg_seq
         return self
 
 
@@ -551,7 +556,7 @@ class GuildMessageEvent(MessageEventPayload):
     def is_direct_message(self) -> bool:
         """是否是私信消息"""
         return self.t == "DIRECT_MESSAGE_CREATE"
-    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None):
+    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, msg_seq: int = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self, self.t == "DIRECT_MESSAGE_CREATE").set_content(content)
         if markdown:
@@ -560,6 +565,9 @@ class GuildMessageEvent(MessageEventPayload):
             auto_payload.set_ark(ark)
         if media.url:
             auto_payload.set_image(media.url)
+        if msg_seq:
+            auto_payload.set_seq(msg_seq)
+
         from src.Utils.MessageSender import send_auto_reply
         await send_auto_reply(auto_payload)
 
@@ -573,7 +581,7 @@ class GroupMessageEvent(MessageEventPayload):
     def group_id(self) -> str:
         return self.d.get("group_id", "")
 
-    async def reply(self, content: str = None, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None):
+    async def reply(self, content: str = None, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, msg_seq: int = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self).set_content(content)
         if markdown:
@@ -582,6 +590,8 @@ class GroupMessageEvent(MessageEventPayload):
             auto_payload.set_ark(ark)
         if media:
             auto_payload.set_media(media)
+        if msg_seq:
+            auto_payload.set_seq(msg_seq)
         from src.Utils.MessageSender import send_auto_reply
         await send_auto_reply(auto_payload)
 
