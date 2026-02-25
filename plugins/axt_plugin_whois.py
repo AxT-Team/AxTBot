@@ -1,3 +1,5 @@
+import re
+
 from src.Utils.PluginBase import command
 from src.Utils.EventClass import GroupMessageEvent
 from src.Utils.Logger import logger
@@ -29,7 +31,9 @@ async def whois_handler(event: GroupMessageEvent) -> str:
         return
     
     domain_name = parts[1]
-    
+    domain_name = re.sub(r'^https?://', '', domain_name, flags=re.IGNORECASE)
+
+
     try:
         info = await get_from_api(f"/api/v1/network/whois?domain={domain_name}&format=json")
         if info is None:

@@ -1,3 +1,4 @@
+import re
 from src.Utils.PluginBase import command
 from src.Utils.EventClass import MessageEventPayload
 from src.Utils.Logger import logger
@@ -31,6 +32,7 @@ async def ping_handler(event: MessageEventPayload):
         return
     
     host = parts[1]
+    host = re.sub(r'^https?://', '', host, flags=re.IGNORECASE)
     checkpoint = "中国湖北十堰/电信"
     
     try:

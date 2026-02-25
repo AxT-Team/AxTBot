@@ -1,3 +1,5 @@
+import re
+
 from src.Utils.PluginBase import command
 from src.Utils.EventClass import MessageEventPayload
 from src.Utils.Logger import logger
@@ -25,6 +27,7 @@ async def ipinfo_handler(event: MessageEventPayload):
         return
     
     host = parts[1]
+    host = re.sub(r'^https?://', '', host, flags=re.IGNORECASE)
     
     try:
         info = await get_from_api(f"api/v1/network/ipinfo?ip={host}")

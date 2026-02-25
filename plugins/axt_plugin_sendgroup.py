@@ -20,13 +20,14 @@ async def handle_hello(event: GroupEvent) -> None:
     """
 
     await event.reply(
-        """欢迎使用AxT机器人2.1.0
+        """欢迎使用AxT社区机器人2.1.0
 ===============
-| 在开始之前，请务必阅读以下协议和用户政策。
-| 继续使用机器人，即代表您同意将当前聊天环境对机器人的用户数据、信息等上报给AxT进行数据分析。
-| 请注意：AxT将不会对用户数据进行任何的修改、公开、分享、出售、转让，仅用于分析用户数据，并生成报告等。
-| 有关于隐私数据的使用：由于QQ开放平台限制，用户隐私仅包含您上传的富文本和文本信息。
+| 在开始之前，请阅读以下协议和政策。
+| 使用该机器人，即代表您同意将用户数据等上报团队进行数据分析。
+| 请注意：AxT、思茶科技及相关团队不会对用户数据进行任何形式的修改、公开、分享、出售、转让，仅用于分析、生成报告等。
+| 有关隐私数据：开放平台限制，用户隐私仅包含您上传的文本信息。
 | 如果您对此有任何异议，请联系admin@axtrk,com。
 ===============
-| AxT服务条款：https://www.axtrk.com/terms
-| 思茶科技服务条款：https://sicha.ltd/terms""")
+| 弧塔科技服务条款：https://www.axtrk.com/terms
+| UApi 服务条款：https://uapis.cn/docs/getting-started/privacy-policy
+| 思茶科技服务条款：https://sicha.ltd/axt_bot_terms/""")

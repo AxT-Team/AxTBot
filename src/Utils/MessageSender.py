@@ -315,7 +315,7 @@ async def send_auto_reply(payload: AutoReplyPayload) -> None:
             base_payload.event_id = payload.event_id
             base_payload.content = payload.content
         else:
-            base_payload.content = "\n" + payload.content
+            base_payload.content = "\n" + str(payload.content)
         await send_group_message(payload.group_id, base_payload)
     elif payload.channel_id and payload.is_direct_message == False:
         base_payload.content = payload.content
