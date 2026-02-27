@@ -1,7 +1,7 @@
 from typing import Union
 
 from src.Utils.EventClass import MessageEventPayload, GroupEvent
-from src.Utils.PluginBase import get_command_handler, get_group_add_handler
+from src.Utils.PluginBase import get_command_handler, get_group_add_handler, get_interaction_handler, get_friend_add_handler
 from src.Utils.Logger import logger
 from src.Utils.EventSenderApp import MessageStore
 
@@ -31,6 +31,9 @@ async def handle_event(payload: Union[MessageEventPayload, GroupEvent]):
         logger.debug(f"插件管理器 >>> 处理事件: {payload.event_type}")
         if payload.t == "GROUP_ADD_ROBOT":
             handler = await get_group_add_handler()
+            if handler is None:
+                logger.warning(f"插件管理器 >>> 未找到 GROUP_ADD_ROBOT 的处理器")
+                return
             try:
                 await handler(payload)
                 return
@@ -41,5 +44,27 @@ async def handle_event(payload: Union[MessageEventPayload, GroupEvent]):
         elif payload.t == "GROUP_DEL_ROBOT":
             # 目前不处理退群事件
             return
+        elif payload.t == "FRIEND_ADD":
+            handler = await get_friend_add_handler()
+            if handler is None:
+                logger.warning(f"插件管理器 >>> 未找到 FRIEND_ADD 的处理器")
+                return
+            try:
+                await handler(payload)
+            except Exception as e:
+                error_msg = f"处理事件 {payload.event_type} 出错: {str(e)}"
+                logger.error(f"插件管理器 >>> {error_msg}")
+                raise
+        elif payload.t == "INTERACTION_CREATE":
+            handler = await get_interaction_handler()
+            if handler is None:
+                logger.warning(f"插件管理器 >>> 未找到 INTERACTION_CREATE 的处理器")
+                return
+            try:
+                await handler(payload)
+            except Exception as e:
+                error_msg = f"处理事件 {payload.event_type} 出错: {str(e)}"
+                logger.error(f"插件管理器 >>> {error_msg}")
+                raise
         else:
             pass

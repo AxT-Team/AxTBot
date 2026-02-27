@@ -10,6 +10,8 @@ from src.Utils.Config import config
 COMMAND_REGISTRY: Dict[str, Dict] = {}
 # 全局加群事件注册表
 GROUP_ADD_REGISTRY: Dict[str, Dict] = {}
+FRIEND_ADD_REGISTRY: Dict[str, Dict] = {}
+INTERACTION_REGISTRY: Dict[str, Dict] = {}
 PLUGIN_DIR: Optional[str] = None
 
 def command(names, event_type: type = None):
@@ -80,6 +82,66 @@ def group_add(func):
     }
     return func
 
+def friend_add(func):
+    """私聊加好友事件处理装饰器
+    
+    Args:
+        func: 处理函数
+        
+    Returns:
+        装饰器函数
+    """
+    # 获取当前模块名，用于日志记录
+    module_name = func.__module__
+    
+    if "friend_add" in FRIEND_ADD_REGISTRY:
+        # 检查是否是同一个模块的处理器
+        existing_module = FRIEND_ADD_REGISTRY["friend_add"]['handler'].__module__
+        if existing_module == module_name:
+            # 同一模块重复注册，直接覆盖
+            logger.debug(f"插件管理器 >>> 更新加好友事件处理器在模块 {module_name} 中")
+        else:
+            # 不同模块的处理器冲突，发出警告
+            logger.warning(f"⚠️ 加好友事件处理器冲突: 已在模块 {existing_module} 中注册，现在被模块 {module_name} 覆盖")
+    else:
+        logger.debug(f"插件管理器 >>> 注册加好友事件处理器在模块 {module_name} 中")
+    
+    # 注册加群事件处理函数
+    FRIEND_ADD_REGISTRY["friend_add"] = {
+        'handler': func
+    }
+    return func
+
+def interaction_add(func):
+    """按钮互动事件处理装饰器
+    
+    Args:
+        func: 处理函数
+        
+    Returns:
+        装饰器函数
+    """
+    # 获取当前模块名，用于日志记录
+    module_name = func.__module__
+    
+    if "interaction_add" in INTERACTION_REGISTRY:
+        # 检查是否是同一个模块的处理器
+        existing_module = INTERACTION_REGISTRY["interaction_add"]['handler'].__module__
+        if existing_module == module_name:
+            # 同一模块重复注册，直接覆盖
+            logger.debug(f"插件管理器 >>> 更新按钮互动事件处理器在模块 {module_name} 中")
+        else:
+            # 不同模块的处理器冲突，发出警告
+            logger.warning(f"⚠️ 按钮互动事件事件处理器冲突: 已在模块 {existing_module} 中注册，现在被模块 {module_name} 覆盖")
+    else:
+        logger.debug(f"插件管理器 >>> 注册按钮互动事件处理器在模块 {module_name} 中")
+    
+    # 注册按钮互动事件处理函数
+    INTERACTION_REGISTRY["interaction_add"] = {
+        'handler': func
+    }
+    return func
+
 async def get_command_handler(cmd: str, event_class: type) -> Optional[Callable]:
     """获取命令处理函数（添加事件类型检查）"""
     if cmd not in COMMAND_REGISTRY:
@@ -103,6 +165,26 @@ async def get_group_add_handler() -> Optional[Callable]:
     handler_info = GROUP_ADD_REGISTRY["group_add"]
     handler = handler_info['handler']
     return handler
+
+async def get_interaction_handler() -> Optional[Callable]:
+    """获取按钮INTERACTION事件处理函数"""
+    if "interaction_add" not in INTERACTION_REGISTRY:
+        return None
+    
+    handler_info = INTERACTION_REGISTRY["interaction_add"]
+    handler = handler_info['handler']
+    return handler
+
+async def get_friend_add_handler() -> Optional[Callable]:
+    """获取加好友事件处理函数"""
+    if "friend_add" not in FRIEND_ADD_REGISTRY:
+        return None
+    
+    handler_info = FRIEND_ADD_REGISTRY["friend_add"]
+    handler = handler_info['handler']
+    return handler
+
+
 
 # 新增插件API处理函数
 async def get_plugins_list():

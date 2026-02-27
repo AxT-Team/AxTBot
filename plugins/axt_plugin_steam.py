@@ -16,11 +16,12 @@ __metaresult__ = {
 async def ping_handler(event: MessageEventPayload):
     if event.content in ['/steam', '/steam ', 'steam', 'steam ']:
         content = "=======Steam账户查询=======" + "\n" + \
-                   "/steam [昵称/ID] - 查询指定Steam账户信息" + "\n" + \
+                   "/steam [SteamID64/用户自定义URL名称/完整的个人资料链接/SteamID3] - 查询指定Steam账户信息" + "\n" + \
                    "=======================" + "\n" + \
                    "使用示例: /steam 114514" + "\n" + \
                    "注:如果指令发送后无返回且无获取错误信息，可能是请求出错或服务器错误，请重试或寻找管理员" + "\n" + \
                    "如果指令发送后提示被去重，则可能是QQ开放平台侧的问题，请等1分钟左右再重试一次" + "\n" + \
+                   "注意！由于Steam API限制，此处暂不支持使用昵称查询" + "\n" + \
                    "======================="
         await event.reply(content=content)
     else:
@@ -78,4 +79,5 @@ async def get_steamid_info(steamid):
 
     else:
         return f"""查询失败，可能是输入有误或 Steam 账户不存在。
-若确认当前账户存在，请稍后重试或联系管理员。"""
+若确认当前账户存在，请稍后重试或联系管理员。
+请注意：由于 Steam API 限制，此处暂不支持使用昵称查询。请通过SteamID查询，详见/steam菜单"""

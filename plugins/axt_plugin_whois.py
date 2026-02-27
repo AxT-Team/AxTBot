@@ -40,10 +40,15 @@ async def whois_handler(event: GroupMessageEvent) -> str:
             await event.reply(content="未查询到该域名信息或暂不支持查询该格式")
             return
         
-        # 安全地获取嵌套字典的值
+        
         whois_info = info.get("whois", {})
-        domain = whois_info.get("domain", {})
-        registrar = whois_info.get("registrar", {})
+        try:
+            domain = whois_info.get("domain", {})
+            registrar = whois_info.get("registrar", {})
+        except Exception:
+            await event.reply(content="无法查询到该域名信息，请检查域名是否存在或是否为根域名\n注：部分域名仅支持查询根域名")
+            return
+        
         
         # 处理域名状态
         domain_status = domain.get("status", [])

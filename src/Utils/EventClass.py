@@ -323,7 +323,9 @@ class KeyboardPayload:
     """消息按钮 消息体
     
     结构：
-    - content: Dict 按钮内容
+    - keyboard_id: str 按钮ID # 此为模板响应
+    --- 
+    - content: Dict 按钮内容 # 此为自定义响应
         - rows: List[Dict] 按钮行
             - buttons: List[Dict] 按钮列表
                 - id: str 按钮ID
@@ -339,12 +341,17 @@ class KeyboardPayload:
     
     详见：https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/trans/msg-btn.html
     """
-    def __init__(self, payload: Optional[Dict] = None):
+    def __init__(self, keyboard_id: str = None, payload: Optional[Dict] = None):
+        self.keyboard_id: str = keyboard_id
         self._payload = payload or {}
         self.content: Dict = self._payload.get('content', {})
         self.rows: List[Dict] = self.content.get('rows', [])
     
     def to_dict(self) -> Dict[str, Any]:
+        if self.keyboard_id:
+            return {
+                'id': self.keyboard_id
+            }
         if not self.rows: return None
         return {
             'content': {
@@ -440,6 +447,7 @@ class AutoReplyPayload:
         self.markdown: MarkdownPayload = None
         self.ark: ArkPayload = None
         self.media: MediaPayload = None
+        self.keyboard: KeyboardPayload = None
         self.image = None
         self.event_id: str = None
         self.msg_seq: int = 1
@@ -465,6 +473,10 @@ class AutoReplyPayload:
 
     def set_seq(self, msg_seq: int = None):
         self.msg_seq = msg_seq
+        return self
+    
+    def set_keyboard(self, keyboard: KeyboardPayload = None):
+        self.keyboard = keyboard
         return self
 
 
@@ -528,6 +540,8 @@ class MessageSenderBasePayload:
             result['media'] = self.media.to_dict()
         if self.image:
             result['image'] = self.image
+        if self.keyboard:
+            result['keyboard'] = self.keyboard.to_dict()
 
         return result
 
@@ -556,7 +570,7 @@ class GuildMessageEvent(MessageEventPayload):
     def is_direct_message(self) -> bool:
         """是否是私信消息"""
         return self.t == "DIRECT_MESSAGE_CREATE"
-    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, msg_seq: int = None):
+    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, keyboard: KeyboardPayload = None, msg_seq: int = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self, self.t == "DIRECT_MESSAGE_CREATE").set_content(content)
         if markdown:
@@ -565,6 +579,8 @@ class GuildMessageEvent(MessageEventPayload):
             auto_payload.set_ark(ark)
         if media.url:
             auto_payload.set_image(media.url)
+        if keyboard:
+            auto_payload.set_keyboard(keyboard)
         if msg_seq:
             auto_payload.set_seq(msg_seq)
 
@@ -581,7 +597,7 @@ class GroupMessageEvent(MessageEventPayload):
     def group_id(self) -> str:
         return self.d.get("group_id", "")
 
-    async def reply(self, content: str = None, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, msg_seq: int = None):
+    async def reply(self, content: str = None, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, keyboard: KeyboardPayload = None, msg_seq: int = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self).set_content(content)
         if markdown:
@@ -590,6 +606,8 @@ class GroupMessageEvent(MessageEventPayload):
             auto_payload.set_ark(ark)
         if media:
             auto_payload.set_media(media)
+        if keyboard:
+            auto_payload.set_keyboard(keyboard)
         if msg_seq:
             auto_payload.set_seq(msg_seq)
         from src.Utils.MessageSender import send_auto_reply
@@ -602,7 +620,7 @@ class PrivateMessageEvent(MessageEventPayload):
         super().__init__(data)
         logger.info(f"私聊消息 | 用户ID：{self.user_id} >>> {self.content}")
 
-    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None):
+    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, keyboard: KeyboardPayload = None, msg_seq: int = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self).set_content(content)
         if markdown:
@@ -611,6 +629,10 @@ class PrivateMessageEvent(MessageEventPayload):
             auto_payload.set_ark(ark)
         if media:
             auto_payload.set_media(media)
+        if keyboard:
+            auto_payload.set_keyboard(keyboard)
+        if msg_seq:
+            auto_payload.set_seq(msg_seq)
         from src.Utils.MessageSender import send_auto_reply
         await send_auto_reply(auto_payload)
 
@@ -642,10 +664,18 @@ class GroupEvent(QQBasePayload):
         self.timestamp = self.d.get("timestamp", "")
         self.event_id = self.id
 
-    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None):
+    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, keyboard: KeyboardPayload = None):
         """快捷回复方法"""
         auto_payload = AutoReplyPayload(self).set_content(content)
         auto_payload.event_id = self.event_id
+        if markdown:
+            auto_payload.set_markdown(markdown)
+        if ark:
+            auto_payload.set_ark(ark)
+        if media:
+            auto_payload.set_media(media)
+        if keyboard:
+            auto_payload.set_keyboard(keyboard)
         from src.Utils.MessageSender import send_auto_reply
         await send_auto_reply(auto_payload)
 
@@ -665,6 +695,49 @@ class GuildEvent(QQBasePayload):
     @property
     def guild_id(self) -> str:
         return self.d.get("guild_id", "")
+
+
+class InterActionEvent(QQBasePayload):
+    """互动事件处理"""
+    def __init__(self, data: Union[Dict, str]):
+        # 调用父类初始化链
+        super().__init__(data)
+
+        self.timestamp = self.d.get("timestamp", "")
+        self.event_id = self.id
+        self._data: dict = self.d.get("data", "")
+        self._resolved: dict = self._data.get("resolved", "")
+        self.button_data = self._resolved.get("button_data", "")
+        self.button_id = self._resolved.get("button_id", "")
+        self.scene = self.d.get("scene", "")
+        if self.scene == "group":
+            self.group_id = self.d.get("group_openid", "")
+            self.user_id = self.d.get("group_member_openid", "")
+        elif self.scene == "c2c":
+            self.user_id = self.d.get("user_openid", "")
+        elif self.scene == "guide":
+            self.guide_id = self.d.get("guide_id", "")
+            self.channel_id = self.d.get("channel_id", "")
+            self.user_id = self._resolved.get("user_id", "")
+
+    async def reply(self, content: str, markdown: MarkdownPayload = None, msg_id: str = None, ark: ArkPayload = None, media: MediaPayload = None, keyboard: KeyboardPayload = None):
+        """快捷回复方法"""
+        auto_payload = AutoReplyPayload(self).set_content(content)
+        auto_payload.event_id = self.event_id
+        if markdown:
+            auto_payload.set_markdown(markdown)
+        if ark:
+            auto_payload.set_ark(ark)
+        if media:
+            auto_payload.set_media(media)
+        if keyboard:
+            auto_payload.set_keyboard(keyboard)
+        from src.Utils.MessageSender import send_auto_reply # , accept_interaction
+        # await accept_interaction(self.event_id)
+        await send_auto_reply(auto_payload)
+
+
+
 
 
 # ====================== 工厂函数 ======================
@@ -698,6 +771,8 @@ def create_payload(payload_data: Union[Dict, str]) -> Union[MessageEventPayload,
             return GuildEvent(payload_dict)
         elif t in ["GROUP_ADD_ROBOT", "GROUP_DEL_ROBOT"]:
             return GroupEvent(payload_dict)
+        elif t == "INTERACTION_CREATE":
+            return InterActionEvent(payload_dict)  
 
     elif op == 13:  # 验证事件
         return ValidationEvent(payload_dict)

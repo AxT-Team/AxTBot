@@ -308,6 +308,9 @@ async def send_auto_reply(payload: AutoReplyPayload) -> None:
         base_payload.msg_type = 7
     if payload.image:
         base_payload.image = payload.image
+    if payload.keyboard:
+        base_payload.keyboard = payload.keyboard
+        base_payload.msg_type = 2
     if payload.group_id:
         if payload.markdown or payload.ark:
             base_payload.content = " "
@@ -402,3 +405,18 @@ async def upload_file(payload: MediaUploadPayload):
                 elif error_code == 304005:
                     logger.error(f"  💡 建议: 文件格式不支持")
                 raise
+
+
+
+async def generate_link(user_id: str) -> str:
+    url = open_url + "/v2/generate_url_link"
+    async with aiohttp.ClientSession() as session:
+        from src.Utils.GetAccessToken import ACCESS_TOKEN
+        async with session.post(
+            url,
+            json={"callback_data": user_id},
+            headers={"Authorization": f"QQBot {ACCESS_TOKEN}"},
+        ) as response:
+            message = await response.json()
+            logger.debug(message)
+            return message.get("data", "").get("url", "")
