@@ -27,17 +27,19 @@ async def webhook(request: Request):
     POST方式请求该接口会处理Webhook事件，并返回事件数据
     """
     try:
+        body = await request.body()
         payload = await request.json()
         payload = BaseWebhookEvent(**payload)
         if payload.op == 13:
             validate = ValidationEvent(**payload.d)
-            plain_token, signature = await service_validation(validate, request.headers)
+            plain_token, signature = await service_validation(validate, request.headers, body)
+            if plain_token and signature:
+                return JSONResponse(
+                    content={"plain_token": plain_token, "signature": signature},
+                    status_code=200
+                )
         else:
-            pass
+            print(f"Received event with op code {payload.op}, which is not a validation event. Ignoring.")
 
     except Exception as e:
-        print(e)
-        return JSONResponse(
-            content={"code": 400, "message": str(e)},
-            status_code=400
-        )
+        raise e
