@@ -1,0 +1,10 @@
+# Git Ignore File for AxTBot Project
+
+# Python Environment
+.venv
+
+# Build wastes
+*/__pycache__
+*/*/__pycache__
+__pycache__
+*.pyc
