@@ -1,7 +1,7 @@
 """
 Tencent-QQ Webhook Endpoint for AxTBot
 
-Author: Shanshui2024
+Author: Shanshui2023
 Organization: AxT-Team
 """
 from fastapi import APIRouter, Request
@@ -42,6 +42,7 @@ async def webhook(request: Request):
         elif payload.op == 0:
             result = await service_validation_msg(request.headers, body)
             if result:
+                # Just give me a second to verify this code....
                 return JSONResponse(
                     content={"op_code": 12, "d": {"event_id": payload.id, "status": 0, "message": "success"}},
                     status_code=200

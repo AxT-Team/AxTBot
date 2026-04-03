@@ -1,7 +1,7 @@
 """
 Class File for Webhook Base Payload
 
-Author: Shanshui2024
+Author: Shanshui2023
 Organization: AxT-Team
 """
 from pydantic import BaseModel

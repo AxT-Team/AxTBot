@@ -1,7 +1,7 @@
 """
 Server HeartBeat Endpoint for AxTBot
 
-Author: Shanshui2024
+Author: Shanshui2023
 Organization: AxT-Team
 """
 from fastapi import APIRouter
