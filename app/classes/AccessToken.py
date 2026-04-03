@@ -10,5 +10,5 @@ class AccessToken(BaseModel):
     """
     AccessToken模型，用于存储和验证访问令牌
     """
-    access_token: str
-    expires_in: int
+    access_token: str | None = None
+    expires_in: int | None = None
