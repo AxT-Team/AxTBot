@@ -8,3 +8,6 @@
 */*/__pycache__
 __pycache__
 *.pyc
+
+# Development files
+dev

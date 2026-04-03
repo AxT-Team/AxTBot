@@ -5,12 +5,13 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 from fastapi import FastAPI
-from .router import webhook_router, heartbeat_router
+from app.router import __all__ as routers
 
 app = FastAPI(
     title="AxTBot API",
-    description="AxTBot Webhook Service for Tencent-QQ",
-    version="1.0.0"
+    description="AxTBot Webhook Service for OpenAPI",
+    version="2.1.1"
 )
-app.include_router(webhook_router)
-app.include_router(heartbeat_router)
+
+for i in routers:
+    app.include_router(i)

@@ -1,3 +1,11 @@
+"""
+Class File for Webhook Validation Event
+
+Author: Shanshui2024
+Organization: AxT-Team
+"""
+
+
 from pydantic import BaseModel
 
 class Validation(BaseModel):

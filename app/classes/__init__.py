@@ -5,7 +5,8 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 
-from .Validation import Validation as ValidationEvent
-from .BaseWebhook import BaseWebhookEvent
+from app.classes.Validation import Validation as ValidationEvent
+from app.classes.BasePayload import BasePayload
+from app.classes.MessagePayload import Message
 
-__all__ = ["ValidationEvent", "BaseWebhookEvent"]
+__all__ = ["ValidationEvent", "BasePayload", "Message"]

@@ -7,8 +7,9 @@ Organization: AxT-Team
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from app.classes import BaseWebhookEvent, ValidationEvent
+from app.classes import BasePayload, ValidationEvent
 from app.service import service_validation
+from app.service import service_validation_msg
 
 router = APIRouter(prefix="/webhook", tags=["Webhook"])
 @router.get("")
@@ -29,7 +30,7 @@ async def webhook(request: Request):
     try:
         body = await request.body()
         payload = await request.json()
-        payload = BaseWebhookEvent(**payload)
+        payload = BasePayload(**payload)
         if payload.op == 13:
             validate = ValidationEvent(**payload.d)
             plain_token, signature = await service_validation(validate, request.headers, body)
@@ -38,8 +39,13 @@ async def webhook(request: Request):
                     content={"plain_token": plain_token, "signature": signature},
                     status_code=200
                 )
-        else:
-            print(f"Received event with op code {payload.op}, which is not a validation event. Ignoring.")
+        elif payload.op == 0:
+            result = await service_validation_msg(request.headers, body)
+            if result:
+                return JSONResponse(
+                    content={"op_code": 12, "d": {"event_id": payload.id, "status": 0, "message": "success"}},
+                    status_code=200
+                )
 
     except Exception as e:
         raise e

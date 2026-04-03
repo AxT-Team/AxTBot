@@ -5,4 +5,4 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 
-from .main import app
+from app.main import app

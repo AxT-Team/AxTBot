@@ -1,6 +1,12 @@
+"""
+Class File for Webhook Base Payload
+
+Author: Shanshui2024
+Organization: AxT-Team
+"""
 from pydantic import BaseModel
 
-class BaseWebhookEvent(BaseModel):
+class BasePayload(BaseModel):
     """
     所有Webhook事件的基础模型，包含公共字段
     """
