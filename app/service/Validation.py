@@ -1,7 +1,7 @@
 """
 Validation Service for AxTBot
 
-Author: Shanshui2023
+Author: Shanshui2024
 Organization: AxT-Team
 """
 from app.classes import ValidationEvent

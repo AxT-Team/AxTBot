@@ -1,7 +1,7 @@
 """
 Entry File for Tencent-QQ Webhook Endpoint
 
-Author: Shanshui2023
+Author: Shanshui2024
 Organization: AxT-Team
 """
 from app.router.hooks.webhook import router as webhook_router

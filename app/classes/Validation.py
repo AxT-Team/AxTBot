@@ -1,7 +1,7 @@
 """
 Class File for Webhook Validation Event
 
-Author: Shanshui2023
+Author: Shanshui2024
 Organization: AxT-Team
 """
 

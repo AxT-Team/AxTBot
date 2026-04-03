@@ -1,7 +1,7 @@
 """
 Tencent-QQ Webhook Endpoint for AxTBot
 
-Author: Shanshui2023
+Author: Shanshui2024
 Organization: AxT-Team
 """
 from fastapi import APIRouter, Request
