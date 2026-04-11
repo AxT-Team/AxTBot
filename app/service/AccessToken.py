@@ -8,8 +8,8 @@ from app.classes import AccessToken
 import asyncio, aiohttp
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-APPID = "appid"
-APPSECRET = "clientSecret"
+APPID = "APPID"
+BOT_SECRET = "SECRET"
 
 
 accesstoken = AccessToken() # 定义初始访问令牌
@@ -33,7 +33,7 @@ async def get_access_token():
                     # 模拟获取新令牌的API请求
                     async with session.post(
                         "https://bots.qq.com/app/getAppAccessToken",
-                        json={"appId": str(APPID), "clientSecret": APPSECRET},
+                        json={"appId": str(APPID), "clientSecret": BOT_SECRET},
                         timeout=10) as response:
                         if response.status == 200:
                             data = await response.json()
