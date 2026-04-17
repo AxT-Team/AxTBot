@@ -11,3 +11,7 @@ __pycache__
 
 # Development files
 dev
+
+# Log files
+logs
+latest.log

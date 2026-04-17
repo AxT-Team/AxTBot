@@ -6,6 +6,7 @@ Organization: AxT-Team
 """
 from fastapi import FastAPI
 from app.router import __all__ as routers
+from app.modules import logger
 
 app = FastAPI(
     title="AxTBot API",
@@ -15,3 +16,4 @@ app = FastAPI(
 
 for i in routers:
     app.include_router(i)
+    logger.debug(f"Included router: {i}")
