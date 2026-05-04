@@ -3,15 +3,18 @@
 # Python Environment
 .venv
 
-# Build wastes
+# Build Files
 */__pycache__
 */*/__pycache__
 __pycache__
 *.pyc
 
-# Development files
+# Development Files
 dev
 
-# Log files
+# Log Files
 logs
 latest.log
+
+# Data Files
+data

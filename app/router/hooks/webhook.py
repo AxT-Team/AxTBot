@@ -10,6 +10,8 @@ from fastapi.responses import JSONResponse
 from app.classes import BasePayload, ValidationEvent
 from app.service import service_validation
 from app.service import service_validation_msg
+from app.service import service_message_process
+from app.modules import logger
 
 router = APIRouter(prefix="/webhook", tags=["Webhook"])
 @router.get("")
@@ -42,11 +44,21 @@ async def webhook(request: Request):
         elif payload.op == 0:
             result = await service_validation_msg(request.headers, body)
             if result:
-                # Just give me a second to verify this code....
+                await service_message_process(payload)
                 return JSONResponse(
                     content={"op_code": 12, "d": {"event_id": payload.id, "status": 0, "message": "success"}},
                     status_code=200
                 )
+        
+        # Default response if no condition matched
+        return JSONResponse(
+            content={"code": 400, "message": "Invalid payload or operation"},
+            status_code=400
+        )
 
     except Exception as e:
-        raise e
+        logger.error(f"Webhook processing error: {e}", exc_info=True)
+        return JSONResponse(
+            content={"code": 500, "message": f"Internal server error: {str(e)}"},
+            status_code=500
+        )
