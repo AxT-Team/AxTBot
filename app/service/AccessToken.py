@@ -5,12 +5,12 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 from app.classes import AccessToken
-from app.modules import logger
+from app.modules import logger, config
 import asyncio, aiohttp
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-APPID = "APPID"
-BOT_SECRET = "SECRET"
+APPID = config.appid
+BOT_SECRET = config.botsecret
 
 accesstoken = AccessToken()
 lock = asyncio.Lock()

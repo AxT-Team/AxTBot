@@ -6,5 +6,6 @@ Organization: AxT-Team
 """
 from app.modules.DataBase import db, User, Group, FrameConfig
 from app.modules.Logger import logger
+from app.modules.Config import config
 
-__all__ = ["db", "User", "Group", "FrameConfig", "logger"]
+__all__ = ["db", "User", "Group", "FrameConfig", "logger", "config"]

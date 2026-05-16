@@ -18,3 +18,9 @@ latest.log
 
 # Data Files
 data
+
+# Config Files
+local.env
+
+# Rubbish!
+.copilot/

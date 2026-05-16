@@ -150,6 +150,27 @@ class DataBaseManager:
                 return config
             return None
 
+    def update_user(self, user: User) -> User | None:
+        """Update a user record."""
+        with self.get_session() as session:
+            existing_user = session.exec(select(User).where(User.user_openid == user.user_openid)).first()
+            if existing_user:
+                existing_user.message = user.message
+                existing_user.update_time = user.update_time
+                session.add(existing_user)
+                return existing_user
+            return None
+
+    def update_group(self, group: Group) -> Group | None:
+        """Update a group record."""
+        with self.get_session() as session:
+            existing_group = session.exec(select(Group).where(Group.group_id == group.group_id)).first()
+            if existing_group:
+                existing_group.message = group.message
+                existing_group.update_time = group.update_time
+                session.add(existing_group)
+                return existing_group
+            return None
 # singleton manager for import convenience
 _db_instance = None
 

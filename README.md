@@ -36,8 +36,8 @@ AxTBot 重制版本2.1.1
 
 ### 框架模块
 - [x] 添加日志模块
-- [ ] 添加Config配置模块
-- [ ] 添加ORM数据库模块（Modules.Database） <- 正在处理
+- [x] 添加Config配置模块
+- [x] 添加ORM数据库模块（Modules.Database）
 - [ ] 添加框架插件管理模块
 - [ ] 添加证书通知和热重载模块
 

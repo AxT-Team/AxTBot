@@ -5,11 +5,12 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 from app.classes import ValidationEvent
+from app.modules import config
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 import binascii
 
-APPID = "APPID"
-BOT_SECRET = "SECRET"
+APPID = config.appid
+BOT_SECRET = config.botsecret
 
 
 

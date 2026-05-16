@@ -37,11 +37,16 @@ async def message_process(payload: BasePayload) -> None:
                     log += f" [语音: {attachment.filename}]"
                 else:
                     log += f" [附件: {attachment.content_type} - {attachment.filename}] "
-        if not Group.get_group_by_id(msg.group_id):
-            Group.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 0, create_time=msg.timestamp, update_time=msg.timestamp))
-        if not User.get_user_by_openid(msg.author.union_openid):
-            User.add_user(User(user_openid=msg.author.union_openid, message = 0, create_time=msg.timestamp, update_time=msg.timestamp))
-        # 如果有用户消息或群聊消息查询记录，则添加计数 但这里暂时没写完 先空着
+        group: Group | None = db.get_group_by_id(msg.group_id)
+        user: User | None = db.get_user_by_openid(msg.author.union_openid)
+        if not group:
+            db.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+        else:
+            db.update_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = group.message + 1, update_time=msg.timestamp))
+        if not user:
+            db.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+        else:
+            db.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp))
         logger.info(log)
     elif payload.t == "C2C_MESSAGE_CREATE":
         msg = PrivateMessage(**message)
@@ -60,8 +65,9 @@ async def message_process(payload: BasePayload) -> None:
                     log += f" [语音: {attachment.filename}]"
                 else:
                     log += f" [附件: {attachment.content_type} - {attachment.filename}]"
-        if not User.get_user_by_openid(msg.author.union_openid):
-            User.add_user(User(user_openid=msg.author.union_openid, message = 0, create_time=msg.timestamp, update_time=msg.timestamp))
+        user: User | None = db.get_user_by_openid(msg.author.union_openid)
+        if not user:
+            db.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+        else:
+            db.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp))
         logger.info(log)
-
-    
