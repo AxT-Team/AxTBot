@@ -8,9 +8,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from app.classes import BasePayload, ValidationEvent
-from app.service import service_validation
-from app.service import service_validation_msg
-from app.service import service_message_process
+from app.service import service_validation, service_message_process, service_validation_msg
 from app.modules import logger
 
 router = APIRouter(prefix="/webhook", tags=["Webhook"])

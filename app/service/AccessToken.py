@@ -4,10 +4,11 @@ Service for Access Token Management in AxTBot
 Author: Shanshui2024
 Organization: AxT-Team
 """
-from app.classes import AccessToken
-from app.modules import logger, config
 import asyncio, aiohttp
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+from app.classes import AccessToken
+from app.modules import logger, config
 
 APPID = config.appid
 BOT_SECRET = config.botsecret
@@ -20,7 +21,6 @@ def shutdown_token_service():
     """停止 token 服务"""
     global _shutdown
     _shutdown = True
-    logger.info("Waiting for token service to stop...")
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=1))
 async def get_access_token():

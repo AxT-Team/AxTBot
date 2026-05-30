@@ -4,16 +4,14 @@ Validation Service for AxTBot
 Author: Shanshui2024
 Organization: AxT-Team
 """
-from app.classes import ValidationEvent
-from app.modules import config
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 import binascii
 
+from app.classes import ValidationEvent
+from app.modules import config
+
 APPID = config.appid
 BOT_SECRET = config.botsecret
-
-
-
 
 async def validation(validate: ValidationEvent, headers: dict, body: bytes):
     """

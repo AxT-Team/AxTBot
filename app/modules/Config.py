@@ -21,4 +21,4 @@ class Config(BaseModel):
     appid: str
     botsecret: str
 
-config = Config(appid=str(int(os.getenv("APPID"))), botsecret=os.getenv("BOT_SECRET"))
+config = Config(appid=os.getenv("APPID"), botsecret=os.getenv("BOT_SECRET"))
