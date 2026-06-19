@@ -14,7 +14,7 @@ AxTBot 重制版本2.1.1
 - app.classes  Python类型定义包
 - app.router   FastAPI 路由映射
 - app.service  Service服务模块
-- app.module   核心工作组件
+- app.modules   核心工作组件
 - app.main     项目主入口文件
 
 ## To Do
@@ -29,6 +29,7 @@ AxTBot 重制版本2.1.1
 ### API
 - [x] Router路由模块化
 - [ ] 规范化所有API接口输出
+- [ ] 新增对Milky协议的支持
 
 ### 框架健康检查
 - [ ] 框架自主心跳检测和多模块检测
@@ -40,6 +41,7 @@ AxTBot 重制版本2.1.1
 - [x] 添加ORM数据库模块（Modules.Database）
 - [ ] 添加框架插件管理模块
 - [ ] 添加证书通知和热重载模块
+- [ ] 扩展模块的统一规格化
 
 ### 框架安全性
 - [ ] 接入AxT Dash Oauth2 进行后台API事件验证

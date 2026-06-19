@@ -21,6 +21,7 @@ class User(SQLModel, table=True):
     message: int | None = None
     create_time: str
     update_time: str | None = None
+    nickname: str | None = None
 
 class Group(SQLModel, table=True):
     """
@@ -157,6 +158,7 @@ class DataBaseManager:
             if existing_user:
                 existing_user.message = user.message
                 existing_user.update_time = user.update_time
+                existing_user.nickname = user.nickname
                 session.add(existing_user)
                 return existing_user
             return None

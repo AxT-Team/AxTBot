@@ -16,7 +16,14 @@ class Author(BaseModel):
     id: str
     username: str
     bot: bool = False
-    union_openid: str
+    union_openid: str = None
+    member_openid: str = None
+    member_role: str | None = None
+
+class Mentions(Author):
+    """消息接收到的艾特对方，包括部分新数据且与Author类嵌套结合"""
+    scope: str = None
+    is_you: bool = False
 
 class MessageScene(BaseModel):
     """
@@ -34,6 +41,7 @@ class Message(BaseModel):
     content: str
     timestamp: str
     author: Author
+    mentions: list[Mentions] | None = None
     message_scene: MessageScene | dict[str, Any]
     message_type: int
     attachments: list[Attachment] | None = None
