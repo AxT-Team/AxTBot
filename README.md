@@ -22,7 +22,7 @@ AxTBot 重制版本2.1.1
 ### 消息事件
 - [x] 消息事件验证
 - [ ] 新增基础消息事件 <- 正在处理
-- [ ] 获取并缓存AccessToken （Service.AccessToken） <- 正在进行验证
+- [x] 获取并缓存AccessToken （Service.AccessToken）
 - [ ] 补全基础消息事件的 Union 事件基类 <- 正在处理
 - [ ] OpCode 0 的消息基类分类 <- 正在处理
 

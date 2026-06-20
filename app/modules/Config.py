@@ -4,9 +4,9 @@ Module for Config File Management in AxTBot
 Author: Shanshui2024
 Organization: AxT-Team
 """
+import os
 from pydantic import BaseModel
 from dotenv import load_dotenv
-import os
 
 load_dotenv("local.env")
 

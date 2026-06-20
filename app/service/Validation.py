@@ -4,8 +4,8 @@ Validation Service for AxTBot
 Author: Shanshui2024
 Organization: AxT-Team
 """
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 import binascii
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from app.classes import ValidationEvent
 from app.modules import config

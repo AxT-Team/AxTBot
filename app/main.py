@@ -19,26 +19,26 @@ async def lifespan(app: FastAPI):
         logger.warning("框架 >>> 数据目录不存在，已创建 data 文件夹")
     else:
         pass
-    from app.modules.DataBase import get_db
-    db_instance = get_db()
-    logger.info(f"框架 >>> 数据库已初始化: {db_instance.db_url}")
+    from app.modules import database
+    logger.info(f"框架 >>> 数据库已初始化: {database.db_url}")
 
     yield
 
     logger.info("框架 >>> 正在关闭数据库连接...")
     # 释放数据库连接池
-    db_instance.engine.dispose()
+    database.engine.dispose()
     logger.info("框架 >>> 正在结束后台服务...")
     shutdown_token_service()
 
 
 app = FastAPI(
     title="AxTBot API",
-    description="AxTBot Webhook Service for OpenAPI",
+    description="AxTBot Service for OpenAPI",
     version="2.1.1",
     lifespan=lifespan
 )
 
 for i in routers:
     app.include_router(i)
-    logger.debug(f"Included router: {i}")
+    for tag in i.tags:
+        logger.debug(f"FAPI >>> Included router: {str(tag)}")

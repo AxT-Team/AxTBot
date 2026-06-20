@@ -75,3 +75,4 @@ for name in ["uvicorn", "uvicorn.error", "uvicorn.access"]:
     uv_logger.setLevel(logger.level)
     uv_logger.propagate = False
     logging.getLogger("uvicorn.error").name = "Uvicorn"
+    logging.getLogger("uvicorn.access").disabled = True
