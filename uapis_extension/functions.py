@@ -22,69 +22,26 @@ def format_count(num):
         return f"{num/10000:.1f}万"
     return str(num)
 
+_hypixel_checker = None
+
 async def get_hypixel_info(command, userid):
-    url = "http://localhost:30001/hypixel?" + "command=" + command + "&userId=" + userid
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.get(url) as response:
-                # 先获取响应文本，用于错误日志
-                response_text = await response.text()
-                
-                # 检查 HTTP 状态码
-                if response.status != 200:
-                    logger.error(f"❌ Hypixel API 返回错误状态码")
-                    logger.error(f"  ├─ 插件: axt_plugin_minecraft")
-                    logger.error(f"  ├─ 函数: get_hypixel_info")
-                    logger.error(f"  ├─ URL: {url}")
-                    logger.error(f"  ├─ 状态码: {response.status}")
-                    logger.error(f"  ├─ 状态描述: {response.reason}")
-                    logger.error(f"  ├─ 命令参数: {command}")
-                    logger.error(f"  └─ 响应内容: {response_text[:300] if response_text else '(空响应)'}...")
-                    return f"Hypixel API 请求失败！状态码: {response.status} ({response.reason})"
-                
-                # 尝试解析 JSON
-                try:
-                    import json
-                    return json.loads(response_text)
-                except json.JSONDecodeError as json_error:
-                    logger.error(f"❌ Hypixel API JSON解析失败")
-                    logger.error(f"  ├─ 插件: axt_plugin_minecraft")
-                    logger.error(f"  ├─ 函数: get_hypixel_info")
-                    logger.error(f"  ├─ URL: {url}")
-                    logger.error(f"  ├─ 响应状态码: {response.status}")
-                    logger.error(f"  ├─ 命令参数: {command}")
-                    logger.error(f"  ├─ 响应内容: {response_text[:300]}...")
-                    logger.error(f"  └─ 解析错误: {str(json_error)}")
-                    return f"请求出错！服务器返回了无效的JSON格式数据。"
-                    
-        except asyncio.TimeoutError as e:
-            logger.error(f"❌ Hypixel API 请求超时")
-            logger.error(f"  ├─ 插件: axt_plugin_minecraft")
-            logger.error(f"  ├─ 函数: get_hypixel_info")
-            logger.error(f"  ├─ URL: {url}")
-            logger.error(f"  ├─ 命令参数: {command}")
-            logger.error(f"  └─ 错误信息: 请求超时")
-            return f"请求超时！Hypixel API 服务器响应时间过长。"
-            
-        except ClientError as e:
-            logger.error(f"❌ Hypixel API 网络请求失败")
-            logger.error(f"  ├─ 插件: axt_plugin_minecraft")
-            logger.error(f"  ├─ 函数: get_hypixel_info")
-            logger.error(f"  ├─ URL: {url}")
-            logger.error(f"  ├─ 命令参数: {command}")
-            logger.error(f"  ├─ 错误类型: {type(e).__name__}")
-            logger.error(f"  └─ 错误信息: {str(e)}")
-            return f"网络请求失败！错误信息：{str(e)}"
-            
-        except Exception as e:
-            logger.error(f"❌ Hypixel API 未知错误")
-            logger.error(f"  ├─ 插件: axt_plugin_minecraft")
-            logger.error(f"  ├─ 函数: get_hypixel_info")
-            logger.error(f"  ├─ URL: {url}")
-            logger.error(f"  ├─ 命令参数: {command}")
-            logger.error(f"  ├─ 错误类型: {type(e).__name__}")
-            logger.error(f"  └─ 错误信息: {str(e)}")
-            return f"未知错误！错误信息：{str(e)}"
+    global _hypixel_checker
+    try:
+        if _hypixel_checker is None:
+            from hypixelcheck import HypixelCheck
+            _hypixel_checker = HypixelCheck()
+        result = await _hypixel_checker.execute_async(command, userid)
+        if result is None:
+            return "未知的命令。"
+        return result
+    except Exception as e:
+        logger.error(f"❌ Hypixel 查询失败")
+        logger.error(f"  ├─ 插件: axt_plugin_minecraft")
+        logger.error(f"  ├─ 函数: get_hypixel_info")
+        logger.error(f"  ├─ 命令参数: {command}")
+        logger.error(f"  ├─ 错误类型: {type(e).__name__}")
+        logger.error(f"  └─ 错误信息: {str(e)}")
+        return f"查询出错！错误信息：{str(e)}"
 
 def translate_domain_status(status_list):
     status_translations = {
