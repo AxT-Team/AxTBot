@@ -11,5 +11,5 @@ from app.service.AccessToken import get_access_token
 def run_async_in_thread():
     asyncio.run(get_access_token())
 
-thread = threading.Thread(target=run_async_in_thread, name="AccessTokenThread", daemon=True)
-thread.start()
+thread1 = threading.Thread(target=run_async_in_thread, name="AccessTokenThread", daemon=True)
+thread1.start()

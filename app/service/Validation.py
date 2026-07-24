@@ -7,13 +7,13 @@ Organization: AxT-Team
 import binascii
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from app.classes import ValidationEvent
+from app.classes import QQValidationEvent
 from app.modules import config
 
 APPID = config.appid
 BOT_SECRET = config.botsecret
 
-async def validation(validate: ValidationEvent, headers: dict, body: bytes):
+async def validation(validate: QQValidationEvent, headers: dict, body: bytes):
     """
     处理验证事件的函数，接收验证事件对象(ValidationEvent)和请求头信息作为参数
 

@@ -7,7 +7,7 @@ Organization: AxT-Team
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from app.classes import BasePayload, ValidationEvent
+from app.classes import BasePayload, QQValidationEvent
 from app.service import service_validation, service_message_process, service_validation_msg
 from app.modules import logger
 
@@ -32,7 +32,7 @@ async def webhook(request: Request):
         payload = await request.json()
         payload = BasePayload(**payload)
         if payload.op == 13:
-            validate = ValidationEvent(**payload.d)
+            validate = QQValidationEvent(**payload.d)
             plain_token, signature = await service_validation(validate, request.headers, body)
             if plain_token and signature:
                 return JSONResponse(

@@ -25,6 +25,8 @@ AxTBot 重制版本2.1.1
 - [x] 获取并缓存AccessToken （Service.AccessToken）
 - [ ] 补全基础消息事件的 Union 事件基类 <- 正在处理
 - [ ] OpCode 0 的消息基类分类 <- 正在处理
+- [ ] 支持多消息类型
+- [ ] 允许耦合/解耦框架自带的Message等基类（Classes.framework）
 
 ### API
 - [x] Router路由模块化
@@ -48,3 +50,7 @@ AxTBot 重制版本2.1.1
 
 ### 高阶功能
 - [ ] 框架热重载
+
+### qq_adapter QQ适配器
+- [ ] 支持Websocket/Webhook切换
+- [ ] 与核心事件逻辑解耦

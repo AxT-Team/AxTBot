@@ -21,6 +21,8 @@ async def lifespan(app: FastAPI):
         pass
     from app.modules import database
     logger.info(f"框架 >>> 数据库已初始化: {database.db_url}")
+    from app.service.BotInfo import get_qqbot_info
+    await get_qqbot_info()
 
     yield
 
@@ -41,4 +43,4 @@ app = FastAPI(
 for i in routers:
     app.include_router(i)
     for tag in i.tags:
-        logger.debug(f"FAPI >>> Included router: {str(tag)}")
+        logger.debug(f"FastAPI >>> Included router: {str(tag)}")

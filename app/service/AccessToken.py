@@ -47,7 +47,7 @@ async def get_access_token():
                     logger.debug(f"Cached accessToken expired! Retring")
                     async with aiohttp.ClientSession() as session:
                         async with session.post(
-                            "https://bots.qq.com/app/getAppAccessToken",
+                            "https://api.bot.qq.com/app/getAppAccessToken",
                             json={"appId": str(APPID), "clientSecret": BOT_SECRET},
                             timeout=3) as response:
                             if response.status == 200:

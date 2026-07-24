@@ -1,29 +1,33 @@
 """
-Class File for Webhook Message Payload
+Class File for Union Message Payload
 
 Author: Shanshui2024
 Organization: AxT-Team
 """
-from pydantic import BaseModel, field_validator
-from typing import Any
 
-from app.classes.Attachment import Attachment, VoiceAttachment, ImageAttachment, VideoAttachment, FileAttachment, AttachmentList
+from pydantic import BaseModel, field_validator
+from typing import Any, Optional
+
+from app.classes.framework.Attachment import Attachment
+
 
 class Author(BaseModel):
     """
-    消息作者的模型，包含uid、用户名、是否为机器人以及union_openid等信息
+    消息作者的模型，包含uid、用户名、是否为机器人以及openid等信息。
+    各平台适配器可通过继承此类扩展平台特有字段。
     """
     id: str
     username: str
     bot: bool = False
-    union_openid: str = None
-    member_openid: str = None
-    member_role: str | None = None
+    openid: Optional[str] = None
+    role: Optional[str] = None
+
 
 class Mentions(Author):
     """消息接收到的艾特对方，包括部分新数据且与Author类嵌套结合"""
-    scope: str = None
+    scope: Optional[str] = None
     is_you: bool = False
+
 
 class MessageScene(BaseModel):
     """
@@ -35,16 +39,16 @@ class MessageScene(BaseModel):
 
 class Message(BaseModel):
     """
-    通用消息模型
+    通用消息模型（框架地基）。
+    包含所有平台共有的消息字段，平台特有字段由适配器扩展。
     """
     id: str
     content: str
     timestamp: str
     author: Author
-    mentions: list[Mentions] | None = None
+    mentions: Optional[list[Mentions]] = None
     message_scene: MessageScene | dict[str, Any]
-    message_type: int
-    attachments: list[Attachment] | None = None
+    attachments: Optional[list[Attachment]] = None
 
     @field_validator("content", mode="before")
     @classmethod
