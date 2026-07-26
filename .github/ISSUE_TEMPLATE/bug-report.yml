@@ -1,0 +1,102 @@
+name: 🐞 BUG 问题反馈
+description: 请严格按照模板提交 BUG，选错分类将不予受理。
+title: "[Bug]: "
+labels: ["bug", "等待确认"]
+type: Bug
+assignees: ["Shanshui2024"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **请注意**：您目前正在提交 BUG 分类，如果您选错了分类，请返回上一级，否则不予受理。感谢合作~
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 确认清单
+        为了防止重复提交、分类错误等，请在下方**勾选**确认下列内容。
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 提交前确认
+      description: 请逐项确认以下内容
+      options:
+        - label: 我已确认：我即将提交的 BUG 与其他 issue 不重复
+          required: true
+        - label: 我已确认：我已经 @ 到了机器人，而不是手动复制其他人的命令
+          required: true
+        - label: 我已确认：目前提交的是 BUG，而非新功能
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 调试信息收集
+        如果机器人有返回，请执行下方操作并将内容粘贴到文本框内。
+  - type: textarea
+    id: dump_log
+    attributes:
+      label: 机器人返回日志 (Dump)
+      description: 请键入 `@机器人 /dump` 命令，并将机器人返回的内容**原封不动**粘贴进来（应包含必要的调试信息）
+      placeholder: 请将 @机器人 /dump 的输出粘贴在此处...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 无法使用的功能类别
+      description: 所有功能应该都在下方分类内，请选择最相关的一项
+      options:
+        - 网络服务类（如 ping / ipinfo / whois）
+        - 游戏查询类（如 mc / mcping / hyp / steam）
+        - 娱乐功能类（如 ask / 摸 / remake / jrrp）
+        - 信息查询类（如 atinfo / hotlist）
+        - 系统调试类（如 dump）
+        - 其他/无法归类
+    validations:
+      required: true
+
+  - type: input
+    id: occurrence_time
+    attributes:
+      label: 问题发生的时间
+      description: 注意：是问题发生的时间，而不是你提交该issue的时间
+      placeholder: 例如：2026-07-26 14:30 左右
+    validations:
+      required: true
+
+  - type: upload
+    id: screenshots
+    attributes:
+      label: 聊天截图
+      description: 如果您有截图的话，可以在此提交（支持直接粘贴图片或拖拽上传），该项选填
+    validations:
+      required: false
+      accept: ".png,.jpg,.jpeg,.webp"
+
+  - type: textarea
+    id: expected_output
+    attributes:
+      label: 您的预期返回
+      description: 为了方便我们定位问题，请在此填入您认为机器人应该返回什么
+      placeholder: 我认为机器人应该返回...
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: 您的联系方式
+      description: 如果后续有更新，我们会从这里联系您
+      placeholder: 请输入 QQ 号或邮箱地址
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ⏳ **处理时间说明**  
+        由于该项目已经在稳定阶段，新增的 issue 可能会在 **1周左右** 返回初步结果。  
+        如果超过两周仍未回复，请在社区群内联系开发组：**AxT社区主群：832275338**

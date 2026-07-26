@@ -1,0 +1,83 @@
+name: 📦 新功能建议
+description: 请严格按照模板提交新功能请求，选错分类将不予受理。
+title: "[Feature]: "
+labels: ["新功能", "等待确认"]
+type: Feature
+assignees: ["Shanshui2024"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **请注意**：您目前正在提交 Feature 分类，如果您选错了分类，请返回上一级，否则不予受理。感谢合作~
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 确认清单
+        为了防止重复提交、分类错误等，请在下方**勾选**确认下列内容。
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: 提交前确认
+      description: 请逐项确认以下内容
+      options:
+        - label: 我已确认：我即将提交的新功能与其他issue不重复
+          required: true
+        - label: 我已确认：目前提交的是新功能，而非BUG
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 调试信息收集
+        如果机器人有返回，请执行下方操作并将内容粘贴到文本框内。
+
+  - type: textarea
+    id: dump_log
+    attributes:
+      label: 机器人返回日志 (Dump)
+      description: 请键入 `@机器人 /dump` 命令，并将机器人返回的内容**原封不动**粘贴进来（应包含必要的调试信息）
+      placeholder: 请将 @机器人 /dump 的输出粘贴在此处...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 请列出您预期的功能类别
+      description: 所有功能应该都在下方分类内，请选择最相关的一项
+      options:
+        - 网络服务类（如 ping / ipinfo / whois）
+        - 游戏查询类（如 mc / mcping / hyp / steam）
+        - 娱乐功能类（如 ask / 摸 / remake / jrrp）
+        - 信息查询类（如 atinfo / hotlist）
+        - 系统调试类（如 dump）
+        - 其他/无法归类
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_output
+    attributes:
+      label: 请简单描述您需要的新功能及返回结果
+      description: 为了方便我们理解您的内容，请简明扼要地提出相关内容要求
+      placeholder: 我认为机器人应该支持....功能，返回...内容
+    validations:
+      required: true
+
+  - type: input
+    id: contact
+    attributes:
+      label: 您的联系方式
+      description: 如果后续有更新，我们会从这里联系您
+      placeholder: 请输入 QQ 号或邮箱地址
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ⏳ **处理时间说明**  
+        由于该项目已经在稳定阶段，新增的 issue 可能会在 **1周左右** 返回初步结果。  
+        如果超过两周仍未回复，请在社区群内联系开发组：**AxT社区主群：832275338**
