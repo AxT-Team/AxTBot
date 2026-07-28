@@ -27,11 +27,14 @@ AxTBot 重制版本2.1.1
 - [ ] OpCode 0 的消息基类分类 <- 正在处理
 - [ ] 支持多消息类型
 - [ ] 允许耦合/解耦框架自带的Message等基类（Classes.framework）
+- [ ] 新增其他独立信息事件和session内依赖事件
 
 ### API
 - [x] Router路由模块化
 - [ ] 规范化所有API接口输出
 - [ ] 新增对Milky协议的支持
+- [ ] 支持Websocket Webhook的接入和输出
+- [ ] 消息流向外传递 并写入OpenAPI文档
 
 ### 框架健康检查
 - [ ] 框架自主心跳检测和多模块检测
@@ -43,13 +46,16 @@ AxTBot 重制版本2.1.1
 - [x] 添加ORM数据库模块（Modules.Database）
 - [ ] 添加框架插件管理模块
 - [ ] 添加证书通知和热重载模块
+- [ ] 添加框架WebUI组件和Console交互式控制台模块
 - [ ] 扩展模块的统一规格化
+- [ ] 框架核心组件打包
 
 ### 框架安全性
 - [ ] 接入AxT Dash Oauth2 进行后台API事件验证
 
 ### 高阶功能
 - [ ] 框架热重载
+- [ ] 新增cli控制工具
 
 ### qq_adapter QQ适配器
 - [ ] 支持Websocket/Webhook切换

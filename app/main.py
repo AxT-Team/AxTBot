@@ -10,7 +10,6 @@ from contextlib import asynccontextmanager
 
 from app.router import __all__ as routers
 from app.modules import logger
-from app.service.AccessToken import shutdown_token_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,8 +20,14 @@ async def lifespan(app: FastAPI):
         pass
     from app.modules import database
     logger.info(f"框架 >>> 数据库已初始化: {database.db_url}")
-    from app.service.BotInfo import get_qqbot_info
-    await get_qqbot_info()
+    try:
+        from app.service.qq_service.AccessToken import shutdown_token_service
+        from app.service.qq_service.BotInfo import get_qqbot_info
+        await get_qqbot_info()
+    except Exception as e :
+        logger.warning("框架 >>> 无法加载QQ适配器服务，主框架将以终端模式运行")
+        logger.warning(f"框架 >>> 详细错误：{e}")
+        def shutdown_token_service(): pass
 
     yield
 

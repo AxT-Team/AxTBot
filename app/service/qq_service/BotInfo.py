@@ -8,16 +8,21 @@ import aiohttp
 
 from app.modules import logger
 async def get_qqbot_info():
-    from app.service.AccessToken import accesstoken
-    logger.debug("框架 >>> 正在获取机器人信息")
+    from app.service.qq_service.AccessToken import accesstoken
+    logger.debug("适配器 >>> 正在获取机器人信息")
     try:
         async with aiohttp.ClientSession() as session:
-            headers = {"Authorization": f"QQBot {accesstoken}"}
+            headers = {"Authorization": f"QQBot {accesstoken.access_token}"}
             async with session.get("https://api.bot.qq.com/users/@me", headers=headers) as response:
-                data = response.text
                 if response.status == 200:
-                    logger.debug(f"Fetched bot info: {data}")
+                    data = await response.json()
+                    username = data["username"]
+                    id = data["id"]
+                    openid = data["union_openid"]
+                    logger.info(f"适配器 >>> ID: {id} | OpenID: {openid} | 机器人 {username} 登录成功！")
+                    logger.debug(data)
                 else:
+                    data = response.text
                     logger.error(f"Error fetching botinfo: {data}")
                     logger.info("Failed to fetch botinfo.")
     except Exception as e:
