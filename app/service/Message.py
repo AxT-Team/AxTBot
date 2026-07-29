@@ -4,8 +4,10 @@ Message Processing Service for QQ Bot
 Author: Shanshui2024
 Organization: AxT-Team
 """
+import asyncio
+
 from app.classes import GroupMessage, BasePayload, PrivateMessage
-from app.modules import logger, database, User, Group
+from app.modules import logger, database, User, Group, dispatch, get_db
 
 async def message_process(payload: BasePayload) -> None:
     """
@@ -17,8 +19,10 @@ async def message_process(payload: BasePayload) -> None:
     Returns:
         None
     """
+    is_you = None
     message = payload.d
     logger.debug(f"Received message payload: {message}")
+    db = get_db()
     if payload.t == "GROUP_AT_MESSAGE_CREATE":
         msg = GroupMessage(**message)
         content = msg.content
@@ -48,27 +52,34 @@ async def message_process(payload: BasePayload) -> None:
         group: Group | None = database.get_group_by_id(msg.group_id)
         user: User | None = database.get_user_by_openid(msg.author.union_openid)
         if not group:
-            database.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+            database.add_group(Group(group_id=msg.group_id, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
         else:
-            database.update_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = group.message + 1, update_time=msg.timestamp))
+            database.update_group(Group(group_id=msg.group_id, message = group.message + 1, update_time=msg.timestamp))
         if not user:
             database.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp, nickname=msg.author.username))
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
+        asyncio.create_task(dispatch(message))
     elif payload.t == "GROUP_MESSAGE_CREATE":
         msg = GroupMessage(**message)
         content = msg.content
         if msg.mentions:
             for mention in msg.mentions:
                 content = content.replace("<@" + str(mention.id) + ">" , "[@" + mention.username + "]")
+                if mention.is_you:
+                    is_you = True
+                    bot_username = db.get_frame_config_by_key("bot_username").key
+                    content = content.replace(f"[@{bot_username}]", "")
         if len(content) <= 50:
             pass
         else:
             half = 47 // 2
             content = content[:half] + "..." + content[-half:]
-        log = f"传入消息 >>> [群聊消息 | 群ID：{msg.group_openid}] | "
-
+        if is_you:
+            log = f"传入消息 >>> [群聊AT | 群ID：{msg.group_openid}] | "
+        else:
+            log = f"传入消息 >>> [群聊消息 | 群ID：{msg.group_openid}] | "
         if msg.author.bot:
             log += f"[BOT]{msg.author.username} > {content}"
         else:
@@ -86,14 +97,15 @@ async def message_process(payload: BasePayload) -> None:
         group: Group | None = database.get_group_by_id(msg.group_id)
         user: User | None = database.get_user_by_openid(msg.author.union_openid)
         if not group:
-            database.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+            database.add_group(Group(group_id=msg.group_id, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
         else:
-            database.update_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = group.message + 1, update_time=msg.timestamp))
+            database.update_group(Group(group_id=msg.group_id, message = group.message + 1, update_time=msg.timestamp))
         if not user:
             database.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp, nickname=msg.author.username))
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
+        asyncio.create_task(dispatch(message))
     elif payload.t == "C2C_MESSAGE_CREATE":
         msg = PrivateMessage(**message)
         text= msg.content
@@ -123,3 +135,4 @@ async def message_process(payload: BasePayload) -> None:
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
+        asyncio.create_task(dispatch(message))

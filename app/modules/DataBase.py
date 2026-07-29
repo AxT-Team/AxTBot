@@ -113,8 +113,13 @@ class DataBaseManager:
 
     # ==================== User 方法 ====================
 
-    def add_user(self, user: User) -> User:
-        """Add a User record to the database."""
+    def add_user(self, user: User) -> User | None:
+        """Add a User record to the database. Rejects if user_openid already exists."""
+        existing = self.get_user_by_openid(user.user_openid)
+        if existing:
+            from app.modules import logger
+            logger.warning(f"数据库 >>> 拒绝创建重复 User: user_openid='{user.user_openid}' 已存在，跳过创建")
+            return None
         return self._add(user)
 
     def get_user_by_openid(self, user_openid: str) -> User | None:
@@ -136,8 +141,13 @@ class DataBaseManager:
 
     # ==================== Group 方法 ====================
 
-    def add_group(self, group: Group) -> Group:
-        """Add a Group record to the database."""
+    def add_group(self, group: Group) -> Group | None:
+        """Add a Group record to the database. Rejects if group_id already exists."""
+        existing = self.get_group_by_id(group.group_id)
+        if existing:
+            from app.modules import logger
+            logger.warning(f"数据库 >>> 拒绝创建重复 Group: group_id='{group.group_id}' 已存在，跳过创建")
+            return None
         return self._add(group)
 
     def get_group_by_id(self, group_id: str) -> Group | None:
@@ -158,8 +168,13 @@ class DataBaseManager:
 
     # ==================== FrameConfig 方法 ====================
 
-    def add_frame_config(self, config: FrameConfig) -> FrameConfig:
-        """Add a FrameConfig record to the database."""
+    def add_frame_config(self, config: FrameConfig) -> FrameConfig | None:
+        """Add a FrameConfig record to the database. Rejects if key already exists."""
+        existing = self.get_frame_config_by_key(config.key)
+        if existing:
+            from app.modules import logger
+            logger.warning(f"数据库 >>> 拒绝创建重复 FrameConfig: key='{config.key}' 已存在，跳过创建")
+            return None
         return self._add(config)
 
     def get_frame_config_by_key(self, key: str) -> FrameConfig | None:

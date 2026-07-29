@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     except Exception as e :
         logger.warning("框架 >>> 无法加载QQ适配器服务，主框架将以终端模式运行")
         logger.warning(f"框架 >>> 详细错误：{e}")
-        def shutdown_token_service(): pass
+        raise e
 
     yield
 

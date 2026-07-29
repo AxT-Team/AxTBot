@@ -21,19 +21,18 @@ AxTBot 重制版本2.1.1
 
 ### 消息事件
 - [x] 消息事件验证
-- [ ] 新增基础消息事件 <- 正在处理
+- [x] 新增基础消息事件
 - [x] 获取并缓存AccessToken （Service.AccessToken）
 - [ ] 补全基础消息事件的 Union 事件基类 <- 正在处理
 - [ ] OpCode 0 的消息基类分类 <- 正在处理
-- [ ] 支持多消息类型
-- [ ] 允许耦合/解耦框架自带的Message等基类（Classes.framework）
 - [ ] 新增其他独立信息事件和session内依赖事件
+- [x] 允许耦合/解耦框架自带的Message等基类（Classes.framework）
+
 
 ### API
 - [x] Router路由模块化
 - [ ] 规范化所有API接口输出
 - [ ] 新增对Milky协议的支持
-- [ ] 支持Websocket Webhook的接入和输出
 - [ ] 消息流向外传递 并写入OpenAPI文档
 
 ### 框架健康检查
@@ -44,11 +43,16 @@ AxTBot 重制版本2.1.1
 - [x] 添加日志模块
 - [x] 添加Config配置模块
 - [x] 添加ORM数据库模块（Modules.Database）
-- [ ] 添加框架插件管理模块
+- [x] 添加框架插件管理模块
 - [ ] 添加证书通知和热重载模块
 - [ ] 添加框架WebUI组件和Console交互式控制台模块
 - [ ] 扩展模块的统一规格化
 - [ ] 框架核心组件打包
+
+### 插件
+- [ ] 新增插件元数据
+- [ ] 新增插件商店 验证插件
+- [ ] 新增插件自动验证ci
 
 ### 框架安全性
 - [ ] 接入AxT Dash Oauth2 进行后台API事件验证
@@ -60,3 +64,8 @@ AxTBot 重制版本2.1.1
 ### qq_adapter QQ适配器
 - [ ] 支持Websocket/Webhook切换
 - [ ] 与核心事件逻辑解耦
+
+
+### 存库
+- [ ] 完成`tests`上线前测试功能
+- [ ] 完成`issue_template`和其他联动

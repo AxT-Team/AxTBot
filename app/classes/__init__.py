@@ -82,6 +82,7 @@ class Message(_FWMessage, QQMessageExt):
     mentions: list[Mentions] | None = None
     message_scene: MessageScene | dict[str, Any]
     attachments: list[Attachment] | None = None
+    is_you: bool | None = None
 
 
 class GroupMessage(Message):

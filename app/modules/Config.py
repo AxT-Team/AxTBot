@@ -17,8 +17,13 @@ class Config(BaseModel):
     Attributes:
         appid (str): The App ID for the bot
         botsecret (str): The Secret Key for the bot
+        plugins_dir (str): The Plugins Folder for the frame
     """
     appid: str
     botsecret: str
+    plugins_dir: str = "plugins"
 
-config = Config(appid=os.getenv("APPID"), botsecret=os.getenv("BOT_SECRET"))
+config = Config(
+    appid=os.getenv("APPID"), 
+    botsecret=os.getenv("BOT_SECRET"),
+    plugins_dir=os.getenv("PLUGINS_DIR", "plugins"))
