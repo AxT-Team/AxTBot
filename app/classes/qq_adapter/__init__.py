@@ -13,6 +13,7 @@ from app.classes.qq_adapter.Validation import Validation as QQValidationEvent
 from app.classes.qq_adapter.BasePayload import BasePayload
 from app.classes.qq_adapter.Message import QQAuthorExt, QQMessageExt
 from app.classes.qq_adapter.AccessToken import AccessToken
+from app.classes.qq_adapter.InterAction import Interaction as QQInteraction
 from app.classes.qq_adapter.Attachment import (
     Attachment as QQAttachment,
     VoiceAttachment as QQVoiceAttachment,
@@ -34,4 +35,5 @@ __all__ = [
     "QQVideoAttachment",
     "QQFileAttachment",
     "QQAttachmentList",
+    "QQInteraction"
 ]

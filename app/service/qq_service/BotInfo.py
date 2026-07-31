@@ -44,8 +44,8 @@ async def get_qqbot_info():
                     db.update_frame_config("bot_id", bot_id, int(time.time()))
 
                 else:
-                    data = response.text
-                    logger.error(f"适配器 >>> 数据获取失败 接口返回错误：{response.status}")
+                    data = await response.json()
+                    logger.error(f"适配器 >>> 数据获取失败 接口返回错误：{data}")
                     logger.warning(f"适配器 >>> 将读取数据库内的缓存数据...")
 
                 logger.info(f"适配器 >>> ID: {bot_id} | OpenID: {bot_openid} | 机器人 {bot_username} 登录成功！")

@@ -35,6 +35,7 @@ async def webhook(request: Request):
             validate = QQValidationEvent(**payload.d)
             plain_token, signature = await service_validation(validate, request.headers, body)
             if plain_token and signature:
+                logger.debug("适配器 >>> 接收到验证事件消息，正在打包验证包...")
                 return JSONResponse(
                     content={"plain_token": plain_token, "signature": signature},
                     status_code=200

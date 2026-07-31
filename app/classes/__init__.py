@@ -31,6 +31,7 @@ from app.classes.qq_adapter import (
     QQValidationEvent,
     BasePayload,
     AccessToken,
+    QQInteraction
 )
 
 # ── 附件：QQ 适配器版本（含 content_type / size 等 QQ 特有字段）──
@@ -116,6 +117,7 @@ __all__ = [
     "QQValidationEvent",
     "BasePayload",
     "AccessToken",
+    "QQInteraction"
     # 附件模型
     "Attachment",
     "VoiceAttachment",
