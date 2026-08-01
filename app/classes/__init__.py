@@ -44,6 +44,8 @@ from app.classes.qq_adapter.Attachment import (
     AttachmentList,
 )
 
+from app.classes.framework.Session import Session, SessionManager
+
 
 # ============================================================
 #  合并模型：framework 地基 + qq_adapter 扩展 = 最终模型
@@ -125,4 +127,6 @@ __all__ = [
     "VideoAttachment",
     "FileAttachment",
     "AttachmentList",
+    "Session",
+    "SessionManager"
 ]

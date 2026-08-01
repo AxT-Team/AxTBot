@@ -6,7 +6,7 @@ Organization: AxT-Team
 """
 import asyncio, threading
 
-from app.modules import on_message, on_command
+from app.modules import on_message, on_command, on_interaction, on_all_message
 
 try:
     from app.service.qq_service.AccessToken import get_access_token

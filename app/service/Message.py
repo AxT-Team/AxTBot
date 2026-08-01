@@ -59,7 +59,7 @@ async def message_process(payload: BasePayload) -> None:
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
-        asyncio.create_task(dispatch(message))
+        asyncio.create_task(dispatch(msg))
     elif payload.t == "GROUP_MESSAGE_CREATE":
         msg = GroupMessage(**message)
         content = msg.content
@@ -105,7 +105,7 @@ async def message_process(payload: BasePayload) -> None:
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
-        asyncio.create_task(dispatch(message))
+        asyncio.create_task(dispatch(msg))
     elif payload.t == "C2C_MESSAGE_CREATE":
         msg = PrivateMessage(**message)
         text= msg.content
@@ -135,7 +135,7 @@ async def message_process(payload: BasePayload) -> None:
         else:
             database.update_user(User(user_openid=msg.author.union_openid, message = user.message + 1, update_time=msg.timestamp, nickname=msg.author.username))
         logger.info(log)
-        asyncio.create_task(dispatch(message))
+        asyncio.create_task(dispatch(msg))
     elif payload.t == "INTERACTION_CREATE":
         interaction = QQInteraction(**message)
         if config.appid == interaction.application_id:
@@ -156,3 +156,4 @@ async def message_process(payload: BasePayload) -> None:
                 log += "] >"
             log += f" ID:{interaction.data.resolved.button_id} 数据:{interaction.data.resolved.button_data}"
             logger.info(log)
+            asyncio.create_task(dispatch(interaction))
