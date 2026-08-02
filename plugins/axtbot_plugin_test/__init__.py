@@ -1,18 +1,31 @@
 from app import on_command, on_message, on_interaction, on_all_message
-from app.classes import GroupMessage, PrivateMessage, Message, QQInteraction, SessionManager
-from app.modules import logger
+from app.classes import GroupMessage, PrivateMessage, Message, QQInteraction, SessionManager, PluginMetadata
+from app.modules import logger, metadata_registry
 from app.service import interaction_reply
 
+__meta__ = PluginMetadata(
+    name="测试插件",
+    version="1.0.0",
+    author="Shanshui2024",
+    description="测试使用的插件",
+    # dependencies=["test"],  # 依赖 xxx 插件
+    commands=["ask", "hello"],
+    priority=5  # 较高优先级 优先级暂不可用
+)
 
 @on_command("hello")
 async def handle_function(event: Message):
     if event.author.bot:
         logger.debug("测试插件 >>> 收到机器人消息，忽略") # 新增机器人消息验证
         return
-    if event.is_you:
+    if event.is_you: # 只区分全量消息，非全量消息模式下默认是艾特的 所以不做区分
         logger.info("测试插件 >>> 收到AT消息！")
     else:
         logger.info("测试插件 >>> 收到测试消息")
+
+@on_message("hello")
+async def handle_function(event: Message):
+    logger.info("测试插件 >>> 收到消息类命令！")
 
 @on_command("hello")
 async def handle_function(event: PrivateMessage): # 请注意 此处有先后顺序 如果上面的Message先被处理，则该行不被处理
@@ -30,16 +43,24 @@ async def handle_function(event):
     logger.debug("测试插件 >>> 收到消息！")   # 接收所有文字消息！
 
 
-@on_command("ask") # Session消息（测试中）
+@on_command("ask") # Session消息 目前仅支持最大60秒的超时时间 过长会被函数处理器处理掉
 async def ask(event: GroupMessage):
     session_id = f"{event.author.member_openid}_{event.group_id}"
     session = SessionManager.create(session_id, timeout=30)
-    await event.reply("请告诉我你的问题（30秒内回复）")
+    logger.debug("请告诉我你的问题（30秒内回复）")
     try:
-        reply = await session.wait_for_message()
+        reply: GroupMessage = await session.wait_for_message()
         # 处理 reply
-        await event.reply(f"你问了: {reply.content}")
+        logger.debug(f"你问了: {reply.content}")
     except TimeoutError:
-        await event.reply("超时，会话结束")
+        logger.debug("超时，会话结束")
     finally:
         SessionManager.remove(session_id)
+@on_command("help")
+async def show_help(event):
+    help_text = "📚 可用插件列表:"
+    for name, meta in metadata_registry.items():
+        help_text += f"\n- {name} v{meta.version}: {meta.description}"
+        for command in meta.commands:
+            help_text += f"\n  - {command}"
+    logger.info(help_text)

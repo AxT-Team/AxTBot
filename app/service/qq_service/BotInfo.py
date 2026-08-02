@@ -9,6 +9,7 @@ import aiohttp, time
 from app.modules import logger
 from app.modules import get_db, FrameConfig
 async def get_qqbot_info():
+    time.sleep(2) # 在获取到正确的AccessToken前休眠一小会
     from app.service.qq_service.AccessToken import accesstoken
     logger.info("适配器 >>> 正在获取机器人信息")
     db = get_db()

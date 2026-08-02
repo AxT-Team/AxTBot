@@ -45,6 +45,7 @@ from app.classes.qq_adapter.Attachment import (
 )
 
 from app.classes.framework.Session import Session, SessionManager
+from app.classes.framework import PluginMetadata
 
 
 # ============================================================
@@ -128,5 +129,6 @@ __all__ = [
     "FileAttachment",
     "AttachmentList",
     "Session",
-    "SessionManager"
+    "SessionManager",
+    "PluginMetadata"
 ]

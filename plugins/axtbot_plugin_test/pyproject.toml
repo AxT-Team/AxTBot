@@ -1,0 +1,12 @@
+[project]
+name = "axtbot-plugin-test"
+version = "1.0.0"
+description = "AxTBot 测试插件"
+authors = [{name = "Shanshui2024", email = "shanshui@shanshui.site"}]
+dependencies = [
+    "aiohttp>=3.8.0",    # 插件自己的依赖
+    "axtbot-core>=1.0.0", # 假设你的主框架也是一个包
+]
+
+[project.entry-points."axtbot.plugins"]
+test = "axtbot_plugin_test:__meta__"  # 👈 关键！声明入口点
