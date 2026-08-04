@@ -4,6 +4,12 @@ Entry File for the FastAPI Application
 Author: Shanshui2024
 Organization: AxT-Team
 """
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+    
 import asyncio, threading
 
 from app.modules import on_message, on_command, on_interaction, on_all_message

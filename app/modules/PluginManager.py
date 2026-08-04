@@ -159,13 +159,13 @@ class PluginManager:
 
     def _load_entry_point_plugins(self):
         """
-        扫描 'axbot.plugins' 这个命名空间下的所有入口点
+        扫描 'axtbot.plugins' 这个命名空间下的所有入口点
         """
-        eps = entry_points(group="axbot.plugins")  # Python 3.10+ 语法
+        eps = entry_points(group="axtbot.plugins")  # Python 3.10+ 语法
         for ep in eps:
             try:
                 # ep.name 是插件名（如 'weather'）
-                # ep.value 是字符串 'axbot_plugin_weather:__meta__'
+                # ep.value 是字符串 'axtbot_plugin_weather:__meta__'
                 # load() 会导入该包并返回 __meta__ 对象
                 meta = ep.load()  
                 # 确保它是 PluginMetadata 实例
