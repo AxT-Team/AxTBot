@@ -17,6 +17,7 @@ class PluginMetadata:
     commands: List[str] = field(default_factory=list)
     priority: int = 10  # 默认中等优先级
     module_name: str = ""
+    official: bool = False
     
     def __post_init__(self):
         # 自动校验版本格式
