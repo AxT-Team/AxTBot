@@ -5,9 +5,10 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 import aiohttp
+from typing import Any
 
 from app.modules import logger
-async def interaction_reply(inter_id: str, code: int = 0) -> dict:
+async def interaction_reply(inter_id: str, code: int = 0) -> dict | None:
     """
     完成事件回调逻辑
 

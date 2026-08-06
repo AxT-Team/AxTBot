@@ -31,7 +31,20 @@ from app.classes.qq_adapter import (
     QQValidationEvent,
     BasePayload,
     AccessToken,
-    QQInteraction
+    QQInteraction,
+    Sender,
+    Markdown,
+    Keyboard,
+    KeyboardContent,
+    Row,
+    Button,
+    RenderData,
+    Action,
+    Permission,
+    MediaInfo,
+    MessageReference,
+    Card,
+    CardContent,
 )
 
 # ── 附件：QQ 适配器版本（含 content_type / size 等 QQ 特有字段）──
@@ -88,6 +101,116 @@ class Message(_FWMessage, QQMessageExt):
     attachments: list[Attachment] | None = None
     is_you: bool | None = None
 
+    # ── 内部工具 ──
+
+    @staticmethod
+    def _build_content(
+        content: str | None,
+        mention: bool,
+        author_id: str,
+        mention_users: list[str] | None,
+    ) -> str | None:
+        """在 content 前拼接 @ 提及文本链（新格式）。"""
+        parts = []
+        if mention:
+            parts.append(f'<qqbot-at-user id="{author_id}" />')
+        if mention_users:
+            for uid in mention_users:
+                parts.append(f'<qqbot-at-user id="{uid}" />')
+        if not parts:
+            return content
+        return " ".join(parts) + " " + (content or "")
+
+    def _get_msg_idx(self) -> str | None:
+        """
+        从 message_scene.ext 中提取 msg_idx，用于正确的引用回复。
+
+        QQ API 的引用链通过 msg_idx 传递，而非消息 id。
+        """
+        ext = None
+        if isinstance(self.message_scene, MessageScene):
+            ext = self.message_scene.ext
+        elif isinstance(self.message_scene, dict):
+            ext = self.message_scene.get("ext", [])
+        if ext:
+            for item in ext:
+                if isinstance(item, str) and item.startswith("msg_idx="):
+                    return item[len("msg_idx="):]
+        return None
+
+    # ── 公开 API ──
+
+    async def reply(
+        self,
+        content: str | None = None,
+        *,
+        quote: bool = True,
+        mention: bool = False,
+        mention_users: list[str] | None = None,
+        **kwargs,
+    ) -> dict | None:
+        """
+        被动回复本消息（自动填 msg_id）。
+
+        Args:
+            content       : 回复文本（可为 None，纯发 markdown / 键盘时）
+            quote         : 是否引用原消息显示引用样式，默认 True
+            mention       : 是否在消息开头 @ 消息作者
+            mention_users : 额外 @ 的用户 ID 列表
+            **kwargs      : 透传给 Sender（markdown, keyboard, msg_type 等）
+
+        Returns:
+            API 响应 dict 或 None
+        """
+        from app.service.qq_service.MsgSender import send_group_message, send_c2c_message
+
+        content = self._build_content(content, mention, self.author.id, mention_users)
+        sender = Sender(
+            content=content,
+            msg_id=self.id,
+            msg_seq=kwargs.pop("msg_seq", 1),
+            **kwargs,
+        )
+        if quote:
+            ref_idx = self._get_msg_idx()
+            if ref_idx:
+                sender.message_reference = MessageReference(message_id=ref_idx)
+
+        if isinstance(self, GroupMessage):
+            return await send_group_message(self.group_openid, sender)
+        else:
+            return await send_c2c_message(self.author.union_openid, sender)
+
+    async def send(
+        self,
+        content: str | None = None,
+        *,
+        mention: bool = False,
+        mention_users: list[str] | None = None,
+        **kwargs,
+    ) -> dict | None:
+        """
+        主动发送消息（不填 msg_id，不受 5 分钟限制）。
+
+        Args:
+            content       : 消息文本
+            mention       : 是否 @ 消息作者
+            mention_users : 额外 @ 的用户 ID 列表
+            **kwargs      : 透传给 Sender 构造器
+
+        Returns:
+            API 响应 dict 或 None
+        """
+        from app.service.qq_service.MsgSender import send_group_message, send_c2c_message
+
+        content = self._build_content(content, mention, self.author.id, mention_users)
+        sender = Sender(content=content, **kwargs)
+
+        if isinstance(self, GroupMessage):
+            return await send_group_message(self.group_openid, sender)
+        else:
+            return await send_c2c_message(self.author.union_openid, sender)
+
 
 class GroupMessage(Message):
     """
@@ -97,12 +220,129 @@ class GroupMessage(Message):
     group_id: str
     group_openid: str
 
+    async def reply(
+        self,
+        content: str | None = None,
+        *,
+        quote: bool = True,
+        mention: bool = False,
+        mention_users: list[str] | None = None,
+        **kwargs,
+    ) -> dict | None:
+        """
+        被动回复本群消息（自动填 msg_id / group_openid）。
+
+        Args:
+            content       : 回复文本
+            quote         : 是否引用原消息，默认 True
+            mention       : 是否 @ 消息作者（群聊中适用）
+            mention_users : 额外 @ 的用户 ID 列表
+            **kwargs      : 透传给 Sender（markdown, keyboard, msg_type 等）
+
+        Example:
+            await msg.reply("收到！")                            # 引用回复
+            await msg.reply("你好", quote=False)                 # 不引用
+            await msg.reply("请查看", mention=True)              # 引用 + @作者
+            await msg.reply(markdown=Markdown(...), keyboard=kb) # 复杂消息
+        """
+        from app.service.qq_service.MsgSender import send_group_message
+
+        content = self._build_content(content, mention, self.author.id, mention_users)
+        sender = Sender(
+            content=content,
+            msg_id=self.id,
+            msg_seq=kwargs.pop("msg_seq", 1),
+            **kwargs,
+        )
+        if quote:
+            ref_idx = self._get_msg_idx()
+            if ref_idx:
+                sender.message_reference = MessageReference(message_id=ref_idx)
+
+        return await send_group_message(self.group_openid, sender)
+
+    async def send(
+        self,
+        content: str | None = None,
+        *,
+        mention: bool = False,
+        mention_users: list[str] | None = None,
+        **kwargs,
+    ) -> dict | None:
+        """
+        主动向本群发送消息（不填 msg_id，不受 5 分钟限制）。
+
+        Args:
+            content       : 消息文本
+            mention       : 是否 @ 消息作者
+            mention_users : 额外 @ 的用户 ID 列表
+            **kwargs      : 透传给 Sender 构造器
+
+        Example:
+            await msg.send("推送通知")
+            await msg.send("开会了", mention=True)
+        """
+        from app.service.qq_service.MsgSender import send_group_message
+
+        content = self._build_content(content, mention, self.author.id, mention_users)
+        sender = Sender(content=content, **kwargs)
+
+        return await send_group_message(self.group_openid, sender)
+
 
 class PrivateMessage(Message):
     """
     合并后的私聊消息。
     """
-    pass
+
+    async def reply(
+        self,
+        content: str | None = None,
+        *,
+        quote: bool = True,
+        **kwargs,
+    ) -> dict | None:
+        """
+        被动回复本私聊消息（自动填 msg_id / user_openid）。
+
+        私聊中 mention 无意义（仅双方对话），忽略该参数。
+
+        Args:
+            content  : 回复文本
+            quote    : 是否引用原消息，默认 True
+            **kwargs : 透传给 Sender 构造器
+        """
+        from app.service.qq_service.MsgSender import send_c2c_message
+
+        sender = Sender(
+            content=content,
+            msg_id=self.id,
+            msg_seq=kwargs.pop("msg_seq", 1),
+            **kwargs,
+        )
+        if quote:
+            ref_idx = self._get_msg_idx()
+            if ref_idx:
+                sender.message_reference = MessageReference(message_id=ref_idx)
+
+        return await send_c2c_message(self.author.union_openid, sender)
+
+    async def send(
+        self,
+        content: str | None = None,
+        **kwargs,
+    ) -> dict | None:
+        """
+        主动向本用户发送私聊消息。
+
+        Args:
+            content  : 消息文本
+            **kwargs : 透传给 Sender 构造器
+        """
+        from app.service.qq_service.MsgSender import send_c2c_message
+
+        sender = Sender(content=content, **kwargs)
+        return await send_c2c_message(self.author.union_openid, sender)
 
 
 # ============================================================
@@ -120,7 +360,21 @@ __all__ = [
     "QQValidationEvent",
     "BasePayload",
     "AccessToken",
-    "QQInteraction"
+    "QQInteraction",
+    # 发送消息相关模型
+    "Sender",
+    "Markdown",
+    "Keyboard",
+    "KeyboardContent",
+    "Row",
+    "Button",
+    "RenderData",
+    "Action",
+    "Permission",
+    "MediaInfo",
+    "MessageReference",
+    "Card",
+    "CardContent",
     # 附件模型
     "Attachment",
     "VoiceAttachment",
@@ -128,7 +382,8 @@ __all__ = [
     "VideoAttachment",
     "FileAttachment",
     "AttachmentList",
+    # Framework 模型
     "Session",
     "SessionManager",
-    "PluginMetadata"
+    "PluginMetadata",
 ]

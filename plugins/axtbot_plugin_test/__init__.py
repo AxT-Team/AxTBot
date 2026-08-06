@@ -1,5 +1,5 @@
 from app import on_command, on_message, on_interaction, on_all_message
-from app.classes import GroupMessage, PrivateMessage, Message, QQInteraction, SessionManager, PluginMetadata
+from app.classes import GroupMessage, PrivateMessage, Message, QQInteraction, SessionManager, PluginMetadata, Markdown, Keyboard, KeyboardContent
 from app.modules import logger, metadata_registry
 from app.service import interaction_reply
 
@@ -20,9 +20,86 @@ async def handle_function(event: Message):
         return
     if event.is_you: # 只区分全量消息，非全量消息模式下默认是艾特的 所以不做区分
         logger.info("测试插件 >>> 收到AT消息！")
+        await event.reply("收到AT消息！",quote=True)
+        rows = {
+            "rows": [
+                                            {
+                                                "buttons": [
+                                                    {
+                                                    "id": "button_1",
+                                                    "render_data": {
+                                                        "label": "确认",
+                                                        "visited_label": "已确认",
+                                                        "style": 1
+                                                    },
+                                                    "action": {
+                                                        "type": 2,
+                                                        "permission": {
+                                                        "type": 2,
+                                                        "specify_role_ids": [],
+                                                        "specify_user_ids": []
+                                                        },
+                                                        "click_limit": 1,
+                                                        "data": "/action_confirm",
+                                                        "at_bot_show_channel_list": True,
+                                                        "reply": True,
+                                                        "enter": True
+                                                    }
+                                                    }
+                                                ]
+                                            }
+                  ]
+        }
+        await event.reply(
+            msg_type=2,
+            markdown=Markdown(
+                content="# 标题 \n 这是个测试内容 \n --- \n 阅读该内容即证明您已经同意相关协议"
+            ), 
+            keyboard=Keyboard(content=rows),
+            msg_seq=2
+        )
+                              
+        # await event.reply()
     else:
         logger.info("测试插件 >>> 收到测试消息")
-
+        await event.reply("收到测试消息！",quote=True)
+        rows = {
+            "rows": [
+                                            {
+                                                "buttons": [
+                                                    {
+                                                    "id": "button_1",
+                                                    "render_data": {
+                                                        "label": "确认",
+                                                        "visited_label": "已确认",
+                                                        "style": 1
+                                                    },
+                                                    "action": {
+                                                        "type": 2,
+                                                        "permission": {
+                                                        "type": 2,
+                                                        "specify_role_ids": [],
+                                                        "specify_user_ids": []
+                                                        },
+                                                        "click_limit": 1,
+                                                        "data": "/action_confirm",
+                                                        "at_bot_show_channel_list": True,
+                                                        "reply": True,
+                                                        "enter": True
+                                                    }
+                                                    }
+                                                ]
+                                            }
+                  ]
+        }
+        await event.reply(
+            msg_type=2,
+            markdown=Markdown(
+                content="# 标题 \n 这是个测试内容 \n --- \n 阅读该内容即证明您已经同意相关协议"
+            ), 
+            keyboard=Keyboard(content=rows),
+            msg_seq=2
+        )
 @on_message("hello")
 async def handle_function(event: Message):
     logger.info("测试插件 >>> 收到消息类命令！")
