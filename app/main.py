@@ -18,8 +18,20 @@ async def lifespan(app: FastAPI):
         logger.warning("框架 >>> 数据目录不存在，已创建 data 文件夹")
     else:
         pass
-    from app.modules import database
+    from app.modules import database, get_db, FrameConfig
+    import time as _time
     logger.info(f"框架 >>> 数据库已初始化: {database.db_url}")
+
+    # 记录框架启动时间
+    _db = get_db()
+    _now = str(int(_time.time()))
+    _existing = _db.get_frame_config_by_key("startup_time")
+    if _existing:
+        _db.update_frame_config("startup_time", _now, int(_time.time()))
+    else:
+        _db.add_frame_config(FrameConfig(key="startup_time", value=_now, create_time=_now, update_time=_now))
+    logger.info(f"框架 >>> 启动时间已记录: {_now}")
+
     try:
         from app.service.qq_service.AccessToken import shutdown_token_service
         from app.service.qq_service.BotInfo import get_qqbot_info

@@ -138,6 +138,12 @@ class Message(_FWMessage, QQMessageExt):
                     return item[len("msg_idx="):]
         return None
 
+    @staticmethod
+    def _auto_msg_type(kwargs: dict) -> None:
+        """传了 markdown 未传 msg_type → 自动设为 2；否则默认 0。"""
+        if "markdown" in kwargs and "msg_type" not in kwargs:
+            kwargs["msg_type"] = 2
+
     # ── 公开 API ──
 
     async def reply(
@@ -165,6 +171,7 @@ class Message(_FWMessage, QQMessageExt):
         from app.service.qq_service.MsgSender import send_group_message, send_c2c_message
 
         content = self._build_content(content, mention, self.author.id, mention_users)
+        self._auto_msg_type(kwargs)
         sender = Sender(
             content=content,
             msg_id=self.id,
@@ -204,6 +211,7 @@ class Message(_FWMessage, QQMessageExt):
         from app.service.qq_service.MsgSender import send_group_message, send_c2c_message
 
         content = self._build_content(content, mention, self.author.id, mention_users)
+        self._auto_msg_type(kwargs)
         sender = Sender(content=content, **kwargs)
 
         if isinstance(self, GroupMessage):
@@ -248,6 +256,7 @@ class GroupMessage(Message):
         from app.service.qq_service.MsgSender import send_group_message
 
         content = self._build_content(content, mention, self.author.id, mention_users)
+        self._auto_msg_type(kwargs)
         sender = Sender(
             content=content,
             msg_id=self.id,
@@ -285,6 +294,7 @@ class GroupMessage(Message):
         from app.service.qq_service.MsgSender import send_group_message
 
         content = self._build_content(content, mention, self.author.id, mention_users)
+        self._auto_msg_type(kwargs)
         sender = Sender(content=content, **kwargs)
 
         return await send_group_message(self.group_openid, sender)
@@ -314,6 +324,7 @@ class PrivateMessage(Message):
         """
         from app.service.qq_service.MsgSender import send_c2c_message
 
+        self._auto_msg_type(kwargs)
         sender = Sender(
             content=content,
             msg_id=self.id,
@@ -341,6 +352,7 @@ class PrivateMessage(Message):
         """
         from app.service.qq_service.MsgSender import send_c2c_message
 
+        self._auto_msg_type(kwargs)
         sender = Sender(content=content, **kwargs)
         return await send_c2c_message(self.author.union_openid, sender)
 

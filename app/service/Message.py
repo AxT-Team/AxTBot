@@ -7,7 +7,7 @@ Organization: AxT-Team
 import asyncio
 
 from app.classes import GroupMessage, BasePayload, PrivateMessage, QQInteraction
-from app.modules import logger, database, User, Group, dispatch, get_db, config
+from app.modules import logger, database, User, Group, dispatch, get_db, config, counter
 
 async def message_process(payload: BasePayload) -> None:
     """
@@ -24,6 +24,7 @@ async def message_process(payload: BasePayload) -> None:
     db = get_db()
     if payload.t == "GROUP_AT_MESSAGE_CREATE":
         msg = GroupMessage(**message)
+        counter.add_group_received()
         content = msg.content
         # if msg.mentions:  # <-- 这里开放平台还没有办法读取到任何艾特形式消息，只有全量消息可以收到。。。
         #     for mention in msg.mentions:
@@ -62,6 +63,7 @@ async def message_process(payload: BasePayload) -> None:
         asyncio.create_task(dispatch(msg))
     elif payload.t == "GROUP_MESSAGE_CREATE":
         msg = GroupMessage(**message)
+        counter.add_group_received()
         content = msg.content
         is_you = None
         if msg.mentions:
@@ -108,6 +110,7 @@ async def message_process(payload: BasePayload) -> None:
         asyncio.create_task(dispatch(msg))
     elif payload.t == "C2C_MESSAGE_CREATE":
         msg = PrivateMessage(**message)
+        counter.add_private_received()
         text= msg.content
         if len(text) <= 200:
             pass

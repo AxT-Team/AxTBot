@@ -39,7 +39,7 @@ async def _do_send(url: str, payload: dict, headers: dict) -> Optional[dict]:
         None  : 失败时返回 None（已记录日志）
     """
     try:
-        logger.debug(f"发信 >>> 尝试执行发信 {payload} 至 {url}")
+        # logger.debug(f"发信 >>> 尝试执行发信 {payload} 至 {url}")
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload, headers=headers, timeout=5) as resp:
                 data = await resp.json()
@@ -106,7 +106,11 @@ async def send_group_message(
         result = await send_group_message("GROUP_OPENID_XXX", sender)
     """
     url = f"{API_BASE}/v2/groups/{group_openid}/messages"
-    return await send_message(url, sender)
+    result = await send_message(url, sender)
+    if result is not None:
+        from app.modules.MessageCounter import counter
+        counter.add_group_sent()
+    return result
 
 
 async def reply_group_message(
@@ -155,7 +159,11 @@ async def send_c2c_message(
         dict | None
     """
     url = f"{API_BASE}/v2/users/{openid}/messages"
-    return await send_message(url, sender)
+    result = await send_message(url, sender)
+    if result is not None:
+        from app.modules.MessageCounter import counter
+        counter.add_private_sent()
+    return result
 
 
 async def reply_c2c_message(
