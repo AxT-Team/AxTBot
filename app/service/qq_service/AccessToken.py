@@ -8,10 +8,9 @@ import asyncio, aiohttp, time
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.classes import AccessToken
-from app.modules import logger, config, get_db, FrameConfig
+from app.modules import logger, config_loader, get_db, FrameConfig
 
-APPID = config.appid
-BOT_SECRET = config.botsecret
+
 
 accesstoken = AccessToken()
 lock = asyncio.Lock()
@@ -30,6 +29,9 @@ async def get_access_token():
     global accesstoken, _shutdown
     while not _shutdown:  # 添加关闭检查
         db = get_db()
+        config = config_loader.get_core_config()
+        APPID = config.appid
+        BOT_SECRET = config.bot_secret
         try:
             db_access_token = db.get_frame_config_by_key("access_token")
             db_access_token.create_time

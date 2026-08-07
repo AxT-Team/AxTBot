@@ -11,46 +11,39 @@ from importlib.metadata import entry_points
 from pathlib import Path
 
 from app.classes import Message, GroupMessage, PrivateMessage, QQInteraction, SessionManager, PluginMetadata
-from app.modules import config, logger, get_db
+from app.modules import logger, get_db, config_loader
 
 metadata_registry: Dict[str, PluginMetadata] = {}
 
 class PluginManager:
-    def __init__(self, plugin_dir="plugins", load_from_entry_points=True):
-        self.plugin_dir = Path(config.plugins_dir)
-        if not os.path.exists(plugin_dir):
-            os.makedirs(plugin_dir)
-            logger.warning("插件 >>> 插件目录不存在，已生成目录")
+    
+    def __init__(self, load_from_entry_points=True):
+        core_config = config_loader.get_core_config()
+        self.plugins_dir = Path(core_config.plugins_dir)
+        self.disabled_plugins = core_config.disable_plugins
+        self.command_timeout = core_config.command_timeout
         self.load_from_entry_points = load_from_entry_points
-
+        if not os.path.exists(self.plugins_dir):
+            os.makedirs(self.plugins_dir)
+            logger.warning("插件 >>> 插件目录不存在，已生成目录")
     def _check_and_clean_dependencies(self):
         """
         遍历所有已加载插件的元数据，检查依赖是否满足。
         不满足的插件会从 metadata_registry 中移除，并清理其注册的所有处理器。
         """
-        from app.modules import logger
-        import sys
-        
         disabled_plugins = []
-        
-        # 使用 list() 创建副本，因为我们要在遍历时删除字典项
         for plugin_name, meta in list(metadata_registry.items()):
             missing_deps = []
-            
             for dep in meta.dependencies:
                 if dep not in metadata_registry:
                     missing_deps.append(dep)
-            
             if missing_deps:
                 logger.error(
                     f"插件 >>> 插件 '{plugin_name}'({meta.module_name}) 缺少依赖: {', '.join(missing_deps)}，已禁用"
                 )
                 disabled_plugins.append(plugin_name)
-                
-                # 1. 从元数据注册表中删除
                 del metadata_registry[plugin_name]
-                self._remove_handlers_by_module(meta.module_name)  # 需要给 PluginMetadata 增加 module_name 字段
-        
+                self._remove_handlers_by_module(meta.module_name)
         if disabled_plugins:
             logger.warning(f"插件 >>> 已禁用插件: {', '.join(disabled_plugins)}")
 
@@ -121,10 +114,10 @@ class PluginManager:
         """
         扫描 plugins/ 下的子文件夹，将其作为 Python 包导入
         """
-        if str(self.plugin_dir.parent) not in sys.path:
-            sys.path.insert(0, str(self.plugin_dir.parent))
+        if str(self.plugins_dir.parent) not in sys.path:
+            sys.path.insert(0, str(self.plugins_dir.parent))
         IGNORE_DIRS = {"__pycache__", ".git", ".idea", ".vscode", "tests", "docs", "dist", "build"}
-        for item in self.plugin_dir.iterdir():
+        for item in self.plugins_dir.iterdir():
             if not item.is_dir():
                 continue
             if item.name.startswith(".") or item.name in IGNORE_DIRS:
@@ -133,9 +126,7 @@ class PluginManager:
             if not init_file.exists():
                 logger.warning(f"插件 >>> 目录 {item.name} 缺少 __init__.py，跳过")
                 continue
-            # 构建包名：假设 plugins 的父目录是项目根目录
-            # 如果 plugins 在项目根目录下，包名就是 plugins.{folder_name}
-            package_name = f"{self.plugin_dir.name}.{item.name}"
+            package_name = f"{self.plugins_dir.name}.{item.name}"
             try:
                 module = importlib.import_module(package_name)# 动态导入该包（会执行 __init__.py 中的装饰器）
                 if hasattr(module, "__meta__") and isinstance(module.__meta__, PluginMetadata): # 提取元数据
@@ -143,6 +134,9 @@ class PluginManager:
                     meta.module_name = package_name  # 记录模块名，用于移除
                     if not meta.commands: # 自动填充命令
                         meta.commands = self._collect_commands_for_module(package_name)
+                    if meta.name in self.disabled_plugins:
+                        logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
+                        continue
                     metadata_registry[meta.name] = meta
                     logger.info(f"插件 >>> 从本地包加载插件: {meta.name} v{meta.version}")
                 else:
@@ -152,6 +146,9 @@ class PluginManager:
                         description=f"本地插件（未声明元数据）",
                         module_name=package_name
                     )
+                    if meta.name in self.disabled_plugins:
+                        logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
+                        continue
                     metadata_registry[meta.name] = meta
                     logger.warning(f"插件 >>> 本地包 {item.name} 未定义 __meta__，使用默认值")
             except Exception as e:
@@ -171,6 +168,9 @@ class PluginManager:
                 # 确保它是 PluginMetadata 实例
                 if not isinstance(meta, PluginMetadata):
                     logger.warning(f"插件 >>> 入口点 {ep.name} 未返回有效的 PluginMetadata，跳过")
+                    continue
+                if meta.name in self.disabled_plugins:
+                    logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
                     continue
                 # 存入全局注册表（如果已存在同名插件，覆盖或合并）
                 if meta.name in metadata_registry:
@@ -248,13 +248,14 @@ async def _dispatch_interaction(event: QQInteraction):
             break  # 命中一个就停止
 
 
-_executor = ThreadPoolExecutor(max_workers=4)
 async def _run_handler(func, event):
     """统一执行器：兼容同步/异步函数，带超时和异常捕获"""
+    config = config_loader.get_core_config()
+    _executor = ThreadPoolExecutor(max_workers=config.max_workers)
     try:
         if inspect.iscoroutinefunction(func):
             # 异步函数：直接 await
-            await asyncio.wait_for(func(event), timeout=60.0)
+            await asyncio.wait_for(func(event), timeout=config.command_timeout)
         else:
             # 同步函数：扔到线程池执行
             await asyncio.wait_for(
@@ -262,7 +263,8 @@ async def _run_handler(func, event):
                 timeout=60.0,
             )
     except asyncio.TimeoutError:
-        logger.error(f"处理器 {func.__name__} 执行超时（>60秒），已放弃")
+        logger.error(f"处理器 {func.__name__} 执行超时（>{config.command_timeout}秒），已放弃")
     except Exception as e:
         logger.error(f"处理器 {func.__name__} 执行报错: {e}")
+        raise e
     return None

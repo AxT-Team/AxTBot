@@ -40,6 +40,16 @@ async def _do_send(url: str, payload: dict, headers: dict) -> Optional[dict]:
     """
     try:
         # logger.debug(f"发信 >>> 尝试执行发信 {payload} 至 {url}")
+        log = "发送消息 >>> "
+        if "groups" in url:
+            gid = url.replace("https://api.bot.qq.com/v2/groups/", "")
+            gid = gid.replace("/messages", "")
+            log += f"[群聊消息 | 群ID：{gid}] > {payload.get("content", None)}"
+        elif "users" in url:
+            uid = url.replace("https://api.bot.qq.com/v2/users/", "")
+            uid = uid.replace("/messages", "")
+            log += f"[私聊消息 | 用户ID：{uid}] > {payload.get("content", None)}"
+        logger.info(log)
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload, headers=headers, timeout=5) as resp:
                 data = await resp.json()
@@ -47,14 +57,15 @@ async def _do_send(url: str, payload: dict, headers: dict) -> Optional[dict]:
                     return data
                 else:
                     logger.error(
-                        f"发信 >>> 发送失败 HTTP {resp.status}: {data}"
+                        f"发送消息 >>> 发送失败 HTTP {resp.status}: {data}"
                     )
                     return None
     except aiohttp.ClientError as e:
-        logger.error(f"发信 >>> 网络请求异常: {e}")
+        logger.error(f"发送消息 >>> 网络请求异常: {e}")
         return None
     except Exception as e:
-        logger.error(f"发信 >>> 未知异常: {e}")
+        logger.error(f"发送消息 >>> 未知异常: {e}")
+        raise e
         return None
 
 

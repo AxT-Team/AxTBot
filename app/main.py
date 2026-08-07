@@ -9,10 +9,11 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.router import __all__ as routers
-from app.modules import logger
+from app.modules import logger, config_loader
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    config_loader.load("local.env")
     if not os.path.exists("data"):
         os.mkdir("data")
         logger.warning("框架 >>> 数据目录不存在，已创建 data 文件夹")
@@ -30,8 +31,7 @@ async def lifespan(app: FastAPI):
         _db.update_frame_config("startup_time", _now, int(_time.time()))
     else:
         _db.add_frame_config(FrameConfig(key="startup_time", value=_now, create_time=_now, update_time=_now))
-    logger.info(f"框架 >>> 启动时间已记录: {_now}")
-
+    logger.debug(f"框架 >>> 启动时间已记录: {_now}")
     try:
         from app.service.qq_service.AccessToken import shutdown_token_service
         from app.service.qq_service.BotInfo import get_qqbot_info

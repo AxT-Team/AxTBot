@@ -7,7 +7,7 @@ Organization: AxT-Team
 import asyncio
 
 from app.classes import GroupMessage, BasePayload, PrivateMessage, QQInteraction
-from app.modules import logger, database, User, Group, dispatch, get_db, config, counter
+from app.modules import logger, database, User, Group, dispatch, get_db, config_loader, counter
 
 async def message_process(payload: BasePayload) -> None:
     """
@@ -20,6 +20,7 @@ async def message_process(payload: BasePayload) -> None:
         None
     """
     message = payload.d
+    config = config_loader.get_core_config()
     logger.debug(f"Received payload: {payload}")
     db = get_db()
     if payload.t == "GROUP_AT_MESSAGE_CREATE":

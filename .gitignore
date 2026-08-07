@@ -25,3 +25,4 @@ local.env
 # Rubbish!
 .copilot/
 app/modules/modules.md
+.vscode

@@ -8,10 +8,7 @@ import binascii
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from app.classes import QQValidationEvent
-from app.modules import config
-
-APPID = config.appid
-BOT_SECRET = config.botsecret
+from app.modules import config_loader
 
 async def validation(validate: QQValidationEvent, headers: dict, body: bytes):
     """
@@ -28,6 +25,9 @@ async def validation(validate: QQValidationEvent, headers: dict, body: bytes):
     详细信息参见：
     - https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/interface-framework/event-emit.html#webhook方式
     """
+    config = config_loader.get_core_config()
+    APPID = config.appid
+    BOT_SECRET = config.bot_secret
     if headers.get("User-Agent") != "QQBot-Callback" or headers.get("x-bot-appid") != APPID or headers.get("X-Signature-Method") != "Ed25519":
         raise ValueError("Invalid User-Agent header or APPID. Please ensure that the request is coming from Tencent.")
     ed25519 = headers.get("X-Signature-Ed25519")
@@ -63,6 +63,9 @@ async def validation_msg(headers: dict, body: bytes) -> bool:
     详细信息参见：
     - https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/interface-framework/event-emit.html#webhook方式
     """
+    config = config_loader.get_core_config()
+    APPID = config.appid
+    BOT_SECRET = config.bot_secret
     if headers.get("x-bot-appid") != APPID or headers.get("X-Signature-Method") != "Ed25519" or headers.get("User-Agent") != "QQBot-Callback":
         raise ValueError("Invalid User-Agent header. Please ensure that the request is coming from Tencent QQ Bot.")
     ed25519 = headers.get("X-Signature-Ed25519")
