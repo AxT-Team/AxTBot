@@ -4,39 +4,49 @@ Module for Plugins Hook/UnHook Management in AxTBot
 Author: Shanshui2024
 Organization: AxT-Team
 """
-import os, importlib, asyncio, inspect, re, sys
+from __future__ import annotations
+
+import asyncio
+import importlib
+import inspect
+import os
+import re
+import sys
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List
 from importlib.metadata import entry_points
 from pathlib import Path
+from typing import Dict, List
 
-from app.classes import Message, GroupMessage, PrivateMessage, QQInteraction, SessionManager, PluginMetadata
-from app.modules import logger, get_db, config_loader
+from app.classes import (
+    GroupMessage,
+    Message,
+    PluginMetadata,
+    PrivateMessage,
+    QQInteraction,
+    SessionManager,
+)
+from app.modules import config_loader, get_db, logger
 
 metadata_registry: Dict[str, PluginMetadata] = {}
+db = get_db()
+_sync_executor: ThreadPoolExecutor | None = None
+
 
 class PluginManager:
-    
     def __init__(self, load_from_entry_points=True):
         core_config = config_loader.get_core_config()
         self.plugins_dir = Path(core_config.plugins_dir)
         self.disabled_plugins = core_config.disable_plugins
         self.command_timeout = core_config.command_timeout
         self.load_from_entry_points = load_from_entry_points
-        if not os.path.exists(self.plugins_dir):
-            os.makedirs(self.plugins_dir)
+        if not self.plugins_dir.exists():
+            self.plugins_dir.mkdir(parents=True, exist_ok=True)
             logger.warning("插件 >>> 插件目录不存在，已生成目录")
+
     def _check_and_clean_dependencies(self):
-        """
-        遍历所有已加载插件的元数据，检查依赖是否满足。
-        不满足的插件会从 metadata_registry 中移除，并清理其注册的所有处理器。
-        """
         disabled_plugins = []
         for plugin_name, meta in list(metadata_registry.items()):
-            missing_deps = []
-            for dep in meta.dependencies:
-                if dep not in metadata_registry:
-                    missing_deps.append(dep)
+            missing_deps = [dep for dep in meta.dependencies if dep not in metadata_registry]
             if missing_deps:
                 logger.error(
                     f"插件 >>> 插件 '{plugin_name}'({meta.module_name}) 缺少依赖: {', '.join(missing_deps)}，已禁用"
@@ -48,91 +58,51 @@ class PluginManager:
             logger.warning(f"插件 >>> 已禁用插件: {', '.join(disabled_plugins)}")
 
     def _remove_handlers_by_module(self, module_full_name: str):
-        """
-        从所有处理器列表中，移除属于指定模块的所有处理器
-        module_full_name: 如 'plugins.weather'
-        """
         from app.modules import handlers
-        
-        # 1. 移除命令处理器
-        before_count = len(handlers["command"])
-        handlers["command"] = [
-            h for h in handlers["command"] 
-            if h["func"].__module__ != module_full_name
-        ]
-        removed = before_count - len(handlers["command"])
-        
-        # 2. 移除消息关键词处理器
-        before_count = len(handlers["message"])
-        handlers["message"] = [
-            h for h in handlers["message"] 
-            if h["func"].__module__ != module_full_name
-        ]
-        removed += before_count - len(handlers["message"])
-        
-        # 3. 如果有全局消息钩子（之前我们设计的 on_all_message）
-        if "all" in handlers:
-            before_count = len(handlers["all"])
-            handlers["all"] = [
-                h for h in handlers["all"] 
-                if h["func"].__module__ != module_full_name
-            ]
-            removed += before_count - len(handlers["all"])
-        
-        # 4. 如果有互动事件处理器
-        if "interaction" in handlers:
-            before_count = len(handlers["interaction"])
-            handlers["interaction"] = [
-                h for h in handlers["interaction"] 
-                if h["func"].__module__ != module_full_name
-            ]
-            removed += before_count - len(handlers["interaction"])
-        
+
+        removed = 0
+        for key in ("command", "message", "all", "interaction"):
+            if key not in handlers:
+                continue
+            before_count = len(handlers[key])
+            handlers[key] = [h for h in handlers[key] if h["func"].__module__ != module_full_name]
+            removed += before_count - len(handlers[key])
+
         if removed > 0:
             logger.debug(f"插件 >>> 已移除插件 {module_full_name} 的 {removed} 个处理器")
         return removed
 
     def _collect_commands_for_module(self, module_name: str) -> List[str]:
-        """
-        扫描全局命令注册表，找出属于指定模块的所有命令名
-        """
-        from app.modules import handlers  # 导入你的全局注册表
-        
-        collected = []
+        from app.modules import handlers
+
+        collected: List[str] = []
         for h in handlers.get("command", []):
             func = h.get("func")
-            if func is None:
-                continue
-            
-            # 通过 __module__ 判断该函数属于哪个插件文件
-            if func.__module__ == module_name:
+            if func is not None and func.__module__ == module_name:
                 collected.append(h["name"])
-        
         return collected
 
     def _load_local_packages(self):
-        """
-        扫描 plugins/ 下的子文件夹，将其作为 Python 包导入
-        """
         if str(self.plugins_dir.parent) not in sys.path:
             sys.path.insert(0, str(self.plugins_dir.parent))
-        IGNORE_DIRS = {"__pycache__", ".git", ".idea", ".vscode", "tests", "docs", "dist", "build"}
+
+        ignore_dirs = {"__pycache__", ".git", ".idea", ".vscode", "tests", "docs", "dist", "build"}
         for item in self.plugins_dir.iterdir():
-            if not item.is_dir():
+            if not item.is_dir() or item.name.startswith(".") or item.name in ignore_dirs:
                 continue
-            if item.name.startswith(".") or item.name in IGNORE_DIRS:
-                continue
-            init_file = item / "__init__.py" # 检查是否是有效的 Python 包（有 __init__.py）
+
+            init_file = item / "__init__.py"
             if not init_file.exists():
                 logger.warning(f"插件 >>> 目录 {item.name} 缺少 __init__.py，跳过")
                 continue
+
             package_name = f"{self.plugins_dir.name}.{item.name}"
             try:
-                module = importlib.import_module(package_name)# 动态导入该包（会执行 __init__.py 中的装饰器）
-                if hasattr(module, "__meta__") and isinstance(module.__meta__, PluginMetadata): # 提取元数据
+                module = importlib.import_module(package_name)
+                if hasattr(module, "__meta__") and isinstance(module.__meta__, PluginMetadata):
                     meta = module.__meta__
-                    meta.module_name = package_name  # 记录模块名，用于移除
-                    if not meta.commands: # 自动填充命令
+                    meta.module_name = package_name
+                    if not meta.commands:
                         meta.commands = self._collect_commands_for_module(package_name)
                     if meta.name in self.disabled_plugins:
                         logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
@@ -140,11 +110,11 @@ class PluginManager:
                     metadata_registry[meta.name] = meta
                     logger.info(f"插件 >>> 从本地包加载插件: {meta.name} v{meta.version}")
                 else:
-                    meta = PluginMetadata( # 没有元数据的包，使用默认值
+                    meta = PluginMetadata(
                         name=item.name,
                         version="0.0.1",
-                        description=f"本地插件（未声明元数据）",
-                        module_name=package_name
+                        description="本地插件（未声明元数据）",
+                        module_name=package_name,
                     )
                     if meta.name in self.disabled_plugins:
                         logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
@@ -155,24 +125,16 @@ class PluginManager:
                 logger.error(f"插件 >>> 加载本地包 {item.name} 失败: {e}")
 
     def _load_entry_point_plugins(self):
-        """
-        扫描 'axtbot.plugins' 这个命名空间下的所有入口点
-        """
-        eps = entry_points(group="axtbot.plugins")  # Python 3.10+ 语法
+        eps = entry_points(group="axtbot.plugins")
         for ep in eps:
             try:
-                # ep.name 是插件名（如 'weather'）
-                # ep.value 是字符串 'axtbot_plugin_weather:__meta__'
-                # load() 会导入该包并返回 __meta__ 对象
-                meta = ep.load()  
-                # 确保它是 PluginMetadata 实例
+                meta = ep.load()
                 if not isinstance(meta, PluginMetadata):
                     logger.warning(f"插件 >>> 入口点 {ep.name} 未返回有效的 PluginMetadata，跳过")
                     continue
                 if meta.name in self.disabled_plugins:
                     logger.info(f"插件 >>> 插件 '{meta.name}' 在禁用列表中，跳过加载")
                     continue
-                # 存入全局注册表（如果已存在同名插件，覆盖或合并）
                 if meta.name in metadata_registry:
                     logger.warning(f"插件 {meta.name} 已存在，将被覆盖")
                 metadata_registry[meta.name] = meta
@@ -183,6 +145,7 @@ class PluginManager:
     def load_all(self):
         metadata_registry.clear()
         from app.modules import handlers
+
         self._load_local_packages()
         if self.load_from_entry_points:
             self._load_entry_point_plugins()
@@ -190,10 +153,9 @@ class PluginManager:
         logger.info(f"插件 >>> 已加载 {len(handlers['command'])} 个命令，{len(handlers['message'])} 个消息处理器")
         logger.info(f"插件 >>> 加载完成，共 {len(metadata_registry)} 个插件")
 
-db = get_db()
 
 async def dispatch(event):
-    if isinstance(event, Message or GroupMessage or PrivateMessage):
+    if isinstance(event, (Message, GroupMessage, PrivateMessage)):
         await _dispatch_message(event)
     elif isinstance(event, QQInteraction):
         await _dispatch_interaction(event)
@@ -203,68 +165,73 @@ async def dispatch(event):
 
 async def _dispatch_message(event: GroupMessage | PrivateMessage | Message):
     from app.modules import handlers
+
     session_id = f"{event.author.member_openid}_{event.group_id if hasattr(event, 'group_id') else 'private'}"
     session = SessionManager.get(session_id)
     if session and not session.future.done():
-        # 将该消息交给 Session 处理，不再走正常匹配流程
         session.resolve(event)
         return
+
     openid = db.get_frame_config_by_key("bot_union_openid").value
     at = f"<@{openid}>"
     msg = event.content
     if at in msg:
         msg = msg.replace(at, "")
         event.is_you = True
-    msg = re.sub(r'^ +', '', msg)
+    msg = re.sub(r"^ +", "", msg)
     event.content = msg
-    matched_func = None
-    for h in handlers["all"]:     # 全局消息匹配
+
+    for h in handlers["all"]:
         if isinstance(event, h["event_type"]):
             await _run_handler(h["func"], event)
+
     if msg.startswith("/"):
         cmd = msg[1:].split()[0]
-        for h in handlers["command"]: # 命令匹配
+        for h in handlers["command"]:
             if h["name"] == cmd and isinstance(event, h["event_type"]):
                 await _run_handler(h["func"], event)
                 return
-    if matched_func is None:
-        for h in handlers["message"]: # 关键词匹配
-            if h["keyword"] in msg and isinstance(event, h["event_type"]):
-                await _run_handler(h["func"], event)
-                return
-    if matched_func is None:
-        logger.debug(f"插件处理器 >>> 未匹配到任何处理器: {msg}")
-        return
+
+    for h in handlers["message"]:
+        if h["keyword"] in msg and isinstance(event, h["event_type"]):
+            await _run_handler(h["func"], event)
+            return
+
+    logger.debug(f"插件处理器 >>> 未匹配到任何处理器 {msg}")
+
 
 async def _dispatch_interaction(event: QQInteraction):
     from app.modules import handlers
+
     for h in handlers["interaction"]:
-        # 1. 匹配互动数据类型（注意：现在是整数比较）
         if h["type"] is not None and h["type"] != event.data.type:
             continue
-        # 2. 匹配事件类型注解（isinstance）
         if isinstance(event, h["event_type"]):
             await _run_handler(h["func"], event)
-            break  # 命中一个就停止
+            break
 
 
 async def _run_handler(func, event):
     """统一执行器：兼容同步/异步函数，带超时和异常捕获"""
     config = config_loader.get_core_config()
-    _executor = ThreadPoolExecutor(max_workers=config.max_workers)
+    global _sync_executor
+
+    if _sync_executor is None or _sync_executor._max_workers != config.max_workers:
+        if _sync_executor is not None:
+            _sync_executor.shutdown(wait=False, cancel_futures=True)
+        _sync_executor = ThreadPoolExecutor(max_workers=config.max_workers)
+
     try:
         if inspect.iscoroutinefunction(func):
-            # 异步函数：直接 await
             await asyncio.wait_for(func(event), timeout=config.command_timeout)
         else:
-            # 同步函数：扔到线程池执行
             await asyncio.wait_for(
-                asyncio.get_running_loop().run_in_executor(_executor, func, event),
-                timeout=60.0,
+                asyncio.get_running_loop().run_in_executor(_sync_executor, func, event),
+                timeout=config.command_timeout,
             )
     except asyncio.TimeoutError:
-        logger.error(f"处理器 {func.__name__} 执行超时（>{config.command_timeout}秒），已放弃")
+        logger.error(f"处理器 {func.__name__} 执行超时（{config.command_timeout}秒），已放弃")
     except Exception as e:
         logger.error(f"处理器 {func.__name__} 执行报错: {e}")
-        raise e
-    return None
+        raise
+

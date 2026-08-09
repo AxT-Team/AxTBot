@@ -16,11 +16,13 @@ from app.service.qq_service import (
     reply_c2c_message,
 )
 from app.service.Message import message_process as service_message_process
+from app.service.cert_service import certificate_service
 
 __all__ = [
     service_validation,
     service_validation_msg,
     service_message_process,
+    certificate_service,
     interaction_reply,
     send_message,
     send_group_message,

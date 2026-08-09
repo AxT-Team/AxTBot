@@ -9,8 +9,10 @@ from fastapi.responses import JSONResponse
 
 from app.classes import BasePayload, QQValidationEvent
 from app.service import service_validation, service_message_process, service_validation_msg
-from app.modules import logger
+from app.modules import logger, config_loader
 
+config_loader.load()
+config = config_loader.get_core_config()
 router = APIRouter(prefix="/webhook", tags=["Webhook"])
 @router.get("")
 async def webhook():

@@ -1,0 +1,2 @@
+"""AxTBot CLI package."""
+
