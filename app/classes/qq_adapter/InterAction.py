@@ -20,11 +20,11 @@ class DataField(BaseModel):
 # 3. 定义最外层的完整数据包
 class Interaction(BaseModel):
     id: str
-    application_id: str
+    application_id: str | None = None
     type: int
     data: DataField
     version: int
-    chat_type: int
+    chat_type: int | None = None
     scene: str
     timestamp: str
     group_openid: str | None = None
