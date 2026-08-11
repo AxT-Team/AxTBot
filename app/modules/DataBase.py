@@ -5,7 +5,9 @@ Author: Shanshui2024 & 猫娘工程师幽浮（AI） & DeepSeek V4
 Organization: AxT-Team
 """
 from __future__ import annotations
+import os
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Generator, TypeVar, Type
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from sqlalchemy.orm import sessionmaker
@@ -47,6 +49,14 @@ class DataBaseManager:
     """ORM manager for thread-safe database access."""
 
     def __init__(self, db_url: str = "sqlite:///data/default.db", echo: bool = False):
+        # 将相对路径的 SQLite 数据库解析为项目根目录下的绝对路径，避免受当前工作目录影响
+        if db_url.startswith("sqlite:///"):
+            db_path = db_url.removeprefix("sqlite:///")
+            if not os.path.isabs(db_path):
+                project_root = Path(__file__).resolve().parents[2]
+                db_path = str(project_root / db_path)
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+            db_url = f"sqlite:///{Path(db_path).as_posix()}"
         self.db_url = db_url
         self.engine = create_engine(
             db_url,

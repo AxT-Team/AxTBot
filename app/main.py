@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
     if not os.path.exists("data"):
         os.mkdir("data")
-        logger.warning("框架 >>> 数据目录不存在，已创建 data 文件夹")
+        print("框架 >>> 数据目录不存在，已创建 data 文件夹")
 
     from app.modules import database
     import time as _time

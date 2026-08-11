@@ -1,68 +1,97 @@
-# AxTBot v2.1.1
+# AxTBot v2.2
 
 ## 介绍
 
-> [!CAUTION]
-> 本项目未完工 请知悉
+一个基于 Python 的可扩展 Bot 框架。
+📖 完整文档请访问：[AxTBot-v2.2 | AxT Docs](https://docs.axtn.net/axtbot/v2.2/guide/intro.html)
 
-AxTBot 重制版本2.1.1
+---
+## 📜 许可 | License
+> 本项目采用 AGPLv3 协议授权。 禁止任何企业直接将本代码用于商业产品或服务。 但欢迎以下行为：
 
-该版本旨在彻底模块化整个项目包，确保标准的、更完善的、简洁的项目代码结构，以及更快捷方便的模块卸载/加载
+> ✅ 学习代码思路
+> ✅ 独立实现类似功能（无论是否开源）
+> ✅ 在非商业场景下使用或修改本项目
+> 若企业希望商业使用，请联系作者获取例外许可。
 
-## 模块
-到目前为止 该项目模块分布如下：
-- app.classes  Python类型定义包
-- app.router   FastAPI 路由映射
-- app.service  Service服务模块
-- app.modules   核心工作组件
-- app.main     项目主入口文件
+> 注：独立实现指未引用本项目任何源代码，且未侵犯著作权的新创作品。
+---
 
+## 安装
+1. 拉取该存库：
+```bash
+git clone https://github.com/AxTBot.git
+```
+
+2. 在拉取目录下创建虚拟环境
+```bash
+python -m venv .venv
+```
+
+3. 进入虚拟环境
+```bash
+\.venv\Scripts\activate
+```
+
+4. 使用uv管理器安装依赖
+```bash
+pip install uv
+uv sync
+```
+
+5. 修改配置文件
+存库默认会在根目录新增 `example.env` 文件，请按照说明修改并改名为 `local.env`
+
+6. 启动
+在虚拟环境下执行
+```bash
+axtbot run
+```
+---
+## 开发
+有关开发内容 详阅 [AxT Docs](https://docs.axtn.net/)
+
+---
 ## To Do
 
-### 消息事件
-- [x] 消息事件验证
-- [x] 新增基础消息事件
-- [x] 获取并缓存AccessToken （Service.AccessToken）
-- [x] 补全基础消息事件的 Union 事件基类
-- [x] OpCode 0 的消息基类分类
-- [x] 新增其他独立信息事件和session内依赖事件
-- [x] 允许耦合/解耦框架自带的Message等基类（Classes.framework）
-
-
 ### API
-- [x] Router路由模块化
 - [ ] 规范化所有API接口输出
-- [ ] 新增对Milky协议的支持
-- [x] 消息流向外传递 并写入OpenAPI文档
 
 ### 框架模块
-- [x] 添加日志模块
-- [x] 添加Config配置模块
-- [x] 细化配置项和配置功能管理
-- [x] 添加ORM数据库模块（Modules.Database）
-- [x] 添加框架插件管理模块
-- [x] 添加证书重载模块
 - [ ] 添加框架WebUI组件和Console交互式控制台模块
 - [ ] 扩展模块的统一规格化
 - [ ] 框架核心组件打包
-
-### 插件
-- [x] 新增插件元数据
-- [x] 新增插件商店 验证插件
-- [x] 新增插件自动验证ci
 
 ### 框架安全性
 - [ ] 接入AxT Dash Oauth2 进行后台API事件验证
 
 ### 高阶功能
 - [ ] 框架热重载
-- [x] 新增cli控制工具
 
 ### qq_adapter QQ适配器
 - [ ] 支持Websocket/Webhook切换
 - [ ] 与核心事件逻辑解耦
 
+---
+## 🏷️ 其他版本迁移
 
-### 存库
-- [ ] 完成`tests`上线前测试功能
-- [ ] 完成`issue_template`和其他联动
+* v2版本：
+  [AxTBot-v2.1](https://github.com/AxT-Team/AxTBot/blob/AxTBot-v2.1)
+  [AxTBot-v2](https://github.com/AxT-Team/AxTBot/blob/AxTBot-v2)
+
+* 旧版本（基于 `qq-botpy` + WebSocket）：
+
+  * [https://github.com/AxT-Team/AxTBot/blob/AxTBot-v1](https://github.com/AxT-Team/AxTBot/blob/AxTBot-v1)
+ 
+* Mirai & CQ 版（已存档的上古时期ATBot仓库）：
+
+  * [https://github.com/XiaoXianHW/ATBot](https://github.com/XiaoXianHW/ATBot)
+  * [https://github.com/AxT-Team/Ebackup](https://github.com/AxT-Team/Ebackup)
+
+---
+
+## [扩展] Hypixel 查询模块
+
+本项目中的 Hypixel 查询功能基于 [Spelako](https://github.com/Spelako) 项目进行修改。
+
+- 项目地址：[HypixelAPI-Python](https://github.com/AxT-Team/HypixelAPI-Python)
