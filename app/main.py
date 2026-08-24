@@ -5,20 +5,22 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 from __future__ import annotations
-
 import os
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 
 from app.modules import FrameConfig, config_loader, get_db, logger
-from app.router import __all__ as routers
+from app.router import __all__ as routers, plugin_routers
 from app.service import certificate_service
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    config_loader.load("local.env")
+    # 实际使用的配置文件以 AXTBOT_ENV_FILE 为准（默认 .env.local）
+    # 这里只在 bot.py 没加载过时才兜底加载一次
+    env_file = os.environ.get("AXTBOT_ENV_FILE", ".env.local")
+    if env_file and os.path.exists(env_file):
+        config_loader.load(env_file)
     certificate_service.refresh()
     logger.info(f"证书服务 >>> 当前模式: {certificate_service.get_state().mode}")
 
@@ -52,11 +54,25 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    logger.info("框架 >>> 正在关闭数据库连接...")
-    # 释放数据库连接池
-    database.engine.dispose()
     logger.info("框架 >>> 正在结束后台服务...")
     shutdown_token_service()
+
+    logger.info("框架 >>> 正在关闭数据库连接...")
+    try:
+        import threading
+
+        def _dispose():
+            try:
+                database.engine.dispose()
+            except Exception as e:  # noqa: BLE001
+                logger.warning(f"框架 >>> 释放数据库连接池时出错: {e}")
+
+        t = threading.Thread(target=_dispose, daemon=True)
+        t.start()
+        t.join(timeout=3)
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"框架 >>> 关闭数据库连接异常: {e}")
+    logger.info("框架 >>> 已关闭数据库连接")
 
 
 app = FastAPI(
@@ -71,3 +87,8 @@ for router in routers:
     app.include_router(router)
     for tag in router.tags:
         logger.debug(f"FastAPI >>> Included router: {str(tag)}")
+
+for router in plugin_routers:
+    app.include_router(router)
+    for tag in getattr(router, "tags", []):
+        logger.debug(f"FastAPI >>> Included plugin router: {str(tag)}")

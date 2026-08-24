@@ -68,5 +68,8 @@ async def get_access_token():
                 logger.error(f"Error fetching access token: {e}, retrying in 10 seconds...")
                 accesstoken = AccessToken(access_token=None, expires_in=10)
         
-        if not _shutdown:  # 只在未关闭时等待
-            await asyncio.sleep(accesstoken.expires_in)
+        if not _shutdown:  # 只在未关闭时等待，且以短间隔休眠以便及时响应关闭
+            remaining = accesstoken.expires_in
+            while remaining > 0 and not _shutdown:
+                await asyncio.sleep(min(1, remaining))
+                remaining -= 1

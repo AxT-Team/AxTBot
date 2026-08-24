@@ -40,20 +40,27 @@ async def _do_send(url: str, payload: dict, headers: dict) -> Optional[dict]:
     """
     try:
         # logger.debug(f"发信 >>> 尝试执行发信 {payload} 至 {url}")
+        if payload.get("markdown"):
+            shown = f"[Markdown|msg_type={payload.get('msg_type')}] {str(payload['markdown'].get('content') or '')[:80]}"
+        elif payload.get("media") or payload.get("card"):
+            shown = f"[msg_type={payload.get('msg_type')}]"
+        else:
+            shown = payload.get("content")
         log = "发送消息 >>> "
         if "groups" in url:
             gid = url.replace("https://api.bot.qq.com/v2/groups/", "")
             gid = gid.replace("/messages", "")
-            log += f"[群聊消息 | 群ID：{gid}] > {payload.get("content", None)}"
+            log += f"[群聊消息 | 群ID：{gid}] > {shown}"
         elif "users" in url:
             uid = url.replace("https://api.bot.qq.com/v2/users/", "")
             uid = uid.replace("/messages", "")
-            log += f"[私聊消息 | 用户ID：{uid}] > {payload.get("content", None)}"
+            log += f"[私聊消息 | 用户ID：{uid}] > {shown}"
         logger.info(log)
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload, headers=headers, timeout=5) as resp:
                 data = await resp.json()
                 if resp.status == 200:
+                    logger.debug(f"发送消息 >>> 平台响应: {data}")
                     return data
                 else:
                     logger.error(

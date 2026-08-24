@@ -1,7 +1,10 @@
+from fastapi import APIRouter
+
 from app import on_command, on_message, on_interaction, on_all_message
 from app.classes import GroupMessage, PrivateMessage, Message, QQInteraction, SessionManager, PluginMetadata, Markdown, Keyboard, KeyboardContent
 from app.modules import logger, metadata_registry
 from app.service import interaction_reply
+from app.router import register_plugin_router
 
 __meta__ = PluginMetadata(
     name="测试插件",
@@ -141,3 +144,11 @@ async def show_help(event):
         for command in meta.commands:
             help_text += f"\n  - {command}"
     logger.info(help_text)
+
+
+
+router = APIRouter(prefix="/test", tags=["Test"]) # 提供统一的注册挂靠
+
+@router.get("/test")
+def test():
+    return None

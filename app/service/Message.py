@@ -53,9 +53,9 @@ async def message_process(payload: BasePayload) -> None:
         group: Group | None = database.get_group_by_id(msg.group_id)
         user: User | None = database.get_user_by_openid(msg.author.union_openid)
         if not group:
-            database.add_group(Group(group_id=msg.group_id, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+            database.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
         else:
-            database.update_group(Group(group_id=msg.group_id, message = group.message + 1, update_time=msg.timestamp))
+            database.update_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = group.message + 1, update_time=msg.timestamp))
         if not user:
             database.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp, nickname=msg.author.username))
         else:
@@ -100,9 +100,9 @@ async def message_process(payload: BasePayload) -> None:
         group: Group | None = database.get_group_by_id(msg.group_id)
         user: User | None = database.get_user_by_openid(msg.author.union_openid)
         if not group:
-            database.add_group(Group(group_id=msg.group_id, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
+            database.add_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp))
         else:
-            database.update_group(Group(group_id=msg.group_id, message = group.message + 1, update_time=msg.timestamp))
+            database.update_group(Group(group_id=msg.group_id, group_openid=msg.group_openid, message = group.message + 1, update_time=msg.timestamp))
         if not user:
             database.add_user(User(user_openid=msg.author.union_openid, message = 1, create_time=msg.timestamp, update_time=msg.timestamp, nickname=msg.author.username))
         else:

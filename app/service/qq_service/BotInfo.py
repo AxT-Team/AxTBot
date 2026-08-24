@@ -39,17 +39,20 @@ async def get_qqbot_info():
                     data = await response.json()
                     bot_username = data["username"]
                     bot_id = data["id"]
-                    bot_openid = data["union_openid"]
+                    bot_openid = data.get("union_openid", "")
                     db.update_frame_config("bot_username", bot_username, int(time.time()))
-                    db.update_frame_config("bot_union_openid", bot_openid, int(time.time()))
+                    if bot_openid:  # 接口未返回union_openid时保留数据库缓存，避免空值覆盖
+                        db.update_frame_config("bot_union_openid", bot_openid, int(time.time()))
                     db.update_frame_config("bot_id", bot_id, int(time.time()))
 
                 else:
                     data = await response.json()
                     logger.error(f"适配器 >>> 数据获取失败 接口返回错误：{data}")
                     logger.warning(f"适配器 >>> 将读取数据库内的缓存数据...")
-
-                logger.info(f"适配器 >>> ID: {bot_id} | OpenID: {bot_openid} | 机器人 {bot_username} 登录成功！")
+                if bot_openid:
+                    logger.info(f"适配器 >>> ID: {bot_id} | OpenID: {bot_openid} | 机器人 {bot_username} 登录成功！")
+                else:
+                    logger.info(f"适配器 >>> ID: {bot_id} | 机器人 {bot_username} 登录成功")
     except TimeoutError:
         logger.error(f"适配器 >>> 数据获取失败：连接超时")
         logger.warning(f"适配器 >>> 将读取数据库内的缓存数据...")

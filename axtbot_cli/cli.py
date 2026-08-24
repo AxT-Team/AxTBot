@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import argparse
-import json
 import os
-import subprocess
 import sys
+import subprocess
+import argparse
 from pathlib import Path
+
+from dotenv import dotenv_values
 
 
 BOT_TEMPLATE = '''"""
@@ -15,32 +16,80 @@ Run with: python bot.py
 """
 from __future__ import annotations
 
+import os
+
+from dotenv import load_dotenv
+
+# 必须在任何 app 导入之前把配置载入 os.environ
+env_file = os.environ.get("AXTBOT_ENV_FILE", ".env.local")
+if os.path.exists(env_file):
+    load_dotenv(env_file)
+
+import uvicorn
 from app.main import app
+from app.modules import config_loader
+from app.service import certificate_service
 
-if __name__ == "__main__":
-    import uvicorn
-    from app.modules import config_loader
-    from app.service import certificate_service
 
-    config_loader.load("local.env")
+def main() -> None:
+    config_loader.load(env_file)
     certificate_service.refresh()
+
     core_config = config_loader.get_core_config()
-    kwargs = {
+
+    uvicorn_kwargs = {
         "host": core_config.host,
         "port": core_config.port,
         "reload": bool(core_config.reload_on_change),
         "log_level": core_config.log_level.lower(),
         "log_config": None,
     }
-    kwargs.update(certificate_service.get_uvicorn_kwargs())
-    uvicorn.run("app.main:app", **kwargs)
+    uvicorn_kwargs.update(certificate_service.get_uvicorn_kwargs())
+
+    uvicorn.run("app.main:app", **uvicorn_kwargs)
+
+
+if __name__ == "__main__":
+    main()
 '''
+
+
+# 优先级：.env.local > .env > .env.example
+# 若 .env.local 里写了 ENVIRONMENT=xxx，则改用 .env.xxx
+_ENV_CANDIDATES = (".env.local", ".env", ".env.example")
+
+
+def _read_env_key(env_file: Path, key: str) -> str | None:
+    """读取某个 env 文件里的一个键值（不污染当前进程的环境变量）。"""
+    if not env_file.exists():
+        return None
+    return dotenv_values(env_file).get(key)
+
+
+def _resolve_env_file(root: Path) -> Path | None:
+    """找出当前项目真正要用的 .env 文件。"""
+    local = root / ".env.local"
+    if local.exists():
+        env_name = _read_env_key(local, "ENVIRONMENT")
+        if env_name:
+            target = root / f".env.{env_name}"
+            if target.exists():
+                return target
+            print(f"警告：.env.local 指定了 ENVIRONMENT={env_name}，但 {target.name} 不存在，回退到 .env.local")
+        return local
+
+    for name in _ENV_CANDIDATES[1:]:
+        candidate = root / name
+        if candidate.exists():
+            return candidate
+
+    return None
 
 
 def _find_project_root(start: Path | None = None) -> Path:
     current = (start or Path.cwd()).resolve()
     for candidate in [current, *current.parents]:
-        if (candidate / "app").is_dir() and (candidate / "local.env").exists():
+        if (candidate / "app").is_dir() and (candidate / ".env.local").exists():
             return candidate
     return current
 
@@ -80,7 +129,13 @@ def _ensure_project_skeleton(project_root: Path, overwrite: bool = False) -> Non
     data_dir.mkdir(parents=True, exist_ok=True)
     plugins_dir.mkdir(parents=True, exist_ok=True)
 
-    for package_dir in [app_dir, app_dir / "router", app_dir / "router" / "api", app_dir / "router" / "hooks", app_dir / "service"]:
+    for package_dir in [
+        app_dir,
+        app_dir / "router",
+        app_dir / "router" / "api",
+        app_dir / "router" / "hooks",
+        app_dir / "service",
+    ]:
         package_dir.mkdir(parents=True, exist_ok=True)
         init_file = package_dir / "__init__.py"
         if overwrite or not init_file.exists():
@@ -119,37 +174,45 @@ def cmd_run(args: argparse.Namespace) -> int:
     project_root = _find_project_root()
     bot_path = _ensure_bot_file(project_root)
     python_executable = _find_venv_python(project_root)
+
     if python_executable == Path(sys.executable) and not (project_root / ".venv").exists():
         print("提示：当前目录没有找到 `.venv`，将使用当前 Python 运行。")
         print("如果你想优先使用项目环境，请先创建 `.venv`。")
 
-    env_loader = project_root / "local.env"
-    if env_loader.exists():
-        with env_loader.open("r", encoding="utf-8") as handle:
-            for line in handle:
-                line = line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                key = key.strip()
-                value = value.strip().strip('"').strip("'")
-                if key == "FRAMEWORK_HOST" and args.host is None:
-                    os.environ["FRAMEWORK_HOST"] = value
-                elif key == "FRAMEWORK_PORT" and args.port is None:
-                    os.environ["FRAMEWORK_PORT"] = value
+    env_file = _resolve_env_file(project_root)
+    if env_file is None:
+        print("警告：没有找到任何 .env 文件（.env.local / .env / .env.example）。")
+        print("请用 `axtbot init` 生成，或手动创建配置文件。")
+
+    # 从配置文件里读出 host/port，仅当 CLI 没有显式覆盖时才用
+    file_host = file_port = None
+    if env_file is not None and env_file.exists():
+        values = dotenv_values(env_file)
+        file_host = values.get("FRAMEWORK_HOST") or values.get("HOST")
+        file_port = values.get("FRAMEWORK_PORT") or values.get("PORT")
 
     env = os.environ.copy()
     env["PYTHONPATH"] = str(project_root) + (
         os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else ""
     )
+    if env_file is not None:
+        env["AXTBOT_ENV_FILE"] = str(env_file)
+
+    # CLI 参数优先级最高，其次文件配置，最后不动（交给框架默认值）
     if args.host is not None:
         env["FRAMEWORK_HOST"] = str(args.host)
+    elif file_host is not None:
+        env["FRAMEWORK_HOST"] = file_host
+
     if args.port is not None:
         env["FRAMEWORK_PORT"] = str(args.port)
+    elif file_port is not None:
+        env["FRAMEWORK_PORT"] = file_port
 
     command = [str(python_executable), str(bot_path)]
     if args.dry_run:
         print(" ".join(command))
+        print(f"env: {env_file}")
         return 0
 
     try:
@@ -173,9 +236,10 @@ def cmd_init(args: argparse.Namespace) -> int:
         print(f"Creating AxTBot project: {project_name}")
         print(f"Location: {project_root}")
     _ensure_project_skeleton(project_root, overwrite=overwrite)
-    local_env = project_root / "local.env"
-    if overwrite or not local_env.exists():
-        local_env.write_text(
+
+    env_file = _resolve_env_file(project_root) or (project_root / ".env.local")
+    if overwrite or not env_file.exists():
+        env_file.write_text(
             "\n".join(
                 [
                     f'FRAMEWORK_PROJECT_NAME="{project_name}"',
