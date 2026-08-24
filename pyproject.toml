@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "axtbot-cli"
-version = "2.2.0+00033"
+version = "2.2.0+00035"
 description = "AxTBot command line launcher"
 readme = "README.md"
 requires-python = ">=3.11"

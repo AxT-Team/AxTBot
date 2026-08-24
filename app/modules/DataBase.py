@@ -30,7 +30,15 @@ class Group(SQLModel, table=True):
     """Group model representing a group in the database."""
     id: int | None = Field(default=None, primary_key=True)
     group_id: str
+    group_openid: str | None = None
+    group_name: str | None = None
     message: int | None = None
+    member_count: int | None = None
+    bot_joined_at: str | None = None
+    bot_allow_proactive_msg: bool | None = None
+    bot_recv_msg_setting: str | None = None
+    bot_member_role: str | None = None
+    state_synced_at: str | None = None
     create_time: str
     update_time: str | None = None
 
@@ -73,6 +81,7 @@ class DataBaseManager:
             future=True,
         )
         SQLModel.metadata.create_all(self.engine)
+        self._migrate_groups()
 
     @contextmanager
     def get_session(self) -> Generator[Session, None, None]:
@@ -169,11 +178,22 @@ class DataBaseManager:
         return self._list_all(Group)
 
     def update_group(self, group: Group) -> Group | None:
-        """Update a group record."""
+        """Update a group record. Fields left as None are not overwritten."""
+        data = {
+            "group_openid": group.group_openid,
+            "group_name": group.group_name,
+            "message": group.message,
+            "member_count": group.member_count,
+            "bot_joined_at": group.bot_joined_at,
+            "bot_allow_proactive_msg": group.bot_allow_proactive_msg,
+            "bot_recv_msg_setting": group.bot_recv_msg_setting,
+            "bot_member_role": group.bot_member_role,
+            "state_synced_at": group.state_synced_at,
+            "update_time": group.update_time,
+        }
         return self._update(
             Group, "group_id", group.group_id,
-            message=group.message,
-            update_time=group.update_time
+            **{key: value for key, value in data.items() if value is not None},
         )
 
     # ==================== FrameConfig 方法 ====================
@@ -206,6 +226,40 @@ class DataBaseManager:
             FrameConfig, "key", key,
             **data
         )
+
+
+    def _migrate_groups(self) -> None:
+        """为已存在的 group 表补齐新字段（SQLite 不支持自动 ALTER）。"""
+        expected = {
+            "group_openid": "TEXT",
+            "group_name": "TEXT",
+            "member_count": "INTEGER",
+            "bot_joined_at": "TEXT",
+            "bot_allow_proactive_msg": "INTEGER",
+            "bot_recv_msg_setting": "TEXT",
+            "bot_member_role": "TEXT",
+            "state_synced_at": "TEXT",
+        }
+        table = Group.__tablename__
+        try:
+            with self.engine.connect() as conn:
+                rows = conn.exec_driver_sql(f'PRAGMA table_info("{table}")').fetchall()
+                existing = {r[1] for r in rows}
+                for col, ctype in expected.items():
+                    if col not in existing:
+                        conn.exec_driver_sql(f'ALTER TABLE "{table}" ADD COLUMN {col} {ctype}')
+                        conn.commit()
+            from app.modules import logger
+
+            logger.debug("数据库 >>> group 表迁移完成")
+        except Exception as e:
+            from app.modules import logger
+
+            logger.error(
+                f"数据库 >>> group 表迁移失败: {e}。"
+                f"表结构与模型不一致，继续运行将导致所有群聊数据操作报错，已中止启动。"
+            )
+            raise
 
 
 # ==================== 单例管理 ====================

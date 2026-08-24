@@ -21,7 +21,8 @@ latest.log
 data
 
 # Config Files
-local.env
+.env.local
+.env.dev
 
 # Rubbish!
 .copilot/
