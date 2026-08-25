@@ -15,20 +15,35 @@ handlers = {
 }
 
 def _get_event_annotation(func):
-    """提取函数第一个参数（通常命名为 event）的类型注解，若没有则返回 object（通配）"""
+    """提取函数第一个参数（通常命名为 event）的类型注解，若没有则返回 object（通配）
+
+    兼容 from __future__ import annotations 导致的字符串注解：
+    通过 eval 在函数所在模块的全局作用域里解析回实际类型。
+    """
     sig = inspect.signature(func)
     params = list(sig.parameters.values())
-    
+
     # 如果没有参数，或者第一个参数没有注解，默认匹配所有事件
     if not params:
         return object
-    
+
     first_param = params[0]
     # 如果注解是 inspect._empty（即没写 : type），也当作通配
     if first_param.annotation == inspect._empty:
         return object
-    
-    return first_param.annotation
+
+    ann = first_param.annotation
+    # from __future__ import annotations 会让注解变成字符串，
+    # 需要在该函数的模块全局作用域里求值回真正的类型
+    if isinstance(ann, str):
+        try:
+            mod = sys.modules.get(func.__module__)
+            if mod is not None:
+                return eval(ann, mod.__dict__)
+        except Exception:
+            pass
+        return object
+    return ann
 
 
 def on_command(cmd_name):
