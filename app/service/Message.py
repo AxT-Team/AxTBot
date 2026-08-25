@@ -73,7 +73,10 @@ async def message_process(payload: BasePayload) -> None:
                 if mention.is_you:
                     is_you = True
                     bot_username = db.get_frame_config_by_key("bot_username").key
+                    db.update_frame_config("bot_union_openid", mention.id)
                     content = content.replace(f"[@{bot_username}]", "")
+                    msg.content = msg.content.replace(f"<@{mention.id}>", "")
+
         if len(content) <= 200:
             pass
         else:
@@ -147,8 +150,6 @@ async def message_process(payload: BasePayload) -> None:
                 log = f"互动 >>> [按钮"
             elif interaction.type == 12:
                 log = f"互动 >>> [菜单"
-            elif interaction.type == 20 and interaction.data.type == 2001:
-                log = f"交互操作 >>> 群聊 {interaction.group_openid} | 管理员已进入机器人操作面板" # 此项官方未解释 但多次测试发现进入机器人手机端管理面板会引发此消息
             else:
                 logger.warning("互动 >>> 接收到未归类的互动，请查看控制台")
                 return

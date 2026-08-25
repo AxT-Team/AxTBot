@@ -40,9 +40,12 @@ async def get_qqbot_info():
                     bot_username = data["username"]
                     bot_id = data["id"]
                     bot_openid = data.get("union_openid", "")
+                    cache_boid = db.get_frame_config_by_key("bot_union_openid").value
                     db.update_frame_config("bot_username", bot_username, int(time.time()))
                     if bot_openid:  # 接口未返回union_openid时保留数据库缓存，避免空值覆盖
                         db.update_frame_config("bot_union_openid", bot_openid, int(time.time()))
+                    elif cache_boid:
+                        bot_openid = cache_boid
                     db.update_frame_config("bot_id", bot_id, int(time.time()))
 
                 else:

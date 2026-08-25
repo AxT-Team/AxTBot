@@ -50,11 +50,11 @@ async def _do_send(url: str, payload: dict, headers: dict) -> Optional[dict]:
         if "groups" in url:
             gid = url.replace("https://api.bot.qq.com/v2/groups/", "")
             gid = gid.replace("/messages", "")
-            log += f"[群聊消息 | 群ID：{gid}] > {payload.get('content', None)}"
+            log += f"[群聊消息 | 群ID：{gid}] > {shown}"
         elif "users" in url:
             uid = url.replace("https://api.bot.qq.com/v2/users/", "")
             uid = uid.replace("/messages", "")
-            log += f"[私聊消息 | 用户ID：{uid}] > {payload.get("content", None)}"
+            log += f"[私聊消息 | 用户ID：{uid}] > {shown}"
         logger.info(log)
         async with aiohttp.ClientSession() as session:
             async with session.post(url, json=payload, headers=headers, timeout=5) as resp:
