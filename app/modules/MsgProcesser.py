@@ -5,7 +5,7 @@ Author: Shanshui2024
 Organization: AxT-Team
 """
 
-import inspect
+import inspect, sys
 
 handlers = {
     "command": [],    # 每个元素: {"name": cmd, "func": func, "event_type": <class>}
