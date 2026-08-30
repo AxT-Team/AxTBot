@@ -29,6 +29,12 @@ class FrameworkConfig(BaseModel):
     debug: bool = False
     reload_on_change: bool = False
 
+    prefix: str = "/"
+
+    # 富媒体上传模式：True=读取内容分片上传（可缓存 raw_url，Markdown 发送）
+    #               False=直接把 URL 交给 QQ 做 URL 上传（富媒体 msg_type=7 发送）
+    media_local_upload: bool = True
+
     class Config:
         env_prefix = "FRAMEWORK_"
         env_file = ".env"

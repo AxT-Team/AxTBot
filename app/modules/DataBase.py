@@ -53,6 +53,17 @@ class FrameConfig(SQLModel, table=True):
     operator: str = "Console"
 
 
+class CachedMedia(SQLModel, table=True):
+    """缓存已上传到 QQ 远端的媒体链接，避免重复上传。expire_time 用于 TTL 失效。"""
+    id: int | None = Field(default=None, primary_key=True)
+    source: str                         # 来源（URL 或 本地路径），用于去重缓存
+    url: str                            # 远端 raw_url（COS 预签名 GET 链接）
+    file_info: str | None = None        # 对应的 file_info（备用）
+    ttl: int                            # 链接有效期（秒），0 表示长期
+    create_time: str
+    expire_time: str                    # 过期时间戳（秒），用于 TTL 判断
+
+
 class DataBaseManager:
     """ORM manager for thread-safe database access."""
 
@@ -227,6 +238,59 @@ class DataBaseManager:
             **data
         )
 
+
+    # ==================== CachedMedia 方法 ====================
+
+    def add_cached_media(
+        self,
+        source: str,
+        url: str,
+        file_info: str | None,
+        ttl: int,
+        create_time: str,
+        expire_time: str,
+    ) -> CachedMedia | None:
+        """写入一条媒体缓存。相同 source 已存在则更新。"""
+        existing = self._get_by_field(CachedMedia, "source", source)
+        if existing:
+            existing.url = url
+            existing.file_info = file_info
+            existing.ttl = ttl
+            existing.create_time = create_time
+            existing.expire_time = expire_time
+            return self._update(
+                CachedMedia, "source", source,
+                url=url,
+                file_info=file_info,
+                ttl=ttl,
+                create_time=create_time,
+                expire_time=expire_time,
+            )
+        instance = CachedMedia(
+            source=source,
+            url=url,
+            file_info=file_info,
+            ttl=ttl,
+            create_time=create_time,
+            expire_time=expire_time,
+        )
+        return self._add(instance)
+
+    def get_cached_media_by_source(self, source: str) -> CachedMedia | None:
+        """按来源查询未过期的媒体缓存，过期返回 None。"""
+        import time
+
+        instance = self._get_by_field(CachedMedia, "source", source)
+        if instance is None:
+            return None
+        try:
+            if int(instance.expire_time) <= int(time.time()):
+                return None
+        except (ValueError, TypeError):
+            return None
+        return instance
+
+    # ==================== 迁移 ====================
 
     def _migrate_groups(self) -> None:
         """为已存在的 group 表补齐新字段（SQLite 不支持自动 ALTER）。"""

@@ -6,12 +6,7 @@ Organization: AxT-Team
 """
 from __future__ import annotations
 
-import asyncio
-import importlib
-import inspect
-import os
-import re
-import sys
+import asyncio, importlib, inspect, re, sys
 from concurrent.futures import ThreadPoolExecutor
 from importlib.metadata import entry_points
 from pathlib import Path
@@ -184,18 +179,16 @@ async def _dispatch_message(event: GroupMessage | PrivateMessage | Message):
     for h in handlers["all"]:
         if isinstance(event, h["event_type"]):
             await _run_handler(h["func"], event)
-
-    if msg.startswith("/"):
+    core_config = config_loader.get_core_config()
+    if msg.startswith(core_config.prefix):
         cmd = msg[1:].split()[0]
         for h in handlers["command"]:
             if h["name"] == cmd and isinstance(event, h["event_type"]):
                 await _run_handler(h["func"], event)
-                return
 
     for h in handlers["message"]:
         if h["keyword"] in msg and isinstance(event, h["event_type"]):
             await _run_handler(h["func"], event)
-            return
 
     logger.debug(f"插件处理器 >>> 未匹配到任何处理器 {msg}")
 
@@ -208,7 +201,6 @@ async def _dispatch_interaction(event: QQInteraction):
             continue
         if isinstance(event, h["event_type"]):
             await _run_handler(h["func"], event)
-            break
 
 
 async def _run_handler(func, event):

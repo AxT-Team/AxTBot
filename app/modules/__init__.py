@@ -4,7 +4,7 @@ Entry File for Client Modules
 Author: Shanshui2024
 Organization: AxT-Team
 """
-from app.modules.DataBase import User, Group, FrameConfig, get_db
+from app.modules.DataBase import User, Group, FrameConfig, CachedMedia, get_db
 from app.modules.DataBase import db as database
 from app.modules.Logger import logger
 from app.modules.Config import get_plugin_config, config_loader

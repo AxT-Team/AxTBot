@@ -4,10 +4,11 @@ AxTBot launcher
 Run with: python bot.py
 """
 from __future__ import annotations
+from dotenv import load_dotenv
 
 import os
 
-from dotenv import load_dotenv
+
 
 # 必须在任何 app 导入之前把配置载入 os.environ：
 # app.modules 的导入链（PluginManager -> DataBase -> logger）在模块级别就会

@@ -15,6 +15,7 @@ from app.service.qq_service.MsgSender import (
     reply_group_message,
     reply_c2c_message,
 )
+from app.service.qq_service.FileUpload import upload_media, upload_by_url, upload_local, upload_image_link
 from app.service.Message import message_process as service_message_process
 
 __all__ = [
@@ -27,4 +28,8 @@ __all__ = [
     send_c2c_message,
     reply_group_message,
     reply_c2c_message,
+    upload_media,
+    upload_by_url,
+    upload_local,
+    upload_image_link,
 ]

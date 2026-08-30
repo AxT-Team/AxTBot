@@ -17,6 +17,7 @@ from app.service.qq_service import (
 )
 from app.service.Message import message_process as service_message_process
 from app.service.cert_service import certificate_service
+from app.service.qq_service import upload_media, upload_by_url, upload_local, upload_image_link
 
 __all__ = [
     service_validation,
@@ -29,4 +30,8 @@ __all__ = [
     send_c2c_message,
     reply_group_message,
     reply_c2c_message,
+    upload_media,
+    upload_by_url,
+    upload_local,
+    upload_image_link,
 ]
